@@ -47,6 +47,9 @@
   <!-- html2pdf.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+  <!-- Tesseract.js (Client-side Image OCR Fallback) -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
   <style>
     /* FortiFocus Theme Integrations for the App Console */
     body {
@@ -288,34 +291,39 @@
     <section class="grid grid-cols-1 md:grid-cols-2 gap-6 workspace-grid">
 
       <!-- Column 1: Resume / CV Input -->
-      <div class="console-card p-5 sm:p-6 flex flex-col justify-between">
+      <div id="resumeDropZone" class="console-card p-5 sm:p-6 flex flex-col justify-between transition border-2 border-transparent">
         <div>
-          <div class="flex items-center justify-between mb-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div class="flex items-center space-x-2.5">
-              <div class="w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center text-white" style="background: var(--sage);">
+              <div class="w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center text-white shrink-0" style="background: var(--sage);">
                 1
               </div>
               <h3 class="font-bold text-base" style="color: var(--ink);">Candidate Resume</h3>
+              <span class="hidden md:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full opacity-65" style="background: var(--paper-3); color: var(--ink-3);">PDF • Image • Paste</span>
             </div>
 
-            <!-- PDF Upload Button -->
-            <div>
-              <input type="file" id="resumeFileInput" accept=".pdf" class="hidden">
+            <!-- PDF / Image Upload Button -->
+            <div class="flex items-center space-x-2">
+              <input type="file" id="resumeFileInput" accept=".pdf, image/*, .png, .jpg, .jpeg, .webp" class="hidden">
               <button type="button" id="uploadPdfBtn" class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition" style="background: var(--sage-light); color: var(--sage); border: 1px solid var(--border);">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                <span>Upload PDF</span>
+                <svg id="uploadIconDefault" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                <svg id="uploadIconSpinner" class="hidden animate-spin w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                <span id="uploadBtnText">Upload PDF / Image</span>
               </button>
             </div>
           </div>
 
           <!-- Resume Textarea -->
           <label for="resumeText" class="sr-only">Resume Text</label>
-          <textarea id="resumeText" maxlength="5000" rows="7" placeholder="Paste candidate resume text here, or click 'Upload PDF' to automatically extract experience, skills, and qualifications via PDF.js..." class="console-input w-full p-3.5 text-sm resize-y font-sans min-h-[160px] sm:min-h-[220px]"></textarea>
+          <textarea id="resumeText" maxlength="5000" rows="7" placeholder="Paste candidate resume text here, upload a PDF or image file (PNG/JPG), or paste a screenshot directly from your clipboard (Cmd+V)..." class="console-input w-full p-3.5 text-sm resize-y font-sans min-h-[160px] sm:min-h-[220px]"></textarea>
         </div>
 
-        <!-- Character Counter -->
+        <!-- Character Counter & Input Hint -->
         <div class="flex items-center justify-between mt-2 pt-2 text-xs" style="color: var(--ink-4);">
-          <span>Client-side PDF.js extraction</span>
+          <span id="resumeSourceBadge" class="flex items-center space-x-1">
+            <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Supports PDF, Image & Clipboard (Cmd+V)</span>
+          </span>
           <span id="resumeCount" class="font-mono font-medium">0 / 5,000</span>
         </div>
       </div>

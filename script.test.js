@@ -13,7 +13,10 @@ const {
   escapeHtml,
   updateCharCounter,
   generateYouTubeLink,
-  getScoreColorClasses
+  getScoreColorClasses,
+  extractResumeFromFile,
+  extractResumeFromPdf,
+  extractResumeFromImage
 } = require('./script');
 
 describe('SkillSync Frontend Test Suite', () => {
@@ -311,6 +314,56 @@ describe('SkillSync Frontend Test Suite', () => {
       expect(clean).toContain('&amp;');
       expect(clean).toContain('&quot;');
       expect(clean).toContain('&#039;');
+    });
+  });
+
+  // 9. Multimodal File & Image OCR Parsing
+  describe('Multimodal Resume Parsing (PDF & Image OCR)', () => {
+    test('extractResumeFromFile identifies image files and delegates to image OCR', async () => {
+      const mockImageFile = {
+        name: 'resume-screenshot.png',
+        type: 'image/png'
+      };
+
+      const originalFileReader = global.FileReader;
+      global.FileReader = class {
+        readAsDataURL() {
+          setTimeout(() => {
+            this.result = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+            if (this.onload) this.onload();
+          }, 10);
+        }
+      };
+
+      const originalFetch = global.fetch;
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          success: true,
+          text: 'Jane Doe\nFull Stack Developer\nReact, Node.js, TypeScript'
+        })
+      });
+
+      await extractResumeFromFile(mockImageFile);
+
+      const resumeText = document.getElementById('resumeText');
+      expect(resumeText.value).toContain('Jane Doe');
+      expect(resumeText.value).toContain('React, Node.js, TypeScript');
+
+      global.FileReader = originalFileReader;
+      global.fetch = originalFetch;
+    });
+
+    test('extractResumeFromFile rejects unsupported file extensions', async () => {
+      const mockAudioFile = {
+        name: 'voice-note.mp3',
+        type: 'audio/mpeg'
+      };
+
+      await extractResumeFromFile(mockAudioFile);
+
+      const toast = document.querySelector('.toast-close')?.parentNode;
+      expect(toast.textContent).toContain('Please upload a PDF document or image file');
     });
   });
 
