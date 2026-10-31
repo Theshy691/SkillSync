@@ -1,0 +1,28 @@
+SARAH LIN
+Seattle, WA | sarah.lin@example.com | portfolio.sarahlin.dev | github.com/sarahlin
+
+FRONTEND ARCHITECT & UI/UX ENGINEER
+Creative frontend engineer with 5 years of experience delivering pixel-perfect, accessible, and high-performance web applications using React, Next.js, and CSS design systems. Passionate about Web Vitals, micro-interactions, and design tokens.
+
+TECHNICAL SKILLS
+- Languages: JavaScript (ESNext), TypeScript, CSS3, SCSS, HTML5
+- Frameworks: React, Next.js, Vue.js, Vite
+- Styling: Tailwind CSS, CSS Modules, Styled Components, Motion
+- Tools: Jest, React Testing Library, Storybook, Webpack, Figma
+- Accessibility: WCAG 2.1 AA compliance, ARIA attributes, semantic markup
+
+EXPERIENCE
+
+Lead Frontend Engineer | Horizon Creative | Seattle, WA
+Jan 2021 – Present
+- Re-architected company flagship customer portal with Next.js, improving Google Lighthouse performance from 54 to 98.
+- Developed comprehensive design token system supporting multi-brand light/dark theming.
+- Ensured 100% WCAG 2.1 AA compliance across all client checkout funnels.
+
+Frontend Developer | PixelBloom Studios | Portland, OR
+Aug 2019 – Dec 2020
+- Built dynamic SVG data visualization charts and dashboard widgets in React.
+- Partnered with product designers to implement responsive, mobile-first layouts.
+
+EDUCATION
+B.A. in Digital Arts & Computer Science | University of Washington | 2015 – 2019
