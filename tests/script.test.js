@@ -16,7 +16,9 @@ const {
   getScoreColorClasses,
   extractResumeFromFile,
   extractResumeFromPdf,
-  extractResumeFromImage
+  extractResumeFromImage,
+  renderResults,
+  renderDashboardGrid
 } = require('../script');
 
 describe('SkillSync Frontend Test Suite', () => {
@@ -364,6 +366,56 @@ describe('SkillSync Frontend Test Suite', () => {
 
       const toast = document.querySelector('.toast-close')?.parentNode;
       expect(toast.textContent).toContain('Please upload a PDF document or image file');
+    });
+  });
+
+  // 10. Console Workspace UI Slop Prevention
+  describe('Console Workspace UI Slop Prevention', () => {
+    beforeEach(() => {
+      window.HTMLElement.prototype.scrollIntoView = jest.fn();
+      document.body.innerHTML += `
+        <div id="results-container" class="hidden"></div>
+        <div id="scoreBadge"></div>
+        <span id="scoreNumber"></span>
+        <p id="scoreFeedback"></p>
+        <div id="skillsBadgesContainer"></div>
+        <div id="history-grid"></div>
+        <div id="history-empty" class="hidden"></div>
+      `;
+    });
+
+    test('renderResults outputs professional text without tacky emojis', () => {
+      renderResults({
+        match_score: 92,
+        missing_skills: []
+      });
+
+      const feedback = document.getElementById('scoreFeedback');
+      const skillsContainer = document.getElementById('skillsBadgesContainer');
+
+      expect(feedback.textContent).toContain('Strong Match • Evaluation against requirements');
+      expect(skillsContainer.textContent).not.toContain('🎉');
+      expect(skillsContainer.textContent).toContain('No critical skill gaps identified');
+    });
+
+    test('renderDashboardGrid renders minimal cards without loud uppercase labels', () => {
+      const sampleItems = [{
+        id: 'scan-1',
+        match_score: 80,
+        job_description: 'Looking for a Senior TypeScript & React Engineer',
+        resume_snippet: 'Experienced developer with 5 years in TypeScript & React',
+        missing_skills: ['GraphQL', 'Kubernetes'],
+        created_at: new Date().toISOString()
+      }];
+
+      renderDashboardGrid(sampleItems);
+
+      const grid = document.getElementById('history-grid');
+      expect(grid.children.length).toBe(1);
+      expect(grid.innerHTML).not.toContain('TARGET ROLE SNIPPET');
+      expect(grid.innerHTML).not.toContain('RESUME EXTRACT');
+      expect(grid.innerHTML).toContain('80% Match');
+      expect(grid.innerHTML).toContain('2 skill gaps');
     });
   });
 

@@ -1488,6 +1488,8 @@ if (typeof module !== 'undefined' && module.exports) {
     extractResumeFromFile,
     extractResumeFromPdf,
     extractResumeFromImage,
+    renderResults,
+    renderDashboardGrid,
     initApp
   };
 }
