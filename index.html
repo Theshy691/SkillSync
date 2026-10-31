@@ -196,20 +196,125 @@
           </div>
         </div>
       </div>
+
+      <!-- Hero Visual Right Column (Interactive ATS Simulator Card & Floating Badges) -->
+      <div class="hero-visual reveal visible reveal-delay-2" aria-hidden="true">
+        <div class="hero-glow hero-glow-a"></div>
+        <div class="hero-glow hero-glow-b"></div>
+
+        <!-- 3D Focus Board ATS Simulator -->
+        <div class="focus-board">
+          <div class="board-top">
+            <span class="board-chip board-chip-live">
+              <span class="eyebrow-dot" style="margin-right: 6px;"></span> Live ATS Engine
+            </span>
+            <span class="board-pill">Gemini 1.5 Flash</span>
+          </div>
+
+          <div class="board-main">
+            <!-- Animated Radial Score Ring -->
+            <div class="board-ring">
+              <svg width="170" height="170" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--paper-3)" stroke-width="8"></circle>
+                <circle class="ring-anim" id="heroRingCircle" cx="60" cy="60" r="50" fill="none" stroke="var(--sage)" stroke-width="8" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="38"></circle>
+              </svg>
+              <div class="ring-preview-text">
+                <span class="ring-preview-time" id="heroScoreVal">94%</span>
+                <span class="ring-preview-phase">ATS Match</span>
+              </div>
+            </div>
+
+            <!-- Side Metrics with Animated Fill Bars -->
+            <div class="board-side">
+              <div class="mini-metric">
+                <div class="mini-metric-top">
+                  <span>ATS Keyword Precision</span>
+                  <strong id="heroKwVal" style="color: var(--sage);">98%</strong>
+                </div>
+                <div class="fill-bar">
+                  <span id="heroKwBar" style="--fill: 98%;"></span>
+                </div>
+              </div>
+
+              <div class="mini-metric">
+                <div class="mini-metric-top">
+                  <span>Experience Alignment</span>
+                  <strong id="heroExpVal" style="color: var(--amber);">90%</strong>
+                </div>
+                <div class="fill-bar amber-fill">
+                  <span id="heroExpBar" style="--fill: 90%;"></span>
+                </div>
+              </div>
+
+              <div class="session-inline">
+                <span>Target Role</span>
+                <strong id="heroRoleVal">Lead Full-Stack Eng</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Role Selector Pills -->
+          <div class="dur-pills" style="margin-top: 1.25rem;">
+            <button type="button" class="dur-pill active hero-role-pill" data-role="Lead Full-Stack Eng" data-score="94" data-kw="98" data-exp="90">Full-Stack</button>
+            <button type="button" class="dur-pill hero-role-pill" data-role="Senior Frontend Architect" data-score="88" data-kw="92" data-exp="86">Frontend</button>
+            <button type="button" class="dur-pill hero-role-pill" data-role="Cloud & DevOps Engineer" data-score="91" data-kw="95" data-exp="89">DevOps</button>
+            <button type="button" class="dur-pill hero-role-pill" data-role="AI / ML Systems Engineer" data-score="86" data-kw="89" data-exp="84">AI / ML</button>
+          </div>
+        </div>
+
+        <!-- Floating Micro-Cards -->
+        <div class="floating-card floating-card-one">
+          <div class="floating-kicker">Candidate Status</div>
+          <strong>Strong Match</strong>
+          <span>Top 5% ATS Evaluation</span>
+        </div>
+
+        <div class="floating-card floating-card-two">
+          <div class="floating-kicker">Identified Gap</div>
+          <strong style="color: var(--rose);">GraphQL</strong>
+          <span>Free YouTube Tutorial</span>
+        </div>
+
+        <div class="floating-card floating-card-three">
+          <div class="floating-kicker">Supabase Cache</div>
+          <strong style="color: var(--sky);">Active RLS</strong>
+          <span>Instant Database Sync</span>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- ========================================================================
-       3. Quick Proof Banner
+       3. Quick Proof Section (Balanced Two-Column Layout)
        ======================================================================== -->
   <section class="section-shell quick-proof-shell">
     <div class="container">
-      <div class="quick-proof-card reveal">
-        <span class="proof-tag">Industry Reality</span>
-        <blockquote class="proof-quote">
-          "Over 75% of resumes are automatically rejected by ATS screening software before any hiring manager sees them. SkillSync ensures your resume aligns with technical qualifications before you hit submit."
-        </blockquote>
-        <div class="proof-cite">&mdash; Verified ATS Evaluation Standard</div>
+      <div class="quick-proof reveal">
+        <div class="quick-proof-copy">
+          <span class="section-label">Industry Benchmark</span>
+          <h2 class="section-heading">Why top engineers test their resume before <em>every application</em></h2>
+          <p class="section-sub">Over 75% of qualified resumes are rejected automatically by ATS screening software before any human recruiter reads them. SkillSync bridges that gap before you hit submit.</p>
+        </div>
+
+        <div class="quick-proof-grid">
+          <div class="quick-proof-card">
+            <span class="quick-proof-kicker">Screening Filter</span>
+            <h3>75% Rejection Rate</h3>
+            <p>Enterprise ATS systems disqualify qualified applicants for missing semantic keywords and formatted role titles.</p>
+          </div>
+
+          <div class="quick-proof-card accent">
+            <span class="quick-proof-kicker">Instant Feedback</span>
+            <h3>3-Second AI Scoring</h3>
+            <p>Gemini 1.5 Flash simulates corporate parsing engines to generate your exact 0–100% compatibility rating.</p>
+          </div>
+
+          <div class="quick-proof-card">
+            <span class="quick-proof-kicker">Targeted Learning</span>
+            <h3>1-Click Free Upskilling</h3>
+            <p>Every detected gap immediately links to curated, free YouTube courses so you can study and bridge your deficit.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>

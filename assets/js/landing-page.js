@@ -241,8 +241,79 @@ document.addEventListener("DOMContentLoaded", () => {
   initScrollUI({ siteNav, pageProgress });
   initReveal(revealObserverTargets);
   initHeroStats(heroStats);
+  initHeroSimulator();
   cycleDurations();
   buildStreakGrid();
   initAppPreview();
 });
+
+// 9. Interactive Hero Simulator Controller
+function initHeroSimulator() {
+  const pills = document.querySelectorAll(".hero-role-pill");
+  const scoreVal = document.getElementById("heroScoreVal");
+  const ringCircle = document.getElementById("heroRingCircle");
+  const kwVal = document.getElementById("heroKwVal");
+  const kwBar = document.getElementById("heroKwBar");
+  const expVal = document.getElementById("heroExpVal");
+  const expBar = document.getElementById("heroExpBar");
+  const roleVal = document.getElementById("heroRoleVal");
+  const focusBoard = document.querySelector(".focus-board");
+
+  if (!pills.length || !scoreVal) return;
+
+  let isHovered = false;
+
+  const updateRole = (pill) => {
+    pills.forEach((p) => p.classList.remove("active"));
+    pill.classList.add("active");
+
+    const targetScore = parseInt(pill.dataset.score, 10) || 90;
+    const targetKw = parseInt(pill.dataset.kw, 10) || 95;
+    const targetExp = parseInt(pill.dataset.exp, 10) || 88;
+    const roleName = pill.dataset.role || "Lead Full-Stack Eng";
+
+    if (roleVal) roleVal.textContent = roleName;
+
+    // Animate score counter
+    animateCount(scoreVal, targetScore, "%", 700);
+
+    // Animate SVG strokeDashoffset: circumference is ~314 (2 * PI * 50)
+    if (ringCircle) {
+      const offset = 314 - (314 * targetScore) / 100;
+      ringCircle.style.transition = "stroke-dashoffset 0.7s ease";
+      ringCircle.style.strokeDashoffset = offset;
+    }
+
+    // Update bars
+    if (kwVal) kwVal.textContent = `${targetKw}%`;
+    if (kwBar) kwBar.style.setProperty("--fill", `${targetKw}%`);
+    if (expVal) expVal.textContent = `${targetExp}%`;
+    if (expBar) expBar.style.setProperty("--fill", `${targetExp}%`);
+  };
+
+  pills.forEach((pill) => {
+    pill.addEventListener("click", () => updateRole(pill));
+  });
+
+  if (focusBoard) {
+    focusBoard.addEventListener("mouseenter", () => { isHovered = true; });
+    focusBoard.addEventListener("mouseleave", () => { isHovered = false; });
+  }
+
+  // Initial radial stroke setup
+  if (ringCircle) {
+    ringCircle.style.transition = "stroke-dashoffset 1.2s ease";
+    setTimeout(() => {
+      ringCircle.style.strokeDashoffset = 314 - (314 * 94) / 100;
+    }, 200);
+  }
+
+  // Auto-cycle roles every 4.2 seconds unless hovered
+  let activeIndex = 0;
+  window.setInterval(() => {
+    if (isHovered) return;
+    activeIndex = (activeIndex + 1) % pills.length;
+    updateRole(pills[activeIndex]);
+  }, 4200);
+}
 

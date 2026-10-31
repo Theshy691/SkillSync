@@ -323,7 +323,7 @@ nav,
 }
 
 .section-shell {
-  padding: 6.5rem 2rem;
+  padding: 4.25rem 1.5rem;
 }
 
 .section-muted {
@@ -336,18 +336,18 @@ nav,
 }
 
 .hero {
-  min-height: 100vh;
+  min-height: 90vh;
   display: flex;
   align-items: center;
-  padding-top: 8.5rem;
-  padding-bottom: 4rem;
+  padding-top: 6.5rem;
+  padding-bottom: 3rem;
 }
 
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.04fr) minmax(420px, 0.96fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(400px, 0.92fr);
   align-items: center;
-  gap: 2.5rem;
+  gap: 2.25rem;
 }
 
 .hero-copy {
@@ -372,26 +372,38 @@ nav,
   background: var(--sage-light);
   border: 1px solid color-mix(in srgb, var(--sage) 28%, transparent);
   color: var(--sage);
-  margin-bottom: 1.6rem;
+  margin-bottom: 1.4rem;
   animation: fadeDown 0.8s ease both;
 }
 
 .eyebrow-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--sage);
-  animation: pulse 2.2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(83, 122, 87, 0.7);
+  animation: pulseGlow 2.4s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(83, 122, 87, 0.6);
+  }
+  50% {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 8px rgba(83, 122, 87, 0);
+  }
 }
 
 .hero h1 {
   font-family: "Fraunces", serif;
-  font-size: clamp(3.25rem, 7.4vw, 6.7rem);
+  font-size: clamp(2.35rem, 4.3vw, 4.15rem);
   font-weight: 300;
-  line-height: 0.95;
-  letter-spacing: -0.06em;
-  max-width: 10ch;
-  margin-bottom: 1.3rem;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  max-width: 24ch;
+  margin-bottom: 1.2rem;
   animation: fadeDown 0.8s 0.08s ease both;
 }
 
@@ -423,9 +435,9 @@ nav,
 .hero-sub {
   max-width: 58ch;
   color: var(--ink-3);
-  font-size: clamp(1rem, 1.6vw, 1.14rem);
-  line-height: 1.8;
-  margin-bottom: 2rem;
+  font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+  line-height: 1.7;
+  margin-bottom: 1.6rem;
   animation: fadeDown 0.8s 0.16s ease both;
 }
 
@@ -998,12 +1010,12 @@ nav,
 }
 
 .section-heading {
-  max-width: 12ch;
+  max-width: 28ch;
   font-family: "Fraunces", serif;
-  font-size: clamp(2.1rem, 4.4vw, 3.6rem);
+  font-size: clamp(2.1rem, 4vw, 3.4rem);
   font-weight: 300;
-  line-height: 1.05;
-  letter-spacing: -0.05em;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
   margin-bottom: 1rem;
 }
 
@@ -3127,7 +3139,7 @@ section[id],
 }
 
 .section-heading {
-  max-width: 14ch;
+  max-width: 28ch;
 }
 
 .feature-band-card,
@@ -3295,8 +3307,8 @@ section[id],
 }
 
 .quick-proof-shell {
-  padding-top: 4.5rem;
-  padding-bottom: 4.5rem;
+  padding-top: 2.75rem;
+  padding-bottom: 2.75rem;
 }
 
 .quick-proof {
@@ -3485,6 +3497,18 @@ section[id],
 @media (max-width: 900px) {
   .hero-grid {
     grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+  .hero-visual {
+    min-height: auto !important;
+    margin-top: 1.5rem !important;
+    width: 100% !important;
+  }
+  .focus-board {
+    transform: none !important;
+    width: 100% !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
   }
   .setup-grid {
     grid-template-columns: 1fr !important;
@@ -3521,8 +3545,8 @@ section[id],
 
 @media (max-width: 640px) {
   .hero h1 {
-    font-size: clamp(2rem, 8.5vw, 2.9rem) !important;
-    line-height: 1.2 !important;
+    font-size: clamp(1.95rem, 8vw, 2.75rem) !important;
+    line-height: 1.18 !important;
   }
   .hero-sub {
     font-size: 0.92rem !important;
@@ -3530,6 +3554,22 @@ section[id],
   .hero-eyebrow {
     font-size: 0.75rem !important;
     padding: 0.35rem 0.75rem !important;
+  }
+  .floating-card-one,
+  .floating-card-two,
+  .floating-card-three {
+    display: none !important;
+  }
+  .hero-glow-a,
+  .hero-glow-b {
+    display: none !important;
+  }
+  .board-main {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  .board-ring {
+    min-height: 180px !important;
   }
   .hero-stats {
     display: grid !important;
@@ -3588,14 +3628,64 @@ section[id],
     font-size: 0.75rem !important;
   }
   .section-shell {
-    padding: 3rem 0 !important;
+    padding: 2.75rem 0.75rem !important;
   }
   .section-heading {
-    font-size: clamp(1.65rem, 6.5vw, 2.2rem) !important;
+    font-size: clamp(1.6rem, 6.2vw, 2.1rem) !important;
   }
   .preview-modal-dialog {
     max-height: 92vh !important;
     margin: 0.25rem !important;
     padding: 0.85rem !important;
   }
+}
+
+/* ==============================================================================
+   SkillSync Micro-Interactions, Shimmers & Hover Physics
+   ============================================================================== */
+.hero-scan-item,
+.feature-card,
+.setup-card,
+.preview-trigger-card,
+.quick-proof-card {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease !important;
+}
+
+.hero-scan-item:hover,
+.setup-card:hover,
+.preview-trigger-card:hover,
+.quick-proof-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: var(--shadow) !important;
+  border-color: color-mix(in srgb, var(--sage) 35%, var(--border)) !important;
+}
+
+.btn-hero-primary,
+.btn-action-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-hero-primary::after,
+.btn-action-primary::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+  transition: all 0.65s ease;
+}
+
+.btn-hero-primary:hover::after,
+.btn-action-primary:hover::after {
+  left: 130%;
 }
