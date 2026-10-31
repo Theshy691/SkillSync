@@ -78,3 +78,4 @@ No paywalls, enterprise contracts, or complex OAuth required:
 | **Phase 3** | **Client-Side Pre-Scoring Engine** | Match extracted candidate resume skills against job requirements in real-time. |
 | **Phase 4** | **1-Click Workspace Integration** | Seamlessly bridge the job card with the ATS analysis panel. |
 | **Phase 5** | **Testing & CI** | Add automated Jest unit tests verifying job feed rendering and match score computation. |
+
