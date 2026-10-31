@@ -17,7 +17,7 @@ const {
   extractResumeFromFile,
   extractResumeFromPdf,
   extractResumeFromImage
-} = require('./script');
+} = require('../script');
 
 describe('SkillSync Frontend Test Suite', () => {
 
