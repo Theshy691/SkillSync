@@ -4,7 +4,9 @@
   "description": "SkillSync - Full-Stack AI Resume & Skill Matcher",
   "main": "script.js",
   "scripts": {
-    "test": "jest --verbose"
+    "test": "jest --verbose",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "keywords": [
     "ai",
