@@ -1,0 +1,36 @@
+name: SkillSync CI
+
+on:
+  push:
+    branches: [ main, 'feature/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Unit Tests & Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Jest test suite
+        run: npm test
+
+      - name: Verify PHP syntax
+        run: |
+          for file in *.php; do
+            if [ -f "$file" ]; then
+              php -l "$file"
+            fi
+          done
