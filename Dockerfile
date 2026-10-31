@@ -21,9 +21,12 @@ RUN a2enmod rewrite headers
 # Copy project files to Apache root
 COPY . /var/www/html/
 
-# Configure permissions for web server and storage directories
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+# Create runtime storage directories and configure permissions
+RUN mkdir -p /var/www/html/storage/ratelimit \
+    && touch /var/www/html/secure_php_errors.log \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod 664 /var/www/html/secure_php_errors.log
 
 # Expose standard Apache HTTP port
 EXPOSE 80

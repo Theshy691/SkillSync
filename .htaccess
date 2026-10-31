@@ -3,6 +3,9 @@
 # Disable Directory Browsing
 Options -Indexes
 
+# Pass Authorization Header to PHP Environment
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
 # Protect Sensitive Configuration, Logs, and Database Schemas from direct HTTP access
 <FilesMatch "^\.env|\.log$|\.sql$|\.json$|\.md$|Dockerfile|docker-compose\.ya?ml$">
     <IfModule mod_authz_core.c>
