@@ -1,0 +1,23 @@
+Senior Full-Stack Engineer (Remote) - CloudScale Inc.
+
+ABOUT THE ROLE:
+CloudScale Inc. is hiring a Senior Full-Stack Engineer to lead the architecture of our cloud observability and monitoring platform. In this role, you will collaborate with cross-functional teams to build intuitive user interfaces and resilient backend microservices.
+
+RESPONSIBILITIES:
+- Architect and develop high-throughput web applications using React, TypeScript, and Node.js.
+- Design normalized relational databases with PostgreSQL and optimize high-volume queries.
+- Build and maintain CI/CD deployment pipelines on Docker, Kubernetes, and AWS.
+- Implement secure authentication, authorization, and rate-limiting protocols.
+- Mentor junior software engineers and champion automated testing best practices.
+
+MINIMUM QUALIFICATIONS:
+- 5+ years of professional full-stack software development experience.
+- Deep expertise in modern TypeScript, React, and Node.js.
+- Solid understanding of PostgreSQL, indexing, and query optimization.
+- Hands-on experience with containerization (Docker, Kubernetes).
+- Familiarity with CI/CD automation using GitHub Actions.
+
+PREFERRED QUALIFICATIONS:
+- Experience with GraphQL APIs and distributed caching using Redis.
+- Knowledge of cloud platforms (AWS ECS, S3, RDS).
+- Background in ATS resume matching or automated recruitment software.
