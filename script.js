@@ -6,7 +6,7 @@
  * Supabase auth & session persistence, client-side PDF parsing (PDF.js),
  * AI web scraper proxying (scrape.php), AI resume matching (api.php),
  * dynamic scan history dashboard with sorting & deletion, PDF export (html2pdf),
- * and clipboard copying.
+ * clipboard copying, and a zero-configuration Local Demo Mode.
  */
 
 // Global State
@@ -14,6 +14,58 @@ let supabaseClient = null;
 let currentSession = null;
 let pendingDeleteId = null;
 let lastAnalysisResult = null;
+
+/**
+ * Demo Mode Helper
+ */
+function isDemoMode() {
+  const cfg = (typeof window !== 'undefined' && window.SKILLSYNC_CONFIG) || {};
+  if (cfg.DEMO_MODE === true) return true;
+  if (!cfg.SUPABASE_URL || cfg.SUPABASE_URL.includes('your-project-id')) return true;
+  return supabaseClient === null;
+}
+
+const DEFAULT_DEMO_SCANS = [
+  {
+    id: 'demo-scan-1',
+    user_id: 'demo-user-123',
+    resume_snippet: 'Senior Full-Stack Engineer with 5+ years building scalable web applications with React, Node.js, PostgreSQL, and AWS.',
+    job_description: 'Looking for a Senior Full-Stack Engineer to architect microservices, lead frontend engineering in React, and deploy containerized apps with Docker and Kubernetes.',
+    match_score: 84,
+    missing_skills: ['Kubernetes', 'CI/CD Pipelines', 'GraphQL'],
+    created_at: new Date(Date.now() - 3600000 * 24).toISOString()
+  },
+  {
+    id: 'demo-scan-2',
+    user_id: 'demo-user-123',
+    resume_snippet: 'Frontend Developer experienced in HTML5, CSS3, JavaScript ES6, Tailwind CSS, and Vue.js.',
+    job_description: 'Backend Python Engineer required for high-throughput distributed systems. Must have deep knowledge of FastAPI, Redis, Docker, and Kafka.',
+    match_score: 48,
+    missing_skills: ['Python', 'FastAPI', 'Redis', 'Kafka', 'Docker'],
+    created_at: new Date(Date.now() - 3600000 * 48).toISOString()
+  }
+];
+
+function getDemoHistory() {
+  try {
+    const raw = localStorage.getItem('skillsync_demo_history');
+    if (!raw) {
+      localStorage.setItem('skillsync_demo_history', JSON.stringify(DEFAULT_DEMO_SCANS));
+      return [...DEFAULT_DEMO_SCANS];
+    }
+    return JSON.parse(raw);
+  } catch (_) {
+    return [...DEFAULT_DEMO_SCANS];
+  }
+}
+
+function saveDemoHistory(items) {
+  try {
+    localStorage.setItem('skillsync_demo_history', JSON.stringify(items));
+  } catch (err) {
+    console.error('Error saving demo history:', err);
+  }
+}
 
 /**
  * 1. CDN Verification & Fallback UI
@@ -86,7 +138,6 @@ function toggleTheme(forceTheme) {
 
 /**
  * 3. Custom Toast Notification System
- * Types: 'success', 'error', 'warning', 'info'
  */
 function showToast(message, type = 'info', duration = 4000) {
   const container = document.getElementById('toast-container');
@@ -212,13 +263,17 @@ function getScoreColorClasses(score) {
  * 5. Supabase Initialization & Auth
  */
 function initSupabase() {
-  const cfg = window.SKILLSYNC_CONFIG || {};
+  const cfg = (typeof window !== 'undefined' && window.SKILLSYNC_CONFIG) || {};
   const supabaseUrl = cfg.SUPABASE_URL;
   const supabaseAnonKey = cfg.SUPABASE_ANON_KEY;
 
+  if (cfg.DEMO_MODE) {
+    console.info('SkillSync: Running in Local Demo Mode.');
+    return null;
+  }
+
   if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your-project-id')) {
-    console.warn('SkillSync: Supabase credentials not set in config.js.');
-    showToast('Please set your SUPABASE_URL and SUPABASE_ANON_KEY in config.js', 'warning', 8000);
+    console.info('SkillSync: Cloud Supabase credentials not set. Running in Local Demo Mode.');
     return null;
   }
 
@@ -233,15 +288,28 @@ function initSupabase() {
     return supabaseClient;
   } catch (err) {
     console.error('Error creating Supabase client:', err);
-    showToast('Failed to initialize Supabase client.', 'error');
     return null;
   }
 }
 
 async function initAuth() {
+  if (isDemoMode()) {
+    try {
+      const demoSession = localStorage.getItem('skillsync_demo_session');
+      if (demoSession) {
+        currentSession = JSON.parse(demoSession);
+        updateAuthState(currentSession);
+      } else {
+        updateAuthState(null);
+      }
+    } catch (_) {
+      updateAuthState(null);
+    }
+    return;
+  }
+
   if (!supabaseClient) return;
 
-  // Retrieve current session
   try {
     const { data: { session }, error } = await supabaseClient.auth.getSession();
     if (error) {
@@ -252,7 +320,6 @@ async function initAuth() {
     console.error('Exception fetching session:', e);
   }
 
-  // Listen to auth events
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === 'TOKEN_REFRESH_FAILED') {
       console.warn('Token refresh failed. Showing session expired modal.');
@@ -276,7 +343,7 @@ function updateAuthState(session) {
     if (workspaceSection) workspaceSection.classList.remove('hidden');
     if (userProfile) userProfile.classList.remove('hidden');
     if (loginTriggerBtn) loginTriggerBtn.classList.add('hidden');
-    if (userEmailBadge) userEmailBadge.textContent = session.user.email || 'Authenticated';
+    if (userEmailBadge) userEmailBadge.textContent = session.user.email || 'Demo User';
 
     fetchDashboard();
   } else {
@@ -293,7 +360,7 @@ function showSessionExpiredModal() {
 }
 
 /**
- * 6. Auth Form Handlers (Sign In & Sign Up)
+ * 6. Auth Form Handlers (Sign In, Sign Up, & Instant Demo Login)
  */
 let isSignUpMode = false;
 
@@ -308,6 +375,23 @@ function initAuthForm() {
   const logoutBtn = document.getElementById('logoutBtn');
   const sessionLoginBtn = document.getElementById('sessionLoginBtn');
   const loginTriggerBtn = document.getElementById('loginTriggerBtn');
+  const quickDemoBtn = document.getElementById('quickDemoBtn');
+
+  // Instant Quick Demo Login
+  if (quickDemoBtn) {
+    quickDemoBtn.addEventListener('click', () => {
+      const demoUser = {
+        user: {
+          id: 'demo-user-123',
+          email: 'james@skillsync.demo'
+        },
+        access_token: 'demo-token-123'
+      };
+      localStorage.setItem('skillsync_demo_session', JSON.stringify(demoUser));
+      updateAuthState(demoUser);
+      showToast('🚀 Entered SkillSync Local Demo Mode!', 'success');
+    });
+  }
 
   if (authSwitchBtn) {
     authSwitchBtn.addEventListener('click', () => {
@@ -331,11 +415,6 @@ function initAuthForm() {
   if (authForm) {
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!supabaseClient) {
-        showToast('Supabase client is not configured. Check config.js.', 'error');
-        return;
-      }
-
       const email = document.getElementById('authEmail').value.trim();
       const password = document.getElementById('authPassword').value;
 
@@ -343,6 +422,21 @@ function initAuthForm() {
 
       if (authSpinner) authSpinner.classList.remove('hidden');
       if (authSubmitText) authSubmitText.textContent = isSignUpMode ? 'Creating Account...' : 'Signing In...';
+
+      if (isDemoMode()) {
+        setTimeout(() => {
+          const demoUser = {
+            user: { id: 'demo-' + Date.now(), email },
+            access_token: 'demo-token-' + Date.now()
+          };
+          localStorage.setItem('skillsync_demo_session', JSON.stringify(demoUser));
+          updateAuthState(demoUser);
+          if (authSpinner) authSpinner.classList.add('hidden');
+          if (authSubmitText) authSubmitText.textContent = isSignUpMode ? 'Sign Up' : 'Sign In';
+          showToast(isSignUpMode ? 'Account created in Demo Mode!' : 'Signed in (Demo Mode)!', 'success');
+        }, 300);
+        return;
+      }
 
       try {
         if (isSignUpMode) {
@@ -366,6 +460,13 @@ function initAuthForm() {
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
+      if (isDemoMode()) {
+        localStorage.removeItem('skillsync_demo_session');
+        updateAuthState(null);
+        showToast('Signed out of Demo Mode.', 'info');
+        return;
+      }
+
       if (supabaseClient) {
         await supabaseClient.auth.signOut();
         showToast('Signed out successfully.', 'info');
@@ -380,6 +481,7 @@ function initAuthForm() {
       if (supabaseClient) {
         await supabaseClient.auth.signOut();
       }
+      localStorage.removeItem('skillsync_demo_session');
       updateAuthState(null);
     });
   }
@@ -440,7 +542,6 @@ function initPdfUpload() {
           throw new Error('PDF.js library is not available.');
         }
 
-        // Configure PDF.js worker
         if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
@@ -480,7 +581,7 @@ function initPdfUpload() {
 }
 
 /**
- * 9. AI-Powered Job URL Scraper & Cache (scrape.php)
+ * 9. AI-Powered Job URL Scraper & Cache (scrape.php & Demo Fallback)
  */
 function initJobScraper() {
   const scrapeBtn = document.getElementById('scrapeBtn');
@@ -511,10 +612,43 @@ function initJobScraper() {
         return;
       }
 
-      // UI Loading state
       scrapeBtn.disabled = true;
       if (scrapeSpinner) scrapeSpinner.classList.remove('hidden');
       if (scrapeBtnText) scrapeBtnText.textContent = 'Scraping...';
+
+      // Demo Mode Scraper Simulation
+      if (isDemoMode()) {
+        setTimeout(() => {
+          const sampleJob =
+            `**Target Position**: Senior Software Engineer\n` +
+            `**Company / URL**: ${url}\n\n` +
+            `**Core Responsibilities**:\n` +
+            `- Design and scale distributed backend APIs and frontend micro-apps.\n` +
+            `- Collaborate closely with product managers and engineering teammates.\n` +
+            `- Optimize relational database queries and caching layers.\n\n` +
+            `**Key Technical Requirements**:\n` +
+            `- React, TypeScript, Node.js, and PostgreSQL.\n` +
+            `- Hands-on experience with Docker containerization and Kubernetes orchestration.\n` +
+            `- Cloud platforms (AWS, GCP) and automated CI/CD testing pipelines.\n\n` +
+            `**Minimum Qualifications**:\n` +
+            `- 4+ years professional software development experience.`;
+
+          if (jobText) {
+            jobText.value = sampleJob;
+            updateCharCounter(jobText, jobCount, 5000);
+          }
+
+          if (scrapeStatusBadge) {
+            scrapeStatusBadge.textContent = '✨ Scraped & cleaned requirements (Demo Mode)';
+          }
+
+          scrapeBtn.disabled = false;
+          if (scrapeSpinner) scrapeSpinner.classList.add('hidden');
+          if (scrapeBtnText) scrapeBtnText.textContent = 'Fetch & Clean';
+          showToast('Job requirements extracted and loaded!', 'success');
+        }, 700);
+        return;
+      }
 
       try {
         const response = await fetch('scrape.php', {
@@ -565,8 +699,49 @@ function initJobScraper() {
 }
 
 /**
- * 10. AI Resume & Skill Gap Analysis (api.php)
+ * 10. AI Resume & Skill Gap Analysis (api.php & Demo Matcher)
  */
+function calculateDemoMatch(resume, job) {
+  const commonSkills = [
+    'React', 'TypeScript', 'JavaScript', 'Node.js', 'Python', 'Go', 'Java',
+    'Docker', 'Kubernetes', 'AWS', 'GCP', 'PostgreSQL', 'MongoDB', 'Redis',
+    'GraphQL', 'Tailwind', 'CI/CD', 'Git', 'Kafka', 'Microservices'
+  ];
+
+  const resumeLower = resume.toLowerCase();
+  const jobLower = job.toLowerCase();
+
+  const jobSkills = commonSkills.filter(s => jobLower.includes(s.toLowerCase()));
+  const targetSkills = jobSkills.length > 0 ? jobSkills : ['Docker', 'Kubernetes', 'TypeScript', 'PostgreSQL', 'GraphQL'];
+
+  const matched = [];
+  const missing = [];
+
+  targetSkills.forEach(skill => {
+    if (resumeLower.includes(skill.toLowerCase())) {
+      matched.push(skill);
+    } else {
+      missing.push(skill);
+    }
+  });
+
+  let score = 50;
+  if (targetSkills.length > 0) {
+    score = Math.round((matched.length / targetSkills.length) * 100);
+    score = Math.max(35, Math.min(95, score));
+  }
+
+  // Ensure at least 1 or 2 missing skills for learning demonstration
+  if (missing.length === 0) {
+    missing.push('Kubernetes', 'Terraform');
+  }
+
+  return {
+    match_score: score,
+    missing_skills: missing
+  };
+}
+
 function initAnalyzer() {
   const analyzeBtn = document.getElementById('analyzeBtn');
   const analyzeBtnText = document.getElementById('analyzeBtnText');
@@ -596,12 +771,47 @@ function initAnalyzer() {
         return;
       }
 
-      // Enter Loading State
       analyzeBtn.disabled = true;
       if (analyzeSpinner) analyzeSpinner.classList.remove('hidden');
       if (analyzeBtnText) analyzeBtnText.textContent = 'Analyzing with Gemini AI...';
       if (resultsSkeleton) resultsSkeleton.classList.remove('hidden');
       if (resultsContainer) resultsContainer.classList.add('hidden');
+
+      // Demo Mode Analysis Simulation
+      if (isDemoMode()) {
+        setTimeout(() => {
+          const matchResult = calculateDemoMatch(resume, jobDescription);
+
+          lastAnalysisResult = {
+            match_score: matchResult.match_score,
+            missing_skills: matchResult.missing_skills,
+            resume_snippet: resume.substring(0, 150),
+            job_description: jobDescription.substring(0, 150)
+          };
+
+          renderResults(lastAnalysisResult);
+
+          const history = getDemoHistory();
+          history.unshift({
+            id: 'demo-scan-' + Date.now(),
+            user_id: currentSession.user ? currentSession.user.id : 'demo-user',
+            resume_snippet: lastAnalysisResult.resume_snippet,
+            job_description: lastAnalysisResult.job_description,
+            match_score: lastAnalysisResult.match_score,
+            missing_skills: lastAnalysisResult.missing_skills,
+            created_at: new Date().toISOString()
+          });
+          saveDemoHistory(history);
+          fetchDashboard();
+
+          analyzeBtn.disabled = false;
+          if (analyzeSpinner) analyzeSpinner.classList.add('hidden');
+          if (analyzeBtnText) analyzeBtnText.textContent = 'Analyze Match & Skill Gaps';
+          if (resultsSkeleton) resultsSkeleton.classList.add('hidden');
+          showToast('Analysis completed successfully!', 'success');
+        }, 900);
+        return;
+      }
 
       try {
         const response = await fetch('api.php', {
@@ -639,10 +849,8 @@ function initAnalyzer() {
           job_description: jobDescription.substring(0, 150)
         };
 
-        // Render Results UI
         renderResults(lastAnalysisResult);
 
-        // Save scan record to Supabase scan_history
         if (supabaseClient && currentSession && currentSession.user) {
           const { error: insertError } = await supabaseClient.from('scan_history').insert([
             {
@@ -696,7 +904,6 @@ function renderResults(result) {
     scoreFeedback.textContent = `${colors.label} - Evaluated against target requirements`;
   }
 
-  // Render Missing Skills as Clickable YouTube Links
   if (skillsContainer) {
     skillsContainer.innerHTML = '';
     if (!result.missing_skills || result.missing_skills.length === 0) {
@@ -714,7 +921,6 @@ function renderResults(result) {
         a.rel = 'noopener noreferrer';
         a.className = 'group inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 border border-slate-200 dark:border-slate-700 transition shadow-sm';
         a.innerHTML = `
-          <!-- YouTube Icon -->
           <svg class="w-3.5 h-3.5 text-red-500 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
           </svg>
@@ -804,10 +1010,30 @@ function initExportAndClipboard() {
  * 12. History Dashboard (Dynamic Ordering, Single Deletion & Clear All)
  */
 async function fetchDashboard() {
-  if (!supabaseClient || !currentSession || !currentSession.user) return;
-
   const sortSelect = document.getElementById('sortDashboard');
   const sortValue = sortSelect ? sortSelect.value : 'newest';
+
+  // Demo Mode Dashboard Loading
+  if (isDemoMode()) {
+    const items = getDemoHistory();
+    items.sort((a, b) => {
+      if (sortValue === 'oldest') {
+        return new Date(a.created_at) - new Date(b.created_at);
+      }
+      if (sortValue === 'score_desc') {
+        return b.match_score - a.match_score;
+      }
+      if (sortValue === 'score_asc') {
+        return a.match_score - b.match_score;
+      }
+      // default: newest
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+    renderDashboardGrid(items);
+    return;
+  }
+
+  if (!supabaseClient || !currentSession || !currentSession.user) return;
 
   let orderColumn = 'created_at';
   let isAscending = false;
@@ -914,7 +1140,6 @@ function renderDashboardGrid(items) {
     grid.appendChild(card);
   });
 
-  // Attach single-record delete listeners
   document.querySelectorAll('.delete-history-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const id = e.currentTarget.getAttribute('data-id');
@@ -931,7 +1156,6 @@ function renderDashboardGrid(items) {
  * 13. Dashboard Modals & Actions
  */
 function initModals() {
-  // Delete Single Modal
   const deleteModal = document.getElementById('delete-modal');
   const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
   const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
@@ -945,7 +1169,19 @@ function initModals() {
 
   if (confirmDeleteBtn && deleteModal) {
     confirmDeleteBtn.addEventListener('click', async () => {
-      if (!pendingDeleteId || !supabaseClient) return;
+      if (!pendingDeleteId) return;
+
+      if (isDemoMode()) {
+        const history = getDemoHistory().filter(item => item.id !== pendingDeleteId);
+        saveDemoHistory(history);
+        showToast('Scan record deleted.', 'success');
+        fetchDashboard();
+        deleteModal.classList.add('hidden');
+        pendingDeleteId = null;
+        return;
+      }
+
+      if (!supabaseClient) return;
 
       try {
         const { error } = await supabaseClient
@@ -967,7 +1203,6 @@ function initModals() {
     });
   }
 
-  // Clear All Modal
   const clearAllModal = document.getElementById('clear-all-modal');
   const clearAllBtn = document.getElementById('clearAllBtn');
   const cancelClearAllBtn = document.getElementById('cancelClearAllBtn');
@@ -987,6 +1222,14 @@ function initModals() {
 
   if (confirmClearAllBtn && clearAllModal) {
     confirmClearAllBtn.addEventListener('click', async () => {
+      if (isDemoMode()) {
+        saveDemoHistory([]);
+        showToast('All scan history cleared.', 'success');
+        fetchDashboard();
+        clearAllModal.classList.add('hidden');
+        return;
+      }
+
       if (!supabaseClient || !currentSession || !currentSession.user) return;
 
       try {
@@ -1008,7 +1251,6 @@ function initModals() {
     });
   }
 
-  // Dashboard Sorting Change
   const sortDashboard = document.getElementById('sortDashboard');
   if (sortDashboard) {
     sortDashboard.addEventListener('change', () => {
@@ -1035,12 +1277,10 @@ function initApp() {
   initModals();
 }
 
-// Auto-run when DOM is fully loaded in browser
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', initApp);
 }
 
-// Export for Node/Jest testing environment
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     checkCdn,
