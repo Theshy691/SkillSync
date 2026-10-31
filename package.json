@@ -1,0 +1,23 @@
+{
+  "name": "skillsync",
+  "version": "1.0.0",
+  "description": "SkillSync - Full-Stack AI Resume & Skill Matcher",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest --verbose"
+  },
+  "keywords": [
+    "ai",
+    "ats",
+    "resume-matcher",
+    "supabase",
+    "gemini",
+    "php"
+  ],
+  "author": "James Sarmiento",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}
