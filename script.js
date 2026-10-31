@@ -1305,29 +1305,24 @@ function renderDashboardGrid(items) {
 
     card.innerHTML = `
       <div>
-        <div class="flex items-center justify-between mb-3">
-          <span class="px-2.5 py-1 rounded-xl text-xs font-bold ${colors.badge}">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="px-2.5 py-1 rounded-xl text-xs font-semibold ${colors.badge}">
             ${item.match_score}% Match
           </span>
           <span class="text-[11px] font-mono opacity-65" style="color: var(--ink-4);">${dateFormatted}</span>
         </div>
-        <div class="space-y-2 mb-4">
-          <div>
-            <div class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--ink-4);">Target Role Snippet</div>
-            <p class="text-xs line-clamp-2" style="color: var(--ink-2);">${escapeHtml(item.job_description)}</p>
-          </div>
-          <div>
-            <div class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--ink-4);">Resume Extract</div>
-            <p class="text-xs line-clamp-2" style="color: var(--ink-3);">${escapeHtml(item.resume_snippet)}</p>
-          </div>
+        <div class="space-y-1.5 mb-3.5">
+          <p class="text-xs font-medium line-clamp-2" style="color: var(--ink);" title="Target Job">${escapeHtml(item.job_description)}</p>
+          <p class="text-[11px] line-clamp-2 opacity-75" style="color: var(--ink-3);" title="Resume Extract">${escapeHtml(item.resume_snippet)}</p>
         </div>
       </div>
       <div>
         <div class="flex flex-wrap gap-1.5 items-center mb-3">
           ${skillsHtml}
         </div>
-        <div class="flex items-center justify-between pt-3 border-t" style="border-color: var(--border);">
-          <button data-id="${item.id}" class="delete-history-btn inline-flex items-center space-x-1 text-xs font-semibold text-rose-500 hover:text-rose-600 transition">
+        <div class="flex items-center justify-between pt-2.5 border-t" style="border-color: var(--border);">
+          <span class="text-[10px] opacity-60" style="color: var(--ink-4);">${skills.length} ${skills.length === 1 ? 'skill gap' : 'skill gaps'}</span>
+          <button data-id="${item.id}" class="delete-history-btn inline-flex items-center space-x-1 text-xs font-medium text-rose-500 hover:text-rose-600 transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             <span>Delete</span>
           </button>
