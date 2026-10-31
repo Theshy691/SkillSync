@@ -574,11 +574,11 @@ async function extractResumeFromImage(file) {
   const setUploadingState = (isUploading) => {
     if (uploadSpinner) uploadSpinner.classList.toggle('hidden', !isUploading);
     if (uploadDefault) uploadDefault.classList.toggle('hidden', isUploading);
-    if (uploadBtnText) uploadBtnText.textContent = isUploading ? 'Transcribing...' : 'Upload PDF / Image';
+    if (uploadBtnText) uploadBtnText.textContent = isUploading ? 'Processing...' : 'Upload Document';
   };
 
   setUploadingState(true);
-  showToast('Transcribing resume image via AI OCR...', 'info', 3000);
+  showToast('Extracting text from document...', 'info', 3000);
 
   try {
     const base64Data = await new Promise((resolve, reject) => {
@@ -720,7 +720,7 @@ function initPdfUpload() {
         e.preventDefault();
         const file = item.getAsFile();
         if (file) {
-          showToast('📋 Image detected on clipboard! Transcribing with AI OCR...', 'info', 2500);
+          showToast('Image detected on clipboard. Extracting text...', 'info', 2500);
           await extractResumeFromImage(file);
         }
         return;
@@ -814,7 +814,7 @@ function initJobScraper() {
 
       scrapeBtn.disabled = true;
       if (scrapeSpinner) scrapeSpinner.classList.remove('hidden');
-      if (scrapeBtnText) scrapeBtnText.textContent = 'Scraping...';
+      if (scrapeBtnText) scrapeBtnText.textContent = 'Importing...';
 
       // Demo Mode Scraper Simulation
       if (isDemoMode()) {
@@ -839,13 +839,13 @@ function initJobScraper() {
           }
 
           if (scrapeStatusBadge) {
-            scrapeStatusBadge.textContent = '✨ Scraped & cleaned requirements (Demo Mode)';
+            scrapeStatusBadge.textContent = 'Imported job requirements (Demo session)';
           }
 
           scrapeBtn.disabled = false;
           if (scrapeSpinner) scrapeSpinner.classList.add('hidden');
-          if (scrapeBtnText) scrapeBtnText.textContent = 'Fetch & Clean';
-          showToast('Job requirements extracted and loaded!', 'success');
+          if (scrapeBtnText) scrapeBtnText.textContent = 'Import from URL';
+          showToast('Job requirements extracted successfully.', 'success');
         }, 700);
         return;
       }
@@ -878,12 +878,12 @@ function initJobScraper() {
 
         if (scrapeStatusBadge) {
           scrapeStatusBadge.textContent = data.source === 'cache'
-            ? '⚡ Loaded from Supabase cache'
-            : '✨ Freshly scraped & summarized by Gemini AI';
+            ? 'Loaded from database cache'
+            : 'Imported job requirements';
         }
 
         showToast(
-          data.source === 'cache' ? 'Job loaded from database cache!' : 'Job scraped & cleaned by Gemini AI!',
+          data.source === 'cache' ? 'Job description loaded from cache.' : 'Job description imported successfully.',
           'success'
         );
       } catch (err) {
@@ -892,7 +892,7 @@ function initJobScraper() {
       } finally {
         scrapeBtn.disabled = false;
         if (scrapeSpinner) scrapeSpinner.classList.add('hidden');
-        if (scrapeBtnText) scrapeBtnText.textContent = 'Fetch & Clean';
+        if (scrapeBtnText) scrapeBtnText.textContent = 'Import from URL';
       }
     });
   }
@@ -973,7 +973,7 @@ function initAnalyzer() {
 
       analyzeBtn.disabled = true;
       if (analyzeSpinner) analyzeSpinner.classList.remove('hidden');
-      if (analyzeBtnText) analyzeBtnText.textContent = 'Analyzing with Gemini AI...';
+      if (analyzeBtnText) analyzeBtnText.textContent = 'Analyzing match...';
       if (resultsSkeleton) resultsSkeleton.classList.remove('hidden');
       if (resultsContainer) resultsContainer.classList.add('hidden');
 
@@ -1006,7 +1006,7 @@ function initAnalyzer() {
 
           analyzeBtn.disabled = false;
           if (analyzeSpinner) analyzeSpinner.classList.add('hidden');
-          if (analyzeBtnText) analyzeBtnText.textContent = 'Analyze Match & Skill Gaps';
+          if (analyzeBtnText) analyzeBtnText.textContent = 'Run Match Analysis';
           if (resultsSkeleton) resultsSkeleton.classList.add('hidden');
           showToast('Analysis completed successfully!', 'success');
         }, 900);
@@ -1076,7 +1076,7 @@ function initAnalyzer() {
       } finally {
         analyzeBtn.disabled = false;
         if (analyzeSpinner) analyzeSpinner.classList.add('hidden');
-        if (analyzeBtnText) analyzeBtnText.textContent = 'Analyze Match & Skill Gaps';
+        if (analyzeBtnText) analyzeBtnText.textContent = 'Run Match Analysis';
         if (resultsSkeleton) resultsSkeleton.classList.add('hidden');
       }
     });
