@@ -113,17 +113,27 @@ function applyTheme(theme) {
   const html = document.documentElement;
   const sunIcon = document.getElementById('sunIcon');
   const moonIcon = document.getElementById('moonIcon');
+  const toggleBtn = document.getElementById('themeToggle');
+  const toggleLabel = document.getElementById('themeToggleLabel');
+
+  html.setAttribute('data-theme', theme);
 
   if (theme === 'dark') {
     html.classList.add('dark');
     localStorage.setItem('skillsync_theme', 'dark');
+    localStorage.setItem('ff-theme', 'dark');
     if (sunIcon) sunIcon.classList.remove('hidden');
     if (moonIcon) moonIcon.classList.add('hidden');
+    if (toggleBtn) toggleBtn.dataset.themeState = 'dark';
+    if (toggleLabel) toggleLabel.textContent = 'Dark mode';
   } else {
     html.classList.remove('dark');
     localStorage.setItem('skillsync_theme', 'light');
+    localStorage.setItem('ff-theme', 'light');
     if (sunIcon) sunIcon.classList.add('hidden');
     if (moonIcon) moonIcon.classList.remove('hidden');
+    if (toggleBtn) toggleBtn.dataset.themeState = 'light';
+    if (toggleLabel) toggleLabel.textContent = 'Light mode';
   }
 }
 
@@ -1089,7 +1099,7 @@ function renderDashboardGrid(items) {
 
   items.forEach(item => {
     const card = document.createElement('div');
-    card.className = 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between';
+    card.className = 'console-card p-5 transition flex flex-col justify-between hover:translate-y-[-2px]';
 
     const colors = getScoreColorClasses(item.match_score);
     const dateFormatted = new Date(item.created_at).toLocaleDateString(undefined, {
@@ -1100,10 +1110,10 @@ function renderDashboardGrid(items) {
 
     const skills = Array.isArray(item.missing_skills) ? item.missing_skills : [];
     const skillsHtml = skills.slice(0, 3).map(skill => `
-      <a href="${generateYouTubeLink(skill)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-red-500">
+      <a href="${generateYouTubeLink(skill)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-lg transition" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--border);">
         ${escapeHtml(skill)}
       </a>
-    `).join(' ') + (skills.length > 3 ? `<span class="text-[10px] text-slate-400">+${skills.length - 3} more</span>` : '');
+    `).join(' ') + (skills.length > 3 ? `<span class="text-[10px] opacity-60" style="color: var(--ink-4);">+${skills.length - 3} more</span>` : '');
 
     card.innerHTML = `
       <div>
@@ -1111,16 +1121,16 @@ function renderDashboardGrid(items) {
           <span class="px-2.5 py-1 rounded-xl text-xs font-bold ${colors.badge}">
             ${item.match_score}% Match
           </span>
-          <span class="text-[11px] text-slate-400 font-mono">${dateFormatted}</span>
+          <span class="text-[11px] font-mono opacity-65" style="color: var(--ink-4);">${dateFormatted}</span>
         </div>
         <div class="space-y-2 mb-4">
           <div>
-            <div class="text-[10px] uppercase font-bold text-slate-400">Target Role Snippet</div>
-            <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">${escapeHtml(item.job_description)}</p>
+            <div class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--ink-4);">Target Role Snippet</div>
+            <p class="text-xs line-clamp-2" style="color: var(--ink-2);">${escapeHtml(item.job_description)}</p>
           </div>
           <div>
-            <div class="text-[10px] uppercase font-bold text-slate-400">Resume Extract</div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">${escapeHtml(item.resume_snippet)}</p>
+            <div class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--ink-4);">Resume Extract</div>
+            <p class="text-xs line-clamp-2" style="color: var(--ink-3);">${escapeHtml(item.resume_snippet)}</p>
           </div>
         </div>
       </div>
@@ -1128,8 +1138,8 @@ function renderDashboardGrid(items) {
         <div class="flex flex-wrap gap-1.5 items-center mb-3">
           ${skillsHtml}
         </div>
-        <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-          <button data-id="${item.id}" class="delete-history-btn inline-flex items-center space-x-1 text-xs font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 transition">
+        <div class="flex items-center justify-between pt-3 border-t" style="border-color: var(--border);">
+          <button data-id="${item.id}" class="delete-history-btn inline-flex items-center space-x-1 text-xs font-semibold text-rose-500 hover:text-rose-600 transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             <span>Delete</span>
           </button>
