@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillSync | AI Resume & Skill Matcher</title>
+  <meta name="description" content="AI-powered ATS Resume Matcher, Skill Gap Analyzer, and Job Scraper powered by Gemini AI and Supabase.">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- PDF.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- html2pdf.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(156, 163, 175, 0.6);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased transition-colors duration-200">
+
+  <!-- ========================================================================
+       1. CDN Fallback UI (Pure Inline CSS - Displays if CDNs fail to load)
+       ======================================================================== -->
+  <div id="cdn-fallback" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff1f2; color: #9f1239; z-index: 999999; padding: 2rem; box-sizing: border-box; text-align: center; font-family: system-ui, -apple-system, sans-serif;">
+    <div style="max-width: 500px; margin: 4rem auto; padding: 2rem; background: #ffffff; border: 2px solid #fecdd3; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+      <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: #881337;">CDN Resources Failed to Load</h2>
+      <p style="font-size: 0.95rem; line-height: 1.5; color: #4c0519; margin-bottom: 1.5rem;">
+        Essential libraries (Tailwind CSS, Supabase SDK, or PDF tools) could not be retrieved. Please check your internet connection, disable aggressive ad-blockers, and refresh the page.
+      </p>
+      <button onclick="window.location.reload()" style="background: #e11d48; color: #ffffff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;">
+        Reload Application
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       2. Toast Notification Container
+       ======================================================================== -->
+  <div id="toast-container" class="fixed bottom-4 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:top-5 sm:right-5 sm:bottom-auto sm:left-auto z-50 flex flex-col gap-2 w-11/12 max-w-sm pointer-events-none">
+    <!-- Dynamic Toasts will be injected here -->
+  </div>
+
+  <!-- ========================================================================
+       3. Modals
+       ======================================================================== -->
+  <!-- A: Delete Confirmation Modal -->
+  <div id="delete-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all">
+      <div class="flex items-center space-x-3 text-rose-500 mb-4">
+        <div class="p-3 bg-rose-100 dark:bg-rose-950/50 rounded-xl">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Delete Scan Record</h3>
+      </div>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
+        Are you sure you want to delete this scan from your history? This action cannot be undone.
+      </p>
+      <div class="flex items-center justify-end space-x-3">
+        <button id="cancelDeleteBtn" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+          Cancel
+        </button>
+        <button id="confirmDeleteBtn" class="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm transition-colors">
+          Delete Scan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- B: Clear All History Confirmation Modal -->
+  <div id="clear-all-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all">
+      <div class="flex items-center space-x-3 text-amber-500 mb-4">
+        <div class="p-3 bg-amber-100 dark:bg-amber-950/50 rounded-xl">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Clear All History</h3>
+      </div>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
+        Are you sure you want to delete all scans from your history? Every previous scan result will be permanently removed.
+      </p>
+      <div class="flex items-center justify-end space-x-3">
+        <button id="cancelClearAllBtn" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+          Cancel
+        </button>
+        <button id="confirmClearAllBtn" class="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm transition-colors">
+          Clear All History
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- C: Session Expired Modal -->
+  <div id="session-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl text-center">
+      <div class="w-12 h-12 bg-amber-100 dark:bg-amber-950/50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">Session Expired</h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
+        Your authentication session has expired or requires re-authentication. Please sign in again to continue.
+      </p>
+      <button id="sessionLoginBtn" class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-colors shadow-md">
+        Log In Again
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       4. App Header & Navigation
+       ======================================================================== -->
+  <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <div>
+          <span class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-brand-600 to-indigo-500 bg-clip-text text-transparent">SkillSync</span>
+          <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 rounded-full">AI Matcher</span>
+        </div>
+      </div>
+
+      <!-- Right Header Actions (Theme Toggle & Auth) -->
+      <div class="flex items-center space-x-3">
+        <!-- Theme Toggle Button -->
+        <button id="themeToggle" type="button" aria-label="Toggle Dark / Light Theme" class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500">
+          <!-- Sun Icon (shown in dark mode) -->
+          <svg id="sunIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <!-- Moon Icon (shown in light mode) -->
+          <svg id="moonIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+
+        <!-- User Authentication Header Elements -->
+        <div id="authHeaderContainer" class="flex items-center space-x-2">
+          <!-- User Profile & Logout (hidden by default) -->
+          <div id="userProfile" class="hidden flex items-center space-x-2">
+            <span id="userEmailBadge" class="hidden md:inline-block text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl max-w-[180px] truncate"></span>
+            <button id="logoutBtn" class="text-xs font-semibold px-3 py-1.5 text-slate-700 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 rounded-xl transition-colors">
+              Sign Out
+            </button>
+          </div>
+          <!-- Sign In Trigger (visible when logged out) -->
+          <button id="loginTriggerBtn" class="text-xs font-semibold px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl shadow-sm transition-colors">
+            Sign In
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       5. Main Application Container
+       ======================================================================== -->
+  <main id="app-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Auth Form (Shown when user is unauthenticated) -->
+    <section id="auth-section" class="max-w-md mx-auto my-12 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl">
+      <div class="text-center mb-6">
+        <h2 id="authTitle" class="text-2xl font-bold text-slate-900 dark:text-slate-100">Welcome to SkillSync</h2>
+        <p id="authSubtitle" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Sign in to match your resume with AI precision</p>
+      </div>
+
+      <form id="authForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+          <input type="email" id="authEmail" required placeholder="you@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Password</label>
+          <input type="password" id="authPassword" required minlength="6" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+        </div>
+
+        <button type="submit" id="authSubmitBtn" class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+          <span id="authSubmitText">Sign In</span>
+          <svg id="authSpinner" class="hidden animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+        </button>
+      </form>
+
+      <div class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        <span id="authSwitchPrompt">Don't have an account?</span>
+        <button type="button" id="authSwitchBtn" class="font-semibold text-brand-600 dark:text-brand-400 hover:underline ml-1">
+          Create one now
+        </button>
+      </div>
+    </section>
+
+    <!-- App Workspace Section (Shown when authenticated) -->
+    <div id="workspace-section" class="hidden space-y-8">
+
+      <!-- Inputs Section: 2-Column Desktop Grid / Stacked Mobile -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Column 1: Resume / CV Input -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+                  1
+                </div>
+                <h3 class="font-bold text-slate-900 dark:text-slate-100">Resume / CV</h3>
+              </div>
+
+              <!-- PDF Upload Button -->
+              <div>
+                <input type="file" id="resumeFileInput" accept=".pdf" class="hidden">
+                <button type="button" id="uploadPdfBtn" class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 rounded-xl transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span>Upload PDF</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Resume Textarea -->
+            <label for="resumeText" class="sr-only">Resume Text</label>
+            <textarea id="resumeText" maxlength="5000" rows="12" placeholder="Paste your resume text here, or click 'Upload PDF' to automatically extract your experience, skills, and education..." class="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none transition resize-y"></textarea>
+          </div>
+
+          <!-- Character Counter -->
+          <div class="flex items-center justify-between mt-2 pt-2 text-xs text-slate-500 dark:text-slate-400">
+            <span>Supports plain text & PDF extracts</span>
+            <span id="resumeCount" class="font-mono font-medium">0 / 5,000</span>
+          </div>
+        </div>
+
+        <!-- Column 2: Target Job Description Input -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+                  2
+                </div>
+                <h3 class="font-bold text-slate-900 dark:text-slate-100">Job Description</h3>
+              </div>
+            </div>
+
+            <!-- Web Scraper URL Bar -->
+            <div class="flex items-center space-x-2 mb-3">
+              <input type="url" id="jobUrlInput" placeholder="Paste Job URL (e.g. LinkedIn, Indeed, Greenhouse)..." class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+              <button type="button" id="scrapeBtn" class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition whitespace-nowrap">
+                <span id="scrapeBtnText">Fetch & Clean</span>
+                <svg id="scrapeSpinner" class="hidden animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Job Description Textarea -->
+            <label for="jobText" class="sr-only">Job Description Text</label>
+            <textarea id="jobText" maxlength="5000" rows="12" placeholder="Paste the job description, required qualifications, and responsibilities, or enter a URL above to let Gemini AI scrape and clean it automatically..." class="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none transition resize-y"></textarea>
+          </div>
+
+          <!-- Character Counter -->
+          <div class="flex items-center justify-between mt-2 pt-2 text-xs text-slate-500 dark:text-slate-400">
+            <span id="scrapeStatusBadge">Scraped jobs are cached in Supabase</span>
+            <span id="jobCount" class="font-mono font-medium">0 / 5,000</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Central Action Bar: Analyze Button -->
+      <div class="flex justify-center">
+        <button type="button" id="analyzeBtn" class="w-full sm:w-auto min-w-[280px] px-8 py-3.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-brand-500/25 transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-3 text-base">
+          <span id="analyzeBtnText">Analyze Match & Skill Gaps</span>
+          <svg id="analyzeSpinner" class="hidden animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- ====================================================================
+           6. Results Section: Skeleton & Real Results Container
+           ==================================================================== -->
+      
+      <!-- A: Animated Tailwind Skeleton (Visible during analysis) -->
+      <div id="results-skeleton" class="hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-md animate-pulse space-y-6">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+          <div class="flex items-center space-x-4">
+            <div class="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+            <div class="space-y-2">
+              <div class="h-6 w-36 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+              <div class="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <div class="h-9 w-24 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+            <div class="h-9 w-24 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div class="h-5 w-40 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+          <div class="flex flex-wrap gap-2">
+            <div class="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+            <div class="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+            <div class="h-8 w-20 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+            <div class="h-8 w-32 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B: Real Results Container (Populated dynamically) -->
+      <div id="results-container" class="hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl transition-all">
+        <div id="printableReport" class="space-y-6">
+          
+          <!-- Results Top Bar -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+            <div class="flex items-center space-x-5">
+              <!-- Radial Score Circle -->
+              <div id="scoreBadge" class="w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-black text-2xl shadow-inner border border-white/20">
+                <span id="scoreNumber">--</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider opacity-80">Match</span>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Match Compatibility</h3>
+                <p id="scoreFeedback" class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">Evaluation completed via Gemini AI</p>
+              </div>
+            </div>
+
+            <!-- Export & Clipboard Buttons -->
+            <div class="flex items-center space-x-2">
+              <button id="copyReportBtn" class="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition">
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                <span>Copy Summary</span>
+              </button>
+              <button id="exportPdfBtn" class="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-sm transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Export PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Missing Skills / Recommendations -->
+          <div>
+            <div class="flex items-center space-x-2 mb-3">
+              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200 uppercase tracking-wider">Identified Skill Gaps & Recommended Learning</h4>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+              Click any skill below to instantly search free tutorials and courses on YouTube:
+            </p>
+            <div id="skillsBadgesContainer" class="flex flex-wrap gap-2.5">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           7. Scan History Dashboard
+           ==================================================================== -->
+      <section id="dashboard-container" class="space-y-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <!-- Dashboard Flex Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Scan History</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">All previous resume scans saved under your secure Supabase profile</p>
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <!-- Dynamic Sorting Select -->
+            <label for="sortDashboard" class="sr-only">Sort History</label>
+            <select id="sortDashboard" class="px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="score_desc">Highest Score</option>
+              <option value="score_asc">Lowest Score</option>
+            </select>
+
+            <!-- Clear All History Button -->
+            <button id="clearAllBtn" type="button" class="px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl transition">
+              Clear All History
+            </button>
+          </div>
+        </div>
+
+        <!-- History Cards Grid -->
+        <div id="history-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Dynamically populated cards -->
+        </div>
+
+        <!-- Empty State UI -->
+        <div id="history-empty" class="hidden text-center py-12 px-4 bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800 rounded-3xl">
+          <div class="w-16 h-16 mx-auto bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-2xl flex items-center justify-center mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h4 class="text-base font-bold text-slate-800 dark:text-slate-200">No scans yet</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+            Upload your resume and paste a job description above to perform your first AI match analysis.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Client-side Application Logic -->
+  <script src="script.js"></script>
+</body>
+</html>
