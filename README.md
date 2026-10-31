@@ -125,12 +125,13 @@ window.SKILLSYNC_CONFIG = {
 
 ### Step 3: Run Database Migrations
 1. Open your Supabase Dashboard -> **SQL Editor**.
-2. Open [`schema.sql`](schema.sql), paste the SQL commands, and click **Run**.
+2. Open [`database/schema.sql`](database/schema.sql), paste the SQL commands, and click **Run**.
+3. (Optional) Run [`database/seed.sql`](database/seed.sql) to populate initial test scans.
 
 ### Step 4: Start the Application with Docker Compose
 Spin up the Apache PHP web server:
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 Access the application in your browser at:
 ```
@@ -141,16 +142,31 @@ http://localhost:8000
 
 ---
 
+## Technical Documentation Suite
+
+Comprehensive architectural, schema, and API documentation is maintained in the [`docs/`](docs/) directory:
+- [System Architecture & Flow Topology](docs/ARCHITECTURE.md)
+- [REST API Reference](docs/API_REFERENCE.md)
+- [PostgreSQL Database Schema & RLS Policies](docs/DATABASE_SCHEMA.md)
+- [Project Directory Structure & Maintenance Runbook](docs/DIRECTORY_STRUCTURE.md)
+- [Security, SSRF & Rate Limiting Audit](docs/SECURITY_AUDIT.md)
+- [Docker & Production Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
+
+---
+
 ## Running Automated Tests
 
-SkillSync includes a unit test suite using **Jest** and **JSDOM** to verify UI behavior, character limit counters, theme switching, YouTube query encoding, score calculations, toast DOM manipulations, rate limiting handling, and Supabase client mocks.
+SkillSync includes an automated test suite using **Jest** and **JSDOM** to verify UI behavior, character limit counters, theme switching, YouTube query encoding, score calculations, toast DOM manipulations, rate limiting handling, OCR image processing, and Supabase client mocks.
 
 ```bash
 # Install testing dependencies
 npm install
 
-# Run Jest test suite
+# Run all test suites
 npm test
+
+# Run tests with coverage report
+npm run test:coverage
 ```
 
 ---
