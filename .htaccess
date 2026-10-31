@@ -1,0 +1,27 @@
+# SkillSync - Apache Configuration & Security Rules
+
+# Disable Directory Browsing
+Options -Indexes
+
+# Protect Sensitive Configuration, Logs, and Database Schemas from direct HTTP access
+<FilesMatch "^\.env|\.log$|\.sql$|\.json$|\.md$|Dockerfile|docker-compose\.ya?ml$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Allow package.json only if specifically needed, but by default deny sensitive files
+# Ensure index.html is default directory index
+DirectoryIndex index.html index.php
+
+# Security & CORS Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
