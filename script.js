@@ -399,7 +399,7 @@ function initAuthForm() {
       };
       localStorage.setItem('skillsync_demo_session', JSON.stringify(demoUser));
       updateAuthState(demoUser);
-      showToast('🚀 Entered SkillSync Local Demo Mode!', 'success');
+      showToast('Demo session initialized.', 'success');
     });
   }
 
@@ -408,13 +408,13 @@ function initAuthForm() {
       isSignUpMode = !isSignUpMode;
       if (isSignUpMode) {
         authTitle.textContent = 'Create an Account';
-        authSubtitle.textContent = 'Sign up to analyze and track your resume scans';
-        authSubmitText.textContent = 'Sign Up';
+        authSubtitle.textContent = 'Sign up to track and evaluate resume matches';
+        authSubmitText.textContent = 'Create Account';
         authSwitchPrompt.textContent = 'Already have an account?';
         authSwitchBtn.textContent = 'Sign in';
       } else {
         authTitle.textContent = 'Welcome to SkillSync';
-        authSubtitle.textContent = 'Sign in to match your resume with AI precision';
+        authSubtitle.textContent = 'Sign in to access your saved resume evaluations and scan history';
         authSubmitText.textContent = 'Sign In';
         authSwitchPrompt.textContent = "Don't have an account?";
         authSwitchBtn.textContent = 'Create one now';
@@ -443,7 +443,7 @@ function initAuthForm() {
           updateAuthState(demoUser);
           if (authSpinner) authSpinner.classList.add('hidden');
           if (authSubmitText) authSubmitText.textContent = isSignUpMode ? 'Sign Up' : 'Sign In';
-          showToast(isSignUpMode ? 'Account created in Demo Mode!' : 'Signed in (Demo Mode)!', 'success');
+          showToast(isSignUpMode ? 'Account created successfully.' : 'Signed in successfully.', 'success');
         }, 300);
         return;
       }
@@ -473,7 +473,7 @@ function initAuthForm() {
       if (isDemoMode()) {
         localStorage.removeItem('skillsync_demo_session');
         updateAuthState(null);
-        showToast('Signed out of Demo Mode.', 'info');
+        showToast('Signed out.', 'info');
         return;
       }
 
