@@ -2114,6 +2114,115 @@ function renderVaultUI() {
   renderMatrixCategory('vaultMatrixCertifications', verifiedSkillsMatrix.certifications, 'var(--rose)');
 }
 
+function getSkillLogoSvg(skill, category, dotColor) {
+  const s = (skill || '').toLowerCase().trim();
+
+  // 1. Languages
+  if (s === 'typescript' || s === 'ts') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none"><rect width="24" height="24" rx="4" fill="#3178C6"/><path d="M11.5 10.5H7.5V12h1.2v6.5h1.6V12h1.2v-1.5zm3.7 4.7c-.5-.3-.9-.7-1-1.3l-1.3.4c.2.9.7 1.6 1.4 2 1.1.7 2.6.5 3.3-.4.4-.5.6-1.1.6-1.8 0-1.4-.9-2.1-2.4-2.5-.9-.3-1.3-.5-1.3-1 0-.3.2-.6.7-.7.5-.1 1.1.1 1.4.5l1.2-.6c-.4-.7-1.1-1.1-2-1.1-1.2 0-2.2.7-2.2 2 0 1.2.8 1.9 2.1 2.3.9.3 1.5.6 1.5 1.1 0 .4-.3.7-.8.8-.5.1-1.2 0-1.6-.3z" fill="#FFFFFF"/></svg>`;
+  }
+  if (s === 'javascript' || s === 'js') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5"><rect width="24" height="24" rx="4" fill="#F7DF1E"/><path d="M7 11h2v5.5c0 .9-.5 1.5-1.5 1.5H6.5v-1.5H7v-4zm6.5 4.5c.5.3 1 .5 1.6.5.9 0 1.4-.4 1.4-1 0-.6-.4-.9-1.3-1.3l-.6-.2c-1.3-.5-2.1-1.2-2.1-2.5 0-1.5 1.2-2.6 3-2.6.9 0 1.6.2 2.1.6l-.7 1.5c-.4-.3-.9-.5-1.4-.5-.7 0-1.1.4-1.1.9 0 .6.4.8 1.2 1.2l.6.2c1.4.6 2.2 1.3 2.2 2.6 0 1.7-1.3 2.7-3.3 2.7-1.1 0-2-.3-2.6-.7l.7-1.5z" fill="#000000"/></svg>`;
+  }
+  if (s === 'python' || s === 'py') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5"><path fill="#3776AB" d="M11.9 2c-3.1 0-2.9 1.3-2.9 1.3l.01 1.4h2.9v.4H6.1S3.4 5 3.4 8.7c0 3.7 2.4 3.6 2.4 3.6h1.4v-2c0-1.4 1.2-2.4 2.6-2.4h4.4s1.2-.02 1.2-1.2V4.5c0-1.2-1.2-2.5-3.5-2.5zm-1.6 1.5c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.3-.7-.7.3-.7.7-.7z"/><path fill="#FFD43B" d="M12.1 22c3.1 0 2.9-1.3 2.9-1.3l-.01-1.4h-2.9v-.4h5.8s2.7.1 2.7-3.6c0-3.7-2.4-3.6-2.4-3.6h-1.4v2c0 1.4-1.2 2.4-2.6 2.4H9.8s-1.2.02-1.2 1.2v2.2c0 1.2 1.2 2.5 3.5 2.5zm1.6-1.5c-.4 0-.7-.3-.7-.7s.3-.7.7-.7.7.3.7.7-.3.7-.7.7z"/></svg>`;
+  }
+  if (s === 'sql' || s === 'mysql' || s === 'sqlite') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#6366F1" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`;
+  }
+  if (s === 'php') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#777BB4"><ellipse cx="12" cy="12" rx="10" ry="6"/><path d="M7.5 10h2.5c.8 0 1.2.4 1.2 1s-.4 1-1.2 1H8.5v2H7.5v-4zm4.5 0h2.5c.8 0 1.2.4 1.2 1s-.4 1-1.2 1H13v2h-1v-4z" fill="#FFFFFF"/></svg>`;
+  }
+  if (s === 'go' || s === 'golang') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#00ADD8"><path d="M12 4a8 8 0 108 8h-8v-3h11a11 11 0 11-3.2-7.8L17 6A8 8 0 0012 4z"/></svg>`;
+  }
+  if (s === 'rust') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#DEA584"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><text x="12" y="16" font-size="11" font-weight="bold" text-anchor="middle" fill="currentColor">R</text></svg>`;
+  }
+  if (s === 'html' || s === 'html5') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#E34F26"><path d="M3 2l1.6 18 7.4 2 7.4-2L21 2H3zm14.3 5.5l-.2 2.3h-7l.2 2.3h6.6l-.6 6.3-4.3 1.2-4.3-1.2-.3-3.4h2.2l.1 1.6 2 .5 2-.5.3-2.6H7.7L7.1 7.5h10.2z"/></svg>`;
+  }
+  if (s === 'css' || s === 'css3') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#1572B6"><path d="M3 2l1.6 18 7.4 2 7.4-2L21 2H3zm14.3 5.5l-.2 2.3h-7l.2 2.3h6.6l-.6 6.3-4.3 1.2-4.3-1.2-.3-3.4h2.2l.1 1.6 2 .5 2-.5.3-2.6H7.7L7.1 7.5h10.2z"/></svg>`;
+  }
+
+  // 2. Frameworks & Libraries
+  if (s === 'react' || s === 'react native' || s === 'reactjs') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none"><ellipse cx="12" cy="12" rx="3.5" ry="9" stroke="#61DAFB" stroke-width="1.6" transform="rotate(30 12 12)"/><ellipse cx="12" cy="12" rx="3.5" ry="9" stroke="#61DAFB" stroke-width="1.6" transform="rotate(90 12 12)"/><ellipse cx="12" cy="12" rx="3.5" ry="9" stroke="#61DAFB" stroke-width="1.6" transform="rotate(150 12 12)"/><circle cx="12" cy="12" r="1.8" fill="#61DAFB"/></svg>`;
+  }
+  if (s === 'next.js' || s === 'nextjs' || s === 'next') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none"><circle cx="12" cy="12" r="10" fill="#000000"/><path d="M15.5 16.5l-5.8-7.5v7.5H8.3V7.5h1.7l5.7 7.4V7.5h1.4v9h-1.6z" fill="#FFFFFF"/></svg>`;
+  }
+  if (s === 'node.js' || s === 'nodejs' || s === 'node' || s === 'express') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#5FA04E"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7L12 2zm0 2.2L5.5 8.4v7.2L12 19.4l6.5-3.8V8.4L12 4.2zm-1 4.3h2v4.5h2.5v2H11V8.5z"/></svg>`;
+  }
+  if (s === 'fastapi') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#009688"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm1 14.5l-4.5-2.5 5-9v5.5l4 2.5-4.5 3.5z"/></svg>`;
+  }
+  if (s === 'tailwind css' || s === 'tailwind' || s === 'tailwindcss') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#06B6D4"><path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.336 6.182 14.975 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.336 13.382 8.975 12 6.001 12z"/></svg>`;
+  }
+  if (s === 'vue' || s === 'vue.js') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5"><path fill="#41B883" d="M2 3h3.5L12 14 18.5 3H22L12 20.5 2 3z"/><path fill="#34495E" d="M6 3h3l3 5.5L15 3h3l-6 10.5L6 3z"/></svg>`;
+  }
+  if (s === 'angular') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#DD0031"><path d="M12 2L2 5.5l1.5 13L12 22l8.5-3.5 1.5-13L12 2zm0 3.5l4 9.5h-2l-1-2.5h-2l-1 2.5H8l4-9.5zm-1 5.5h2l-1-2.5-1 2.5z"/></svg>`;
+  }
+  if (s === 'graphql') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#E10098"><path d="M12 2l8.66 5v10L12 22l-8.66-5V7L12 2zm0 2.3L5.34 8.1v7.8L12 19.7l6.66-3.8V8.1L12 4.3z"/></svg>`;
+  }
+
+  // 3. Cloud, Infrastructure & Databases
+  if (s === 'docker') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#2496ED"><path d="M13.98 9.38h1.66V7.72H13.98v1.66zm-2.07 0h1.66V7.72h-1.66v1.66zm-2.07 0h1.66V7.72H9.84v1.66zm-2.08 0h1.67V7.72H7.76v1.66zm6.22-2.07h1.66V5.65h-1.66v1.66zm-2.07 0h1.66V5.65h-1.66v1.66zm-2.07 0h1.66V5.65H9.84v1.66zm6.22 4.14h1.66V9.79h-1.66v1.66zm-10.36 0h1.66V9.79H5.69v1.66zm16.59.88c-.37-.26-1.5-.32-2.31.25-.19.13-.37.28-.54.45-.63-.38-1.52-.45-2.26-.22-.17-.4-.44-.75-.8-1H3.6c-.33 0-.6.27-.6.6 0 1.83.63 3.53 1.77 4.88C6.39 18.42 8.79 19.3 11.5 19.3c5.64 0 9.77-3.83 10.63-7.98.05-.24.11-.7.16-1.12z"/></svg>`;
+  }
+  if (s === 'aws' || s.includes('amazon web services')) {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#FF9900"><path d="M6.8 11.4c-.4.4-.7.9-.7 1.6 0 1.2.9 2 2.3 2 1 0 1.8-.4 2.3-1.1v.9h1.7V8.5h-1.7v1.1c-.5-.7-1.3-1.1-2.3-1.1-1.4 0-2.3.8-2.3 2 0 .7.3 1.2.7 1.6v-.7zm1.8 2.2c-.8 0-1.2-.5-1.2-1.1s.4-1.1 1.2-1.1 1.2.5 1.2 1.1-.4 1.1-1.2 1.1zm9.6-5.1h-1.7v3.9l-1.3-3.9h-1.6l-1.3 3.9V8.5h-1.7v6.3h1.7l1.3-3.8 1.3 3.8h1.7l1.6-6.3zm-14.7 9.8c4.3 2.1 9.7 2.1 14.1-.1.4-.2.8.2.5.5-4.8 2.5-10.7 2.4-15.1-.1-.3-.2-.1-.5.5-.3z"/></svg>`;
+  }
+  if (s === 'postgresql' || s === 'postgres') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#336791"><path d="M12 2a10 10 0 00-9.8 8.1c.3-.1.6-.1.9-.1 2.2 0 3.7 1.1 4.5 2.5.6 1.1.9 2.4 1.4 3.7.3.8.7 1.5 1.3 1.9.7.5 1.6.5 2.7.2.9-.2 1.8-.7 2.4-1.3.8-.9 1.2-2 1.6-3.2.4-1.1.8-2.2 1.5-3.1 1-1.3 2.4-2.2 4.1-2.5A10 10 0 0012 2zm-1.8 18.2c-.8.1-1.5-.1-2.1-.6-.5-.4-.9-1-1.1-1.7-.5-1.3-.8-2.6-1.4-3.6-.6-1-1.7-1.8-3.4-1.9-.1 0-.3 0-.4.1A10 10 0 0012 22a9.9 9.9 0 004.2-.9c-.6.3-1.3.5-2.1.6-1.3.2-2.7.1-3.9-.7z"/></svg>`;
+  }
+  if (s === 'redis') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#DC382D"><path d="M21.2 8.5L12.5 4.1c-.3-.2-.7-.2-1 0L2.8 8.5c-.5.3-.8.8-.8 1.4v4.2c0 .6.3 1.1.8 1.4l8.7 4.4c.3.2.7.2 1 0l8.7-4.4c.5-.3.8-.8.8-1.4V9.9c0-.6-.3-1.1-.8-1.4zm-9.2-2.3l6.5 3.3-2.6 1.3-6.5-3.3 2.6-1.3zm-7 4.7l6.5 3.3v2.8l-6.5-3.3V10.9zm8.5 6.1v-2.8l6.5-3.3v2.8l-6.5 3.3z"/></svg>`;
+  }
+  if (s === 'ci/cd' || s === 'cicd' || s.includes('action') || s.includes('pipeline')) {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#2563EB" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>`;
+  }
+  if (s === 'kubernetes' || s === 'k8s') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#326CE5"><path d="M12 2L3.5 7v10L12 22l8.5-5V7L12 2zm0 2.3l6.5 3.8v7.8L12 19.7 5.5 15.9V8.1L12 4.3zm0 3.2a4.5 4.5 0 100 9 4.5 4.5 0 000-9zm0 2a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg>`;
+  }
+  if (s === 'gcp' || s.includes('google cloud')) {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5"><path fill="#EA4335" d="M19.3 12.3c0-.6-.1-1.2-.2-1.8H12v3.4h4.1c-.2 1-.7 1.8-1.5 2.4v2h2.5c1.4-1.3 2.2-3.3 2.2-6z"/><path fill="#4285F4" d="M12 19.8c2.1 0 3.8-.7 5.1-1.9l-2.5-2c-.7.5-1.6.8-2.6.8-2 0-3.7-1.4-4.3-3.2H5.1v2c1.3 2.6 4 4.3 6.9 4.3z"/><path fill="#FBBC05" d="M7.7 13.5c-.2-.5-.3-1.1-.3-1.7 0-.6.1-1.2.3-1.7v-2H5.1C4.4 9.4 4 10.6 4 12s.4 2.6 1.1 3.9l2.6-2.4z"/><path fill="#34A853" d="M12 7.7c1.1 0 2.2.4 3 1.2l2.3-2.3C15.8 5.3 14 4.5 12 4.5c-2.9 0-5.6 1.7-6.9 4.3l2.6 2c.6-1.8 2.3-3.1 4.3-3.1z"/></svg>`;
+  }
+  if (s === 'git' || s === 'github') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="#F05032"><path d="M21.6 10.9l-8.5-8.5c-.8-.8-2.1-.8-2.9 0L8.7 3.9l3.3 3.3c.7-.2 1.5 0 2 .5.6.6.7 1.5.4 2.2l3.2 3.2c.7-.3 1.6-.2 2.2.4.8.8.8 2.1 0 2.9-.8.8-2.1.8-2.9 0-.6-.6-.7-1.5-.4-2.2l-3.2-3.2c-.4.2-.8.3-1.3.3-.4 0-.8-.1-1.1-.3l-3.3 3.3v6.7c.3.2.5.5.5.9 0 .8-.7 1.5-1.5 1.5s-1.5-.7-1.5-1.5.7-1.5 1.5-1.5c.3 0 .7.1 1 .3V11c-.3-.2-.7-.3-1-.3-.8 0-1.5.7-1.5 1.5s.7 1.5 1.5 1.5c.3 0 .6-.1.8-.3l3.3-3.3c-.2-.4-.3-.8-.3-1.3 0-.5.2-.9.5-1.3L2.4 13.8c-.8.8-.8 2.1 0 2.9l8.5 8.5c.8.8 2.1.8 2.9 0l7.8-7.8c.8-.8.8-2.1 0-2.9v-.1l-.1-.5z"/></svg>`;
+  }
+  if (s === 'linux') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#EAB308" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+  }
+
+  // 4. Certifications
+  if (category === 'vaultMatrixCertifications' || s.includes('cert') || s.includes('architect') || s.includes('associate')) {
+    if (s.includes('aws') || s.includes('amazon')) {
+      return `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="none"><rect width="24" height="24" rx="6" fill="#FF9900" fill-opacity="0.15"/><path d="M12 3.5l2.4 4.8 5.3.8-3.8 3.7.9 5.3-4.8-2.5-4.8 2.5.9-5.3-3.8-3.7 5.3-.8L12 3.5z" fill="#FF9900"/><path d="M9 18l3 3 3-3" stroke="#FF9900" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+    }
+    return `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="none"><circle cx="12" cy="9" r="6" fill="#F43F5E" fill-opacity="0.15" stroke="#F43F5E" stroke-width="1.8"/><path d="M9.5 9l1.8 1.8L15 7.5" stroke="#F43F5E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 14.5L7 21l5-2.5 5 2.5-1.5-6.5" fill="#F43F5E" fill-opacity="0.2" stroke="#F43F5E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  }
+
+  // 5. Category Default Fallbacks
+  if (category === 'vaultMatrixLanguages') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="var(--sage)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>`;
+  }
+  if (category === 'vaultMatrixFrameworks') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="var(--sky)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`;
+  }
+  if (category === 'vaultMatrixCloud') {
+    return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="var(--amber)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"/></svg>`;
+  }
+
+  return `<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M3 9h2m-2 6h2m16-6h2m-2 6h2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`;
+}
+
 function renderMatrixCategory(elementId, items, dotColor) {
   const container = document.getElementById(elementId);
   if (!container) return;
@@ -2124,17 +2233,31 @@ function renderMatrixCategory(elementId, items, dotColor) {
     return;
   }
 
+  const isCertCategory = elementId === 'vaultMatrixCertifications';
+
   items.forEach(skill => {
-    const pill = document.createElement('span');
-    pill.className = 'inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold shadow-xs';
-    pill.style.background = 'var(--paper-2)';
-    pill.style.color = 'var(--ink)';
-    pill.style.border = '1px solid var(--border)';
-    pill.innerHTML = `
-      <span class="w-1.5 h-1.5 rounded-full" style="background: ${dotColor};"></span>
-      <span>${escapeHtml(skill)}</span>
+    const tile = document.createElement('div');
+    tile.className = isCertCategory
+      ? 'skill-matrix-tile p-3 rounded-2xl border transition group'
+      : 'skill-matrix-tile p-2.5 sm:p-3 rounded-2xl border transition group';
+
+    tile.style.background = 'var(--paper-2)';
+    tile.style.borderColor = 'var(--border)';
+    tile.style.minWidth = isCertCategory ? '150px' : '82px';
+    tile.style.maxWidth = isCertCategory ? '240px' : '96px';
+
+    const logoSvg = getSkillLogoSvg(skill, elementId, dotColor);
+
+    tile.innerHTML = `
+      <div class="skill-logo-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl mb-2 flex items-center justify-center shadow-xs" style="background: var(--paper-3);">
+        ${logoSvg}
+      </div>
+      <span class="text-[11px] font-bold tracking-tight text-center leading-snug line-clamp-2 w-full" style="color: var(--ink);" title="${escapeHtml(skill)}">
+        ${escapeHtml(skill)}
+      </span>
     `;
-    container.appendChild(pill);
+
+    container.appendChild(tile);
   });
 }
 
@@ -2310,6 +2433,7 @@ if (typeof module !== 'undefined' && module.exports) {
     JOBS_PER_PAGE,
     FALLBACK_DISCOVERY_JOBS,
     getAllVaultSkills,
+    getSkillLogoSvg,
     renderVaultUI,
     addDocumentToVault,
     deleteVaultDocument,
