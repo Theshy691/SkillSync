@@ -1,0 +1,33 @@
+name: PHP Backend Linting & Syntax Verification
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '*.php'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '*.php'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: curl, json, mbstring
+
+      - name: Run PHP Syntax Linter
+        run: |
+          for file in backend/*.php; do
+            echo "Checking syntax: $file"
+            php -l "$file"
+          done
