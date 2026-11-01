@@ -207,37 +207,39 @@ $geminiPayload = [
     ]
 ];
 
-$geminiCurl = curl_init($geminiUrl);
-curl_setopt_array($geminiCurl, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-    CURLOPT_POSTFIELDS => json_encode($geminiPayload),
-    CURLOPT_TIMEOUT => 25,
-    CURLOPT_SSL_VERIFYPEER => true
-]);
-
-$geminiResponse = curl_exec($geminiCurl);
-$geminiHttpCode = curl_getinfo($geminiCurl, CURLINFO_HTTP_CODE);
-$geminiErr = curl_error($geminiCurl);
-curl_close($geminiCurl);
-
-if ($geminiErr || $geminiHttpCode !== 200 || empty($geminiResponse)) {
-    error_log("[Scraper] Gemini API error: HTTP {$geminiHttpCode} - {$geminiErr}. Falling back to sanitized page content.");
-    $extractedText = mb_substr($plainText, 0, 4800);
-}
-
-$geminiJson = json_decode($geminiResponse, true);
 $extractedText = '';
 
-if (isset($geminiJson['candidates'][0]['content']['parts'][0]['text'])) {
-    $rawAiText = trim($geminiJson['candidates'][0]['content']['parts'][0]['text']);
-    // Decode JSON returned inside the response
-    $parsedAi = json_decode($rawAiText, true);
-    if (is_array($parsedAi) && !empty($parsedAi['cleaned_description'])) {
-        $extractedText = trim($parsedAi['cleaned_description']);
+if (!empty($geminiApiKey)) {
+    $geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$geminiApiKey}";
+    $geminiCurl = curl_init($geminiUrl);
+    curl_setopt_array($geminiCurl, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_POSTFIELDS => json_encode($geminiPayload),
+        CURLOPT_TIMEOUT => 25,
+        CURLOPT_SSL_VERIFYPEER => true
+    ]);
+
+    $geminiResponse = curl_exec($geminiCurl);
+    $geminiHttpCode = curl_getinfo($geminiCurl, CURLINFO_HTTP_CODE);
+    $geminiErr = curl_error($geminiCurl);
+    curl_close($geminiCurl);
+
+    if (!$geminiErr && $geminiHttpCode === 200 && !empty($geminiResponse)) {
+        $geminiJson = json_decode($geminiResponse, true);
+        if (isset($geminiJson['candidates'][0]['content']['parts'][0]['text'])) {
+            $rawAiText = trim($geminiJson['candidates'][0]['content']['parts'][0]['text']);
+            // Decode JSON returned inside the response
+            $parsedAi = json_decode($rawAiText, true);
+            if (is_array($parsedAi) && !empty($parsedAi['cleaned_description'])) {
+                $extractedText = trim($parsedAi['cleaned_description']);
+            } else {
+                $extractedText = $rawAiText;
+            }
+        }
     } else {
-        $extractedText = $rawAiText;
+        error_log("[Scraper] Gemini API error: HTTP {$geminiHttpCode} - {$geminiErr}. Falling back to sanitized page content.");
     }
 }
 

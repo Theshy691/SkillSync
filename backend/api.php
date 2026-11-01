@@ -46,11 +46,11 @@ $resume = '';
 $jobDescription = '';
 
 if (is_array($body)) {
-    $resume = trim($body['resume'] ?? '');
-    $jobDescription = trim($body['job_description'] ?? '');
+    $resume = trim($body['resume'] ?? ($body['resume_text'] ?? ''));
+    $jobDescription = trim($body['job_description'] ?? ($body['jobDescription'] ?? ''));
 } else {
-    $resume = trim($_POST['resume'] ?? '');
-    $jobDescription = trim($_POST['job_description'] ?? '');
+    $resume = trim($_POST['resume'] ?? ($_POST['resume_text'] ?? ''));
+    $jobDescription = trim($_POST['job_description'] ?? ($_POST['jobDescription'] ?? ''));
 }
 
 if (empty($resume) || empty($jobDescription)) {
@@ -74,11 +74,8 @@ if ($resumeLength > 5000 || $jobLength > 5000) {
 // 4. Gemini AI Request
 $geminiApiKey = getEnvVar('GEMINI_API_KEY', '');
 if (empty($geminiApiKey)) {
-    error_log("[API] Missing GEMINI_API_KEY.");
-    sendJsonResponse([
-        'error' => 'Configuration Error',
-        'message' => 'Gemini AI API key is not configured on the server.'
-    ], 500);
+    error_log("[API] Missing GEMINI_API_KEY. Falling back to resilient heuristic engine.");
+    sendJsonResponse(calculateHeuristicMatch($resume, $jobDescription), 200);
 }
 
 $geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$geminiApiKey}";
