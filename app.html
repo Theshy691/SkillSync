@@ -705,6 +705,162 @@
   </div>
 </div>
 
+<!-- Modal 8: 2-Week Skill Bridge Learning Roadmap -->
+<div id="roadmap-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="console-card max-w-2xl w-full p-6 shadow-2xl relative space-y-4 max-h-[90vh] flex flex-col">
+    <button type="button" id="closeRoadmapModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    
+    <div class="flex items-center space-x-3">
+      <div class="p-2.5 rounded-xl" style="background: var(--sage-light); color: var(--sage);">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+      </div>
+      <div>
+        <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">2-Week Skill Bridge Roadmap</h3>
+        <p id="roadmapSubtitle" class="text-xs" style="color: var(--ink-3);">Targeted curriculum to eliminate critical requirements gaps.</p>
+      </div>
+    </div>
+
+    <!-- Progress Meter -->
+    <div class="p-3.5 rounded-xl border space-y-2" style="background: var(--paper-2); border-color: var(--border);">
+      <div class="flex items-center justify-between text-xs font-semibold">
+        <span style="color: var(--ink);">Curriculum Completion</span>
+        <span id="roadmapProgressText" class="font-mono text-emerald-600 dark:text-emerald-400">0 / 6 Milestones (0%)</span>
+      </div>
+      <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--paper-3);">
+        <div id="roadmapProgressBar" class="h-full rounded-full transition-all duration-500" style="width: 0%; background: var(--sage);"></div>
+      </div>
+    </div>
+
+    <!-- Milestones List -->
+    <div id="roadmapMilestonesList" class="space-y-3 overflow-y-auto pr-1 flex-1">
+      <!-- Dynamic milestones -->
+    </div>
+
+    <!-- Actions -->
+    <div class="pt-3 border-t flex items-center justify-between" style="border-color: var(--border);">
+      <button type="button" id="resetRoadmapProgressBtn" class="px-3 py-1.5 text-xs font-semibold rounded-xl hover:bg-slate-500/10 transition inline-flex items-center space-x-1" style="color: var(--ink-3);">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span>Reset Progress</span>
+      </button>
+      <button type="button" id="closeRoadmapBtnBottom" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center space-x-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>Done</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 9: Company Research Dossier -->
+<div id="dossier-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="console-card max-w-2xl w-full p-6 shadow-2xl relative space-y-4 max-h-[90vh] flex flex-col">
+    <button type="button" id="closeDossierModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    
+    <div class="flex items-center space-x-3">
+      <div class="p-2.5 rounded-xl" style="background: var(--sky-light); color: var(--sky);">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      </div>
+      <div>
+        <h3 id="dossierCompanyTitle" class="text-base sm:text-lg font-bold" style="color: var(--ink);">Company Intelligence Dossier</h3>
+        <p id="dossierRoleSubtitle" class="text-xs" style="color: var(--ink-3);">Synthesized engineering context and strategic interview questions.</p>
+      </div>
+    </div>
+
+    <div class="space-y-4 overflow-y-auto pr-1 flex-1">
+      <!-- Inferred Stack -->
+      <div class="p-3.5 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
+        <div class="text-[11px] font-bold uppercase tracking-wider mb-2" style="color: var(--ink-2);">Inferred Tech Stack & Architecture</div>
+        <div id="dossierTechStackTags" class="flex flex-wrap gap-1.5">
+          <!-- Tags -->
+        </div>
+      </div>
+
+      <!-- Strategic Talking Points -->
+      <div class="p-3.5 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
+        <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
+          <svg class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Value-Add Talking Points</span>
+        </div>
+        <ul id="dossierTalkingPointsList" class="space-y-1.5">
+          <!-- Points -->
+        </ul>
+      </div>
+
+      <!-- Questions to Ask Interviewer -->
+      <div class="p-3.5 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
+        <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
+          <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>High-Impact Questions to Ask Your Interviewer</span>
+        </div>
+        <ul id="dossierInterviewerQuestionsList" class="space-y-1.5">
+          <!-- Questions -->
+        </ul>
+      </div>
+    </div>
+
+    <div class="pt-3 border-t flex items-center justify-end" style="border-color: var(--border);">
+      <button type="button" id="closeDossierBtnBottom" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center space-x-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>Done</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 10: LinkedIn Cold Outreach Generator -->
+<div id="outreach-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="console-card max-w-xl w-full p-6 shadow-2xl relative space-y-4">
+    <button type="button" id="closeOutreachModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    
+    <div class="flex items-center space-x-3">
+      <div class="p-2.5 rounded-xl" style="background: var(--sky-light); color: var(--sky);">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+      </div>
+      <div>
+        <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">LinkedIn Cold Outreach Drafts</h3>
+        <span class="text-[10px] font-mono opacity-70" style="color: var(--ink-3);">High-converting recruiter & manager messages</span>
+      </div>
+    </div>
+
+    <!-- Outreach Style Selector -->
+    <div class="grid grid-cols-3 gap-1.5 pt-1">
+      <button type="button" class="outreach-type-btn active px-2.5 py-1.5 text-[11px] font-semibold rounded-xl border transition" data-type="connect" style="background: var(--surface); color: var(--ink); border-color: var(--border);">
+        Connection (300ch)
+      </button>
+      <button type="button" class="outreach-type-btn px-2.5 py-1.5 text-[11px] font-semibold rounded-xl border transition" data-type="inmail" style="background: var(--paper-2); color: var(--ink-3); border-color: var(--border);">
+        Manager InMail
+      </button>
+      <button type="button" class="outreach-type-btn px-2.5 py-1.5 text-[11px] font-semibold rounded-xl border transition" data-type="coffee" style="background: var(--paper-2); color: var(--ink-3); border-color: var(--border);">
+        Peer Coffee Chat
+      </button>
+    </div>
+
+    <div class="space-y-1">
+      <div class="flex items-center justify-between text-xs" style="color: var(--ink-4);">
+        <span class="text-[11px] font-semibold" style="color: var(--ink-2);">Personalized Message Draft</span>
+        <span id="outreachCharCounter" class="font-mono text-[11px]">0 / 300</span>
+      </div>
+      <textarea id="outreachMessageText" rows="6" class="console-input w-full p-3 text-xs leading-relaxed font-sans resize-y"></textarea>
+    </div>
+
+    <div class="pt-3 border-t flex items-center justify-between" style="border-color: var(--border);">
+      <button type="button" id="copyOutreachBtn" class="px-3.5 py-1.5 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center space-x-1.5" style="background: var(--paper-2); color: var(--ink); border: 1px solid var(--border);">
+        <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Message</span>
+      </button>
+      <button type="button" id="closeOutreachBtnBottom" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center space-x-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>Done</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ========================================================================
      3. Main Workspace Container
      ======================================================================== -->
@@ -1013,7 +1169,13 @@
               <svg class="w-4 h-4 opacity-70" style="color: var(--ink);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
               <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Identified Skill Gaps</h4>
             </div>
-            <span class="text-[10px] opacity-60 font-medium" style="color: var(--ink-4);">Click to explore guides</span>
+            <div class="flex items-center space-x-2">
+              <button type="button" id="generateRoadmapBtn" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="background: var(--paper-2); color: var(--sage); border-color: var(--border);" title="Generate 2-week learning roadmap for missing skills">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                <span>2-Week Study Plan</span>
+              </button>
+              <span class="text-[10px] opacity-60 font-medium hidden sm:inline" style="color: var(--ink-4);">Click to explore guides</span>
+            </div>
           </div>
           <div id="skillsBadgesContainer" class="flex flex-wrap gap-2.5"></div>
         </div>

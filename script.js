@@ -3947,7 +3947,228 @@ function initPipeline() {
 }
 
 /**
- * 16. Main Application Initialization
+ * 17. 2-Week Skill Bridge Roadmap Generator
+ */
+let currentRoadmapData = [];
+
+function generateRoadmapCurriculum(missingSkills = []) {
+  const skills = (Array.isArray(missingSkills) && missingSkills.length > 0)
+    ? missingSkills.map(s => String(s).trim()).filter(Boolean)
+    : ['System Architecture', 'Modern Cloud / DevOps', 'API Optimization'];
+
+  const primarySkill = skills[0] || 'Technical Specialization';
+  const secondarySkill = skills[1] || primarySkill;
+  const tertiarySkill = skills[2] || secondarySkill;
+
+  const milestones = [
+    {
+      id: 'milestone_1',
+      dayRange: 'Days 1–2',
+      skill: primarySkill,
+      title: `${primarySkill}: Core Mental Model & Syntax Foundations`,
+      objective: `Master the foundational paradigm, project bootstrapping, and architectural primitives of ${primarySkill}.`,
+      hours: '4 hrs',
+      docsUrl: `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(primarySkill)}`
+    },
+    {
+      id: 'milestone_2',
+      dayRange: 'Days 3–5',
+      skill: primarySkill,
+      title: `${primarySkill}: Idiomatic Patterns & Production APIs`,
+      objective: `Implement state management, error boundaries, and concurrency/asynchronous workflows in ${primarySkill}.`,
+      hours: '6 hrs',
+      docsUrl: `https://developer.mozilla.org/en-US/search?q=${encodeURIComponent(primarySkill)}`
+    },
+    {
+      id: 'milestone_3',
+      dayRange: 'Days 6–7',
+      skill: secondarySkill,
+      title: `${secondarySkill}: Tooling & Verification Pipeline`,
+      objective: `Write unit and integration suites targeting 85%+ coverage, plus automated linting and pre-commit hooks for ${secondarySkill}.`,
+      hours: '5 hrs',
+      docsUrl: `https://www.google.com/search?q=${encodeURIComponent(secondarySkill + ' best practices')}`
+    },
+    {
+      id: 'milestone_4',
+      dayRange: 'Days 8–10',
+      skill: secondarySkill,
+      title: `${secondarySkill}: Performance Tuning & Scalability`,
+      objective: `Benchmark throughput, profile memory allocations, diagnose bottlenecks, and implement indexing/caching in ${secondarySkill}.`,
+      hours: '6 hrs',
+      docsUrl: `https://www.google.com/search?q=${encodeURIComponent(secondarySkill + ' performance optimization')}`
+    },
+    {
+      id: 'milestone_5',
+      dayRange: 'Days 11–12',
+      skill: tertiarySkill,
+      title: `${tertiarySkill}: Infrastructure, Security & Containerization`,
+      objective: `Dockerize the application, configure non-root security contexts, env secrets management, and automated CI/CD stages.`,
+      hours: '5 hrs',
+      docsUrl: `https://www.google.com/search?q=${encodeURIComponent(tertiarySkill + ' security hardening')}`
+    },
+    {
+      id: 'milestone_6',
+      dayRange: 'Days 13–14',
+      skill: primarySkill,
+      title: `Full-Stack Capstone Proof-of-Concept & Portfolio Demo`,
+      objective: `Synthesize ${primarySkill} and ${secondarySkill} into a production-grade mini-project deployed with live telemetry.`,
+      hours: '8 hrs',
+      docsUrl: `https://github.com/topics/${encodeURIComponent(primarySkill.toLowerCase().replace(/[^a-z0-9]/g, ''))}`
+    }
+  ];
+
+  return milestones;
+}
+
+function loadRoadmapProgress() {
+  try {
+    const raw = localStorage.getItem('skillsync_roadmap_progress');
+    return raw ? JSON.parse(raw) : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function saveRoadmapProgress(progressMap) {
+  try {
+    localStorage.setItem('skillsync_roadmap_progress', JSON.stringify(progressMap));
+  } catch (_) {}
+}
+
+function renderRoadmap(milestones = []) {
+  currentRoadmapData = milestones;
+  const listEl = document.getElementById('roadmapMilestonesList');
+  const barEl = document.getElementById('roadmapProgressBar');
+  const textEl = document.getElementById('roadmapProgressText');
+  const subtitleEl = document.getElementById('roadmapSubtitle');
+
+  const progress = loadRoadmapProgress();
+  const total = milestones.length;
+  let completedCount = 0;
+
+  milestones.forEach(m => {
+    if (progress[m.id]) completedCount++;
+  });
+
+  const percentage = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+
+  if (barEl) barEl.style.width = `${percentage}%`;
+  if (textEl) textEl.textContent = `${completedCount} / ${total} Milestones (${percentage}%)`;
+  if (subtitleEl && milestones.length > 0) {
+    const skillsUnique = [...new Set(milestones.map(m => m.skill))];
+    subtitleEl.textContent = `2-Week sprint covering: ${skillsUnique.join(', ')}`;
+  }
+
+  if (!listEl) return;
+  listEl.innerHTML = '';
+
+  if (milestones.length === 0) {
+    listEl.innerHTML = '<p class="text-xs p-6 text-center opacity-70" style="color: var(--ink-3);">No missing skills identified. You are fully aligned!</p>';
+    return;
+  }
+
+  milestones.forEach(m => {
+    const isDone = !!progress[m.id];
+    const card = document.createElement('div');
+    card.className = `p-3.5 rounded-xl border transition flex items-start space-x-3 ${isDone ? 'opacity-65' : ''}`;
+    card.style.background = isDone ? 'var(--paper-2)' : 'var(--surface)';
+    card.style.borderColor = isDone ? 'var(--border)' : 'var(--border)';
+
+    const ytUrl = generateYouTubeLink(m.skill);
+
+    card.innerHTML = `
+      <button type="button" class="roadmap-toggle-btn mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center transition shrink-0 ${isDone ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-400/60 hover:border-emerald-500'}" data-id="${escapeHtml(m.id)}" title="${isDone ? 'Mark incomplete' : 'Mark completed'}">
+        <svg class="w-3.5 h-3.5 ${isDone ? 'block' : 'hidden'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+      </button>
+      <div class="flex-1 min-w-0 space-y-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider" style="background: var(--sage-light); color: var(--sage);">${escapeHtml(m.dayRange)}</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md" style="background: var(--paper-3); color: var(--ink-2);">${escapeHtml(m.skill)}</span>
+          <span class="text-[10px] font-mono ml-auto opacity-70" style="color: var(--ink-4);">${escapeHtml(m.hours)}</span>
+        </div>
+        <h4 class="text-xs font-bold ${isDone ? 'line-through opacity-75' : ''}" style="color: var(--ink);">${escapeHtml(m.title)}</h4>
+        <p class="text-[11px] leading-relaxed opacity-80" style="color: var(--ink-2);">${escapeHtml(m.objective)}</p>
+        <div class="pt-1.5 flex items-center space-x-3 text-[11px]">
+          <a href="${ytUrl}" target="_blank" rel="noopener noreferrer" class="font-medium hover:underline inline-flex items-center space-x-1" style="color: var(--sage);">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Video Tutorial</span>
+          </a>
+          <a href="${m.docsUrl}" target="_blank" rel="noopener noreferrer" class="font-medium hover:underline inline-flex items-center space-x-1" style="color: var(--ink-3);">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            <span>Documentation</span>
+          </a>
+        </div>
+      </div>
+    `;
+
+    listEl.appendChild(card);
+  });
+}
+
+function toggleRoadmapMilestone(milestoneId) {
+  const progress = loadRoadmapProgress();
+  progress[milestoneId] = !progress[milestoneId];
+  saveRoadmapProgress(progress);
+  renderRoadmap(currentRoadmapData);
+}
+
+function resetRoadmapProgress() {
+  saveRoadmapProgress({});
+  renderRoadmap(currentRoadmapData);
+  showToast('Roadmap progress reset.', 'info');
+}
+
+function openRoadmapModal() {
+  const modal = document.getElementById('roadmap-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+
+  let missing = [];
+  if (lastAnalysisResult && Array.isArray(lastAnalysisResult.missing_skills) && lastAnalysisResult.missing_skills.length > 0) {
+    missing = lastAnalysisResult.missing_skills;
+  } else {
+    const jobTextEl = document.getElementById('jobText');
+    const jobText = jobTextEl ? jobTextEl.value : '';
+    const extracted = extractSkillsFromText(jobText);
+    missing = extracted.length > 0 ? extracted.slice(0, 3) : ['TypeScript', 'Docker', 'GraphQL'];
+  }
+
+  const milestones = generateRoadmapCurriculum(missing);
+  renderRoadmap(milestones);
+}
+
+function initRoadmap() {
+  const openBtn = document.getElementById('generateRoadmapBtn');
+  const closeBtn = document.getElementById('closeRoadmapModalBtn');
+  const closeBottomBtn = document.getElementById('closeRoadmapBtnBottom');
+  const resetBtn = document.getElementById('resetRoadmapProgressBtn');
+  const listEl = document.getElementById('roadmapMilestonesList');
+  const modal = document.getElementById('roadmap-modal');
+
+  if (openBtn) {
+    openBtn.addEventListener('click', openRoadmapModal);
+  }
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+  if (closeBottomBtn && modal) {
+    closeBottomBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+  if (resetBtn) {
+    resetBtn.addEventListener('click', resetRoadmapProgress);
+  }
+  if (listEl) {
+    listEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.roadmap-toggle-btn');
+      if (btn && btn.dataset.id) {
+        toggleRoadmapMilestone(btn.dataset.id);
+      }
+    });
+  }
+}
+
+/**
+ * 18. Main Application Initialization
  */
 function initApp() {
   if (!checkCdn()) return;
@@ -3967,6 +4188,7 @@ function initApp() {
   initSkillVault();
   initAiActionSuite();
   initPipeline();
+  initRoadmap();
 }
 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
@@ -4039,6 +4261,15 @@ if (typeof module !== 'undefined' && module.exports) {
     initPipeline,
     getPipelineJobs: () => pipelineJobs,
     setPipelineJobs: (jobs) => { pipelineJobs = jobs; },
+    generateRoadmapCurriculum,
+    loadRoadmapProgress,
+    saveRoadmapProgress,
+    renderRoadmap,
+    toggleRoadmapMilestone,
+    resetRoadmapProgress,
+    openRoadmapModal,
+    initRoadmap,
+    getCurrentRoadmapData: () => currentRoadmapData,
     initApp
   };
 }
