@@ -4,7 +4,7 @@
  * File: api.php
  *
  * Verifies Supabase authentication, enforces per-user rate limits,
- * validates character bounds (<= 5,000 characters), sends structured prompt
+ * validates payload safety thresholds (<= 100,000 characters), sends structured prompt
  * to Gemini AI, and returns match_score and missing_skills JSON.
  */
 

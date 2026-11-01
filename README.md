@@ -28,7 +28,7 @@ SkillSync is an enterprise-grade, full-stack ATS (Applicant Tracking System) sim
   - Server-Side Request Forgery (SSRF) protection blocking internal/metadata IP ranges.
   - Production error suppression with logging to a protected `secure_php_errors.log`.
   - Apache `.htaccess` rules denying direct HTTP access to `.env`, `.log`, `.sql`, and configuration files.
-  - Strict 5,000-character input boundary enforcement.
+  - High-capacity input processing supporting comprehensive resumes and enterprise job postings (up to 100,000 characters).
 - **Minimalist Modern UI**: Responsive design with Tailwind CSS, animated skeletons, custom SVG spinners, dark/light mode toggle with persistence, custom Tailwind confirmation modals, session expiration handling, and an inline CDN fallback banner.
 
 ---

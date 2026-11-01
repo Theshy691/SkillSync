@@ -32,11 +32,11 @@ paths:
               properties:
                 resume_text:
                   type: string
-                  maxLength: 5000
+                  maxLength: 100000
                   example: "Senior Software Engineer with 6+ years in React, Node, and TypeScript."
                 job_description:
                   type: string
-                  maxLength: 5000
+                  maxLength: 100000
                   example: "Seeking Full-Stack Engineer skilled in React, TypeScript, GraphQL, and AWS."
       responses:
         '200':

@@ -52,13 +52,13 @@ describe('SkillSync Frontend Test Suite', () => {
       const counter = document.getElementById('resumeCount');
 
       textarea.value = 'Hello World';
-      updateCharCounter(textarea, counter, 5000);
+      updateCharCounter(textarea, counter);
 
-      expect(counter.textContent).toBe('11 / 5,000');
+      expect(counter.textContent).toBe('11 chars');
       expect(counter.classList.contains('text-rose-500')).toBe(false);
     });
 
-    test('adds warning styling when character limit is reached or exceeded', () => {
+    test('supports optional custom max threshold styling when provided', () => {
       const textarea = document.getElementById('resumeText');
       const counter = document.getElementById('resumeCount');
 
@@ -70,14 +70,14 @@ describe('SkillSync Frontend Test Suite', () => {
       expect(counter.classList.contains('font-bold')).toBe(true);
     });
 
-    test('handles empty input gracefully', () => {
+    test('handles empty input gracefully in unlimited mode', () => {
       const textarea = document.getElementById('jobText');
       const counter = document.getElementById('jobCount');
 
       textarea.value = '';
-      updateCharCounter(textarea, counter, 5000);
+      updateCharCounter(textarea, counter);
 
-      expect(counter.textContent).toBe('0 / 5,000');
+      expect(counter.textContent).toBe('0 chars');
       expect(counter.classList.contains('text-rose-500')).toBe(false);
     });
   });
