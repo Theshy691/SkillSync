@@ -276,6 +276,24 @@ describe('SkillSync Frontend Test Suite', () => {
       expect(toast.textContent).toContain('Maximum 5 requests allowed per minute');
     });
 
+    test('handles 401 Session Expired response gracefully without unhandled crashes', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: async () => ({ error: 'Unauthorized', message: 'Invalid or expired user session.' })
+      });
+
+      const response = await fetch('api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resume: 'Sample resume', job_description: 'Sample job' })
+      });
+
+      expect(response.status).toBe(401);
+      const data = await response.json();
+      expect(data.error).toBe('Unauthorized');
+    });
+
     test('mocks Supabase database querying and deletion', async () => {
       const mockScanHistory = [
         {
