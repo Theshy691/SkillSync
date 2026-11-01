@@ -1915,11 +1915,11 @@ function recomputeAndRenderJobCards() {
 
   if (scoringStatusText) {
     if (candidateResume.length > 20) {
-      scoringStatusText.textContent = 'Scoring live postings against your uploaded resume.';
+      scoringStatusText.textContent = 'Scoring against uploaded resume';
     } else if (typeof getAllVaultSkills === 'function' && getAllVaultSkills().length > 0) {
-      scoringStatusText.textContent = `Scoring live postings against ${vaultDocumentsCache.length} verified documents in your Skill Vault.`;
+      scoringStatusText.textContent = `Scoring against ${vaultDocumentsCache.length} vault documents`;
     } else {
-      scoringStatusText.textContent = 'Using baseline developer profile (upload your resume for custom match scores).';
+      scoringStatusText.textContent = 'Baseline profile active';
     }
   }
 
@@ -2667,7 +2667,7 @@ function renderTailorBullets(bullets) {
         </button>
         <button type="button" class="btn-insert-bullet px-2.5 py-1 text-[11px] font-bold rounded-lg transition text-white btn-action-primary inline-flex items-center space-x-1">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          <span>Insert into Resume</span>
+          <span>Insert</span>
         </button>
       </div>
     `;
@@ -2865,7 +2865,10 @@ function renderInterviewQuestions(questions) {
         <p class="text-[11px] leading-relaxed opacity-90" style="color: var(--ink-3);">${escapeHtml(q.interviewer_intent || '')}</p>
       </div>
       <div class="pt-1">
-        <div class="font-bold text-[11px] mb-1.5 opacity-80" style="color: var(--ink-2);">Key Talking Points:</div>
+        <div class="font-bold text-[11px] mb-1.5 opacity-80 flex items-center space-x-1.5" style="color: var(--ink-2);">
+          <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Talking Points</span>
+        </div>
         <ul class="space-y-1.5 pl-0.5">
           ${pointsHtml}
         </ul>
@@ -2873,7 +2876,7 @@ function renderInterviewQuestions(questions) {
       <div class="pt-2 border-t flex items-center justify-end" style="border-color: var(--border);">
         <button type="button" class="btn-copy-single-q px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--ink-2); border: 1px solid var(--border);">
           <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-          <span>Copy Question</span>
+          <span>Copy</span>
         </button>
       </div>
     `;

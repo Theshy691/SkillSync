@@ -169,8 +169,9 @@
 
   <div class="nav-actions">
     <!-- Back to Landing Page -->
-    <a href="index.html" class="text-xs font-semibold px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition hidden md:inline-flex items-center space-x-1">
-      <span>&larr; Overview</span>
+    <a href="index.html" class="text-xs font-semibold px-2.5 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition inline-flex items-center space-x-1.5" title="Overview">
+      <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span class="hidden sm:inline">Overview</span>
     </a>
 
     <!-- Theme Toggle Switch (Same as Landing Page) -->
@@ -272,11 +273,11 @@
     <div class="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
     </div>
-    <h3 class="text-lg font-bold mb-2" style="color: var(--ink);">Session Expired</h3>
-    <p class="text-sm mb-6" style="color: var(--ink-3);">Your session has expired or requires re-authentication. Please sign in again or continue with instant demo.</p>
+    <h3 class="text-base sm:text-lg font-bold mb-1" style="color: var(--ink);">Session Expired</h3>
+    <p class="text-xs mb-5" style="color: var(--ink-3);">Please sign in again or continue with instant demo.</p>
     <div class="flex flex-col space-y-2">
-      <button id="sessionLoginBtn" class="w-full py-2.5 px-4 btn-action-primary text-white font-semibold rounded-xl transition inline-flex items-center justify-center space-x-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg><span>Sign In Again</span></button>
-      <button id="sessionDemoBtn" class="w-full py-2 px-4 rounded-xl text-xs font-semibold hover:bg-slate-500/10 transition inline-flex items-center justify-center space-x-2" style="color: var(--ink-2); border: 1px solid var(--border);"><svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg><span>Continue with Instant Demo</span></button>
+      <button id="sessionLoginBtn" class="w-full py-2.5 px-4 btn-action-primary text-white font-semibold rounded-xl transition inline-flex items-center justify-center space-x-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg><span>Sign In</span></button>
+      <button id="sessionDemoBtn" class="w-full py-2 px-4 rounded-xl text-xs font-semibold hover:bg-slate-500/10 transition inline-flex items-center justify-center space-x-2" style="color: var(--ink-2); border: 1px solid var(--border);"><svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg><span>Demo Session</span></button>
     </div>
   </div>
 </div>
@@ -292,13 +293,15 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
       </div>
       <div>
-        <h3 class="text-lg font-bold" style="color: var(--ink);">AI Resume Tailorer</h3>
-        <p class="text-xs" style="color: var(--ink-3);">Rewritten with Google's XYZ formula: <span class="font-mono">Accomplished [X] measured by [Y] by doing [Z]</span></p>
+        <div class="flex items-center space-x-2">
+          <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">AI Resume Tailorer</h3>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--sage-light); color: var(--sage);">Google XYZ</span>
+        </div>
       </div>
     </div>
 
     <!-- Strategic Advice Callout -->
-    <div id="tailorAdviceBox" class="p-3.5 rounded-xl border text-xs flex items-start space-x-2.5" style="background: var(--paper-2); border-color: var(--border); color: var(--ink);">
+    <div id="tailorAdviceBox" class="p-3 rounded-xl border text-xs flex items-start space-x-2.5" style="background: var(--paper-2); border-color: var(--border); color: var(--ink);">
       <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
       <div><span class="font-bold text-emerald-600 dark:text-emerald-400">Optimization Strategy:</span> <span id="tailorAdviceText">Analyzing resume and target role...</span></div>
     </div>
@@ -318,11 +321,11 @@
     <div class="pt-3 border-t flex flex-col sm:flex-row items-center justify-between gap-3" style="border-color: var(--border);">
       <button type="button" id="copyAllTailorBulletsBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center justify-center space-x-2" style="background: var(--paper-3); border: 1px solid var(--border); color: var(--ink);">
         <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-        <span>Copy All Bullets</span>
+        <span>Copy All</span>
       </button>
       <button type="button" id="insertAllTailorBulletsBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center justify-center space-x-2">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        <span>Append All to Resume</span>
+        <span>Append to Resume</span>
       </button>
     </div>
   </div>
@@ -339,8 +342,10 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
       </div>
       <div>
-        <h3 class="text-lg font-bold" style="color: var(--ink);">Tailored Cover Letter</h3>
-        <p class="text-xs" style="color: var(--ink-3);">Targeted 3-paragraph executive cover letter ready for application</p>
+        <div class="flex items-center space-x-2">
+          <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Cover Letter</h3>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--sky-light); color: var(--sky);">3 Paragraphs</span>
+        </div>
       </div>
     </div>
 
@@ -353,7 +358,7 @@
       <div>
         <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Writing Tone</label>
         <div class="grid grid-cols-3 gap-1.5">
-          <button type="button" class="cl-tone-btn px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition active-tone inline-flex items-center justify-center space-x-1.5" data-tone="modern" style="background: var(--surface); color: var(--ink); border: 1px solid var(--border);"><svg class="w-3 h-3 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg><span>Modern Tech</span></button>
+          <button type="button" class="cl-tone-btn px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition active-tone inline-flex items-center justify-center space-x-1.5" data-tone="modern" style="background: var(--surface); color: var(--ink); border: 1px solid var(--border);"><svg class="w-3 h-3 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg><span>Modern</span></button>
           <button type="button" class="cl-tone-btn px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition inline-flex items-center justify-center space-x-1.5" data-tone="startup" style="background: var(--paper-2); color: var(--ink-3); border: 1px solid var(--border);"><svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg><span>Startup</span></button>
           <button type="button" class="cl-tone-btn px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition inline-flex items-center justify-center space-x-1.5" data-tone="formal" style="background: var(--paper-2); color: var(--ink-3); border: 1px solid var(--border);"><svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span>Formal</span></button>
         </div>
@@ -375,16 +380,16 @@
     <div class="pt-3 border-t flex flex-col sm:flex-row items-center justify-between gap-3" style="border-color: var(--border);">
       <button type="button" id="clRegenerateBtn" class="w-full sm:w-auto px-3.5 py-2 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center justify-center space-x-1.5" style="background: var(--paper-2); border: 1px solid var(--border); color: var(--ink);">
         <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        <span>Regenerate Letter</span>
+        <span>Regenerate</span>
       </button>
       <div class="flex items-center space-x-2 w-full sm:w-auto">
         <button type="button" id="copyCoverLetterBtn" class="flex-1 sm:flex-initial px-3.5 py-2 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center justify-center space-x-1.5" style="background: var(--paper-3); border: 1px solid var(--border); color: var(--ink);">
           <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-          <span>Copy to Clipboard</span>
+          <span>Copy</span>
         </button>
         <button type="button" id="exportCoverLetterPdfBtn" class="flex-1 sm:flex-initial px-4 py-2 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          <span>Export Letter PDF</span>
+          <span>Export PDF</span>
         </button>
       </div>
     </div>
@@ -402,8 +407,10 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
       <div>
-        <h3 class="text-lg font-bold" style="color: var(--ink);">Technical Interview Prep</h3>
-        <p class="text-xs" style="color: var(--ink-3);">5 high-yield technical and system design questions targeting your skill gaps</p>
+        <div class="flex items-center space-x-2">
+          <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Interview Prep</h3>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--amber-light); color: var(--amber);">5 Questions</span>
+        </div>
       </div>
     </div>
 
@@ -422,7 +429,7 @@
     <div class="pt-3 border-t flex flex-col sm:flex-row items-center justify-between gap-3" style="border-color: var(--border);">
       <button type="button" id="copyAllInterviewBtn" class="w-full sm:w-auto px-3.5 py-2 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center justify-center space-x-1.5" style="background: var(--paper-3); border: 1px solid var(--border); color: var(--ink);">
         <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-        <span>Copy All Questions</span>
+        <span>Copy All</span>
       </button>
       <button type="button" id="closeInterviewBtnBottom" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -443,8 +450,7 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </div>
       <div>
-        <h3 class="text-lg font-bold" style="color: var(--ink);">Track Opportunity</h3>
-        <p class="text-xs" style="color: var(--ink-3);">Add a target job to your active application tracker</p>
+        <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Track Opportunity</h3>
       </div>
     </div>
 
@@ -540,30 +546,30 @@
     <!-- View Switcher Tabs: ATS Matcher vs. Smart Job Discovery -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4" style="border-color: var(--border);">
       <div class="inline-flex p-1 rounded-2xl self-start max-w-full overflow-x-auto scrollbar-none flex-nowrap" style="background: var(--paper-2); border: 1px solid var(--border);">
-        <button type="button" id="tabAtsMatcher" class="tab-btn px-4 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2" style="background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+        <button type="button" id="tabAtsMatcher" class="tab-btn px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-bold rounded-xl transition flex items-center space-x-1.5" style="background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
           <span>ATS Matcher</span>
         </button>
-        <button type="button" id="tabJobDiscovery" class="tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2" style="color: var(--ink-3);">
+        <button type="button" id="tabJobDiscovery" class="tab-btn px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-1.5" style="color: var(--ink-3);">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          <span>Discover Matching Jobs</span>
-          <span id="discoveryCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold" style="background: var(--sage-light); color: var(--sage);">Live</span>
+          <span>Jobs</span>
+          <span id="discoveryCountBadge" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold" style="background: var(--sage-light); color: var(--sage);">Live</span>
         </button>
-        <button type="button" id="tabSkillVault" class="tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2" style="color: var(--ink-3);">
+        <button type="button" id="tabSkillVault" class="tab-btn px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-1.5" style="color: var(--ink-3);">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-          <span>Skill Vault</span>
-          <span id="vaultDocsCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold" style="background: var(--paper-3); color: var(--ink);">2</span>
+          <span>Vault</span>
+          <span id="vaultDocsCountBadge" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold" style="background: var(--paper-3); color: var(--ink);">2</span>
         </button>
-        <button type="button" id="tabPipeline" class="tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2" style="color: var(--ink-3);">
+        <button type="button" id="tabPipeline" class="tab-btn px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-1.5" style="color: var(--ink-3);">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
-          <span>Job Pipeline</span>
-          <span id="pipelineCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold" style="background: var(--sky-light); color: var(--sky);">0</span>
+          <span>Pipeline</span>
+          <span id="pipelineCountBadge" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold" style="background: var(--sky-light); color: var(--sky);">0</span>
         </button>
       </div>
 
       <div class="flex items-center space-x-2 text-xs opacity-75" style="color: var(--ink-3);">
         <span class="w-2 h-2 rounded-full" style="background: var(--sage);"></span>
-        <span id="scoringEngineIndicator">Auto-Scoring vs. Uploaded Resume</span>
+        <span id="scoringEngineIndicator">Auto-Scoring Active</span>
       </div>
     </div>
 
@@ -588,20 +594,21 @@
               <button type="button" id="uploadPdfBtn" class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition" style="background: var(--sage-light); color: var(--sage); border: 1px solid var(--border);">
                 <svg id="uploadIconDefault" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                 <svg id="uploadIconSpinner" class="hidden animate-spin w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                <span id="uploadBtnText">Upload Document</span>
+                <span id="uploadBtnText">Upload</span>
               </button>
             </div>
           </div>
 
           <!-- Resume Textarea -->
           <label for="resumeText" class="sr-only">Resume Text</label>
-          <textarea id="resumeText" maxlength="5000" rows="7" placeholder="Paste candidate resume text, upload a PDF or image file (PNG/JPG), or paste a screenshot from clipboard (Cmd+V)..." class="console-input w-full p-3.5 text-sm resize-y font-sans min-h-[160px] sm:min-h-[220px]"></textarea>
+          <textarea id="resumeText" maxlength="5000" rows="7" placeholder="Paste resume text or drop PDF/image..." class="console-input w-full p-3.5 text-sm resize-y font-sans min-h-[160px] sm:min-h-[220px]"></textarea>
         </div>
 
         <!-- Character Counter & Input Hint -->
         <div class="flex items-center justify-between mt-2 pt-2 text-xs" style="color: var(--ink-4);">
           <span id="resumeSourceBadge" class="flex items-center space-x-1 opacity-70">
-            <span>Supports PDF, Image & Clipboard (Cmd+V)</span>
+            <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            <span>PDF, PNG, JPG, Text</span>
           </span>
           <span id="resumeCount" class="font-mono font-medium">0 / 5,000</span>
         </div>
@@ -619,21 +626,24 @@
 
           <!-- Web Scraper URL Bar -->
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-3">
-            <input type="url" id="jobUrlInput" placeholder="Job posting URL (e.g. LinkedIn, Greenhouse, Lever)..." class="console-input flex-1 px-3 py-2 text-xs">
+            <input type="url" id="jobUrlInput" placeholder="Job posting URL..." class="console-input flex-1 px-3 py-2 text-xs">
             <button type="button" id="scrapeBtn" class="btn-action-sky inline-flex items-center justify-center space-x-1.5 px-3 py-2 text-xs font-semibold whitespace-nowrap">
-              <span id="scrapeBtnText">Import from URL</span>
+              <span id="scrapeBtnText">Import</span>
               <svg id="scrapeSpinner" class="hidden animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
             </button>
           </div>
 
           <!-- Job Description Textarea -->
           <label for="jobText" class="sr-only">Job Description Text</label>
-          <textarea id="jobText" maxlength="5000" rows="7" placeholder="Paste target qualifications and requirements, or import directly from a job posting URL above..." class="console-input w-full p-3.5 text-sm resize-y font-sans min-h-[160px] sm:min-h-[220px]"></textarea>
+          <textarea id="jobText" maxlength="5000" rows="7" placeholder="Paste target qualifications and requirements..." class="console-input w-full p-3.5 text-sm resize-y font-sans min-h-[160px] sm:min-h-[220px]"></textarea>
         </div>
 
         <!-- Character Counter -->
         <div class="flex items-center justify-between mt-2 pt-2 text-xs" style="color: var(--ink-4);">
-          <span id="scrapeStatusBadge" class="opacity-70">Direct input or URL import</span>
+          <span id="scrapeStatusBadge" class="flex items-center space-x-1 opacity-70">
+            <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            <span>Direct or URL</span>
+          </span>
           <span id="jobCount" class="font-mono font-medium">0 / 5,000</span>
         </div>
       </div>
@@ -641,7 +651,8 @@
 
     <!-- Central Action: Analyze Button -->
     <div class="flex justify-center">
-      <button type="button" id="analyzeBtn" class="w-full sm:w-auto min-w-[280px] px-8 py-3.5 btn-action-primary text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-3 text-base">
+      <button type="button" id="analyzeBtn" class="w-full sm:w-auto min-w-[260px] px-8 py-3.5 btn-action-primary text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2.5 text-base">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         <span id="analyzeBtnText">Run Match Analysis</span>
         <svg id="analyzeSpinner" class="hidden animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
       </button>
@@ -690,11 +701,11 @@
           </div>
 
           <div class="flex items-center space-x-2 w-full sm:w-auto">
-            <button id="copyReportBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--border);">
+            <button id="copyReportBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--border);" title="Copy Summary">
               <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
-              <span>Copy Summary</span>
+              <span>Copy</span>
             </button>
-            <button id="exportPdfBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-white btn-action-primary">
+            <button id="exportPdfBtn" class="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-white btn-action-primary" title="Export PDF">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
               <span>Export PDF</span>
             </button>
@@ -772,11 +783,13 @@
 
         <!-- Missing Skills / Recommendations -->
         <div>
-          <div class="flex items-center space-x-2 mb-2">
-            <svg class="w-4 h-4 opacity-70" style="color: var(--ink);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-            <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Identified Skill Gaps</h4>
+          <div class="flex items-center justify-between mb-2.5">
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4 opacity-70" style="color: var(--ink);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+              <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Identified Skill Gaps</h4>
+            </div>
+            <span class="text-[10px] opacity-60 font-medium" style="color: var(--ink-4);">Click to explore guides</span>
           </div>
-          <p class="text-xs mb-3" style="color: var(--ink-3);">Recommended topics for skill alignment. Select any item to view related courses and learning guides:</p>
           <div id="skillsBadgesContainer" class="flex flex-wrap gap-2.5"></div>
         </div>
 
@@ -786,34 +799,43 @@
             AI Career Action Tools
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <button type="button" id="tailorResumeBtn" class="p-3.5 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-start space-x-3 cursor-pointer group hover:border-emerald-500/40" style="background: var(--paper-2); border-color: var(--border);">
-              <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--sage-light); color: var(--sage);">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <button type="button" id="tailorResumeBtn" class="p-3 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-center justify-between cursor-pointer group hover:border-emerald-500/40" style="background: var(--paper-2); border-color: var(--border);">
+              <div class="flex items-center space-x-2.5">
+                <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--sage-light); color: var(--sage);">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </div>
+                <div>
+                  <h5 class="text-xs font-bold" style="color: var(--ink);">Tailor Resume</h5>
+                  <span class="text-[10px] opacity-70" style="color: var(--ink-3);">Google XYZ Bullets</span>
+                </div>
               </div>
-              <div>
-                <h5 class="text-xs font-bold" style="color: var(--ink);">Tailor Resume Bullets</h5>
-                <p class="text-[11px] mt-0.5 leading-snug" style="color: var(--ink-3);">Rewrite experience with Google XYZ formula targeting missing skills.</p>
-              </div>
+              <svg class="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
 
-            <button type="button" id="generateCoverLetterBtn" class="p-3.5 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-start space-x-3 cursor-pointer group hover:border-sky-500/40" style="background: var(--paper-2); border-color: var(--border);">
-              <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--sky-light); color: var(--sky);">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <button type="button" id="generateCoverLetterBtn" class="p-3 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-center justify-between cursor-pointer group hover:border-sky-500/40" style="background: var(--paper-2); border-color: var(--border);">
+              <div class="flex items-center space-x-2.5">
+                <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--sky-light); color: var(--sky);">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                  <h5 class="text-xs font-bold" style="color: var(--ink);">Cover Letter</h5>
+                  <span class="text-[10px] opacity-70" style="color: var(--ink-3);">3-Paragraph Draft</span>
+                </div>
               </div>
-              <div>
-                <h5 class="text-xs font-bold" style="color: var(--ink);">Generate Cover Letter</h5>
-                <p class="text-[11px] mt-0.5 leading-snug" style="color: var(--ink-3);">High-converting 3-paragraph tailored cover letter ready to export.</p>
-              </div>
+              <svg class="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
 
-            <button type="button" id="interviewPrepBtn" class="p-3.5 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-start space-x-3 cursor-pointer group hover:border-amber-500/40" style="background: var(--paper-2); border-color: var(--border);">
-              <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--amber-light); color: var(--amber);">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <button type="button" id="interviewPrepBtn" class="p-3 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-center justify-between cursor-pointer group hover:border-amber-500/40" style="background: var(--paper-2); border-color: var(--border);">
+              <div class="flex items-center space-x-2.5">
+                <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--amber-light); color: var(--amber);">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                  <h5 class="text-xs font-bold" style="color: var(--ink);">Interview Prep</h5>
+                  <span class="text-[10px] opacity-70" style="color: var(--ink-3);">5 Target Questions</span>
+                </div>
               </div>
-              <div>
-                <h5 class="text-xs font-bold" style="color: var(--ink);">Technical Interview Prep</h5>
-                <p class="text-[11px] mt-0.5 leading-snug" style="color: var(--ink-3);">5 targeted interview questions with model talking points.</p>
-              </div>
+              <svg class="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
           </div>
         </div>
@@ -825,21 +847,20 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 class="text-xl font-extrabold tracking-tight" style="color: var(--ink);">Scan History</h3>
-          <p class="text-xs" style="color: var(--ink-3);">Past resume evaluations and match records</p>
         </div>
 
-        <div class="flex items-center justify-between sm:justify-end space-x-2.5 w-full sm:w-auto">
+        <div class="flex items-center justify-between sm:justify-end space-x-2 w-full sm:w-auto">
           <label for="sortDashboard" class="sr-only">Sort History</label>
           <select id="sortDashboard" class="console-input flex-1 sm:flex-initial px-3 py-1.5 text-xs font-medium cursor-pointer">
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
             <option value="score_desc">Highest Score</option>
             <option value="score_asc">Lowest Score</option>
           </select>
 
-          <button id="clearAllBtn" type="button" class="whitespace-nowrap px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 border border-rose-500/30 rounded-xl transition inline-flex items-center space-x-1.5">
+          <button id="clearAllBtn" type="button" class="whitespace-nowrap px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 border border-rose-500/30 rounded-xl transition inline-flex items-center space-x-1" title="Clear All History">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            <span>Clear History</span>
+            <span>Clear</span>
           </button>
         </div>
       </div>
@@ -883,19 +904,21 @@
       </div>
 
       <!-- Active Resume Banner for Pre-Scoring -->
-      <div id="resumeScoringBanner" class="px-4 py-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs" style="background: var(--paper-2); border: 1px solid var(--border);">
+      <div id="resumeScoringBanner" class="px-4 py-2.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs" style="background: var(--paper-2); border: 1px solid var(--border);">
         <div class="flex items-center space-x-2">
           <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span id="scoringStatusText" style="color: var(--ink-2);">Scoring live postings against your uploaded resume profile.</span>
+          <span id="scoringStatusText" style="color: var(--ink-2);">Scoring against uploaded resume</span>
         </div>
-        <span class="font-mono text-[11px] opacity-75 self-end sm:self-auto" style="color: var(--ink-4);">Ranked by Compatibility</span>
+        <span class="font-mono text-[11px] opacity-75 self-end sm:self-auto flex items-center space-x-1" style="color: var(--ink-4);">
+          <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/></svg>
+          <span>Ranked by Fit</span>
+        </span>
       </div>
 
       <!-- Loading State -->
-      <div id="jobsLoading" class="hidden console-card p-12 text-center animate-pulse">
-        <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-        <p class="text-xs font-semibold" style="color: var(--ink);">Fetching active tech listings...</p>
-        <p class="text-[11px] mt-1" style="color: var(--ink-3);">Calculating semantic ATS match scores in real time.</p>
+      <div id="jobsLoading" class="hidden console-card p-10 text-center animate-pulse">
+        <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-2.5"></div>
+        <p class="text-xs font-semibold" style="color: var(--ink);">Loading live roles...</p>
       </div>
 
       <!-- Live Job Cards Grid -->
@@ -939,14 +962,14 @@
     <section id="vault-view" class="hidden space-y-6">
 
       <!-- Vault Top Banner & Overview -->
-      <div class="console-card p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="console-card p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div class="flex items-center space-x-2 mb-1">
-            <span class="w-2.5 h-2.5 rounded-full" style="background: var(--sage);"></span>
-            <h3 class="text-lg font-bold" style="color: var(--ink);">Candidate Skill Vault</h3>
+            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Candidate Skill Vault</h3>
           </div>
-          <p class="text-xs leading-relaxed max-w-xl" style="color: var(--ink-3);">
-            Store your master resume, certifications, and technical credentials. The Autonomous Scout Agent synthesizes your verified profile and pre-scores live tech jobs in real time.
+          <p class="text-xs max-w-xl" style="color: var(--ink-3);">
+            Master credentials, certificates, and verified technical knowledge base.
           </p>
         </div>
 
@@ -954,7 +977,7 @@
           <input type="file" id="vaultDocFileInput" accept=".pdf, image/*, .png, .jpg, .jpeg, .txt" class="hidden">
           <button type="button" id="uploadVaultDocBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white flex items-center justify-center space-x-2 shadow-sm rounded-xl">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            <span>Add Credential / Document</span>
+            <span>Add Credential</span>
           </button>
         </div>
       </div>
@@ -978,24 +1001,29 @@
         </div>
 
         <!-- Column 2: Synthesized Verified Skills Matrix (2/3 width) -->
-        <div class="console-card p-6 lg:col-span-2 space-y-6">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b" style="border-color: var(--border);">
-            <div>
-              <h4 class="font-bold text-sm" style="color: var(--ink);">Verified Skill Matrix</h4>
-              <p class="text-xs" style="color: var(--ink-3);">Extracted from your vault credentials and applied to live job recommendations.</p>
+        <div class="console-card p-5 sm:p-6 lg:col-span-2 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b" style="border-color: var(--border);">
+            <div class="flex items-center space-x-2.5">
+              <div class="p-1.5 rounded-xl" style="background: var(--sage-light); color: var(--sage);">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <div class="flex items-center space-x-2">
+                <h4 class="font-bold text-sm" style="color: var(--ink);">Verified Skill Matrix</h4>
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md" style="background: var(--sage-light); color: var(--sage);">Auto-Synced</span>
+              </div>
             </div>
             <button type="button" id="syncVaultToWorkspaceBtn" class="w-full sm:w-auto justify-center px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center space-x-1.5 self-start sm:self-auto hover:bg-slate-500/10" style="background: var(--paper-2); border: 1px solid var(--border); color: var(--ink);">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-              <span>Sync to ATS Workspace</span>
+              <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>Sync to ATS</span>
             </button>
           </div>
 
           <!-- Skill Categories Grid -->
-          <div class="space-y-4">
+          <div class="space-y-5">
             <!-- Languages -->
             <div>
-              <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
-                <span class="w-2 h-2 rounded-full" style="background: var(--sage);"></span>
+              <div class="text-[11px] font-bold uppercase tracking-wider mb-2.5 flex items-center space-x-1.5" style="color: var(--ink-2);">
+                <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
                 <span>Languages</span>
               </div>
               <div id="vaultMatrixLanguages" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
@@ -1003,8 +1031,8 @@
 
             <!-- Frameworks & Libraries -->
             <div>
-              <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
-                <span class="w-2 h-2 rounded-full" style="background: var(--sky);"></span>
+              <div class="text-[11px] font-bold uppercase tracking-wider mb-2.5 flex items-center space-x-1.5" style="color: var(--ink-2);">
+                <svg class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 <span>Frameworks & Libraries</span>
               </div>
               <div id="vaultMatrixFrameworks" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
@@ -1012,17 +1040,17 @@
 
             <!-- Cloud, Infrastructure & Databases -->
             <div>
-              <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
-                <span class="w-2 h-2 rounded-full" style="background: var(--amber);"></span>
-                <span>Cloud, Infrastructure & Databases</span>
+              <div class="text-[11px] font-bold uppercase tracking-wider mb-2.5 flex items-center space-x-1.5" style="color: var(--ink-2);">
+                <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+                <span>Cloud & Infrastructure</span>
               </div>
               <div id="vaultMatrixCloud" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
             </div>
 
             <!-- Certifications & Accreditations -->
             <div>
-              <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
-                <span class="w-2 h-2 rounded-full" style="background: var(--rose);"></span>
+              <div class="text-[11px] font-bold uppercase tracking-wider mb-2.5 flex items-center space-x-1.5" style="color: var(--ink-2);">
+                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
                 <span>Verified Certifications</span>
               </div>
               <div id="vaultMatrixCertifications" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
@@ -1041,18 +1069,18 @@
       <div class="console-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div class="flex items-center space-x-2 mb-1">
-            <span class="w-2.5 h-2.5 rounded-full" style="background: var(--sky);"></span>
-            <h3 class="text-lg font-bold" style="color: var(--ink);">Application Pipeline</h3>
+            <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+            <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Application Pipeline</h3>
           </div>
-          <p class="text-xs leading-relaxed max-w-xl" style="color: var(--ink-3);">
-            Track your job hunt end-to-end. Click "Track Job" on any posting in Discovery, or add target opportunities manually.
+          <p class="text-xs" style="color: var(--ink-3);">
+            Track applications from initial discovery through active offers.
           </p>
         </div>
 
         <div class="flex items-center space-x-2 w-full sm:w-auto">
           <button type="button" id="addPipelineJobBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white flex items-center justify-center space-x-2 shadow-sm rounded-xl">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            <span>Add Role Manually</span>
+            <span>Add Role</span>
           </button>
         </div>
       </div>
@@ -1064,7 +1092,7 @@
         <div class="console-card p-4 space-y-3 flex flex-col">
           <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border);">
             <div class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full" style="background: var(--ink-3);"></span>
+              <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
               <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Saved</h4>
             </div>
             <span id="colCountSaved" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-85" style="background: var(--paper-3); color: var(--ink);">0</span>
@@ -1078,7 +1106,7 @@
         <div class="console-card p-4 space-y-3 flex flex-col">
           <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border);">
             <div class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full" style="background: var(--sky);"></span>
+              <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
               <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Applied</h4>
             </div>
             <span id="colCountApplied" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-85" style="background: var(--sky-light); color: var(--sky);">0</span>
@@ -1092,7 +1120,7 @@
         <div class="console-card p-4 space-y-3 flex flex-col">
           <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border);">
             <div class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full" style="background: var(--amber);"></span>
+              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
               <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Interviewing</h4>
             </div>
             <span id="colCountInterviewing" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-85" style="background: var(--amber-light); color: var(--amber);">0</span>
@@ -1106,7 +1134,7 @@
         <div class="console-card p-4 space-y-3 flex flex-col">
           <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border);">
             <div class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full" style="background: var(--sage);"></span>
+              <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Offer</h4>
             </div>
             <span id="colCountOffer" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-85" style="background: var(--sage-light); color: var(--sage);">0</span>
