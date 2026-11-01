@@ -3314,7 +3314,7 @@ function initAiActionSuite() {
 }
 
 /**
- * 15. Job Application Pipeline Kanban Tracker
+ * 15. Job Application Pipeline Kanban Tracker & Analytics Engine
  */
 let pipelineJobs = [
   {
@@ -3340,6 +3340,121 @@ let pipelineJobs = [
     created_at: new Date().toISOString().split('T')[0]
   }
 ];
+
+function checkFollowupDue(job) {
+  if (!job || !job.created_at) return { due: false, days: 0 };
+  const createdTime = new Date(job.created_at).getTime();
+  if (isNaN(createdTime)) return { due: false, days: 0 };
+  const daysDiff = Math.max(0, Math.floor((Date.now() - createdTime) / (1000 * 60 * 60 * 24)));
+
+  if (job.status === 'applied' && daysDiff >= 5) {
+    return { due: true, label: `${daysDiff}d • Follow-Up Due`, type: 'checkin', days: daysDiff };
+  }
+  if (job.status === 'interviewing' && daysDiff >= 3) {
+    return { due: true, label: `${daysDiff}d • Check-In Due`, type: 'status', days: daysDiff };
+  }
+  return { due: false, days: daysDiff };
+}
+
+function generateFollowupEmail(company = 'Company', role = 'Software Engineer', type = 'checkin') {
+  let subject = '';
+  let body = '';
+
+  if (type === 'thankyou') {
+    subject = `Thank you for the opportunity - ${role} interview`;
+    body = `Hi [Interviewer Name],\n\nThank you so much for taking the time to speak with me today about the ${role} position at ${company}.\n\nI really enjoyed learning more about the team's technical roadmap and engineering challenges. Our conversation reinforced my excitement about the role, particularly how my experience with scalable architecture can contribute to your goals.\n\nPlease don't hesitate to reach out if you need any additional information or work samples.\n\nBest regards,\n[Your Name]`;
+  } else if (type === 'status') {
+    subject = `Checking in regarding the ${role} application - [Your Name]`;
+    body = `Hi [Recruiter / Hiring Team],\n\nI hope you're having a productive week.\n\nI wanted to follow up on our recent interview for the ${role} opening at ${company}. I remain very enthusiastic about the position and the opportunity to support your team.\n\nCould you please share if there are any updates regarding the next steps in the hiring process?\n\nThank you again for your time and guidance.\n\nWarmly,\n[Your Name]`;
+  } else {
+    subject = `Application Follow-Up: ${role} - [Your Name]`;
+    body = `Hi [Hiring Team],\n\nI hope this email finds you well.\n\nI recently submitted my application for the ${role} role at ${company} and wanted to reiterate my strong enthusiasm for joining your team.\n\nGiven my background in full-stack systems and automated workflows, I am confident I can make an immediate impact on your upcoming technical deliverables.\n\nI look forward to hearing about the next steps.\n\nBest regards,\n[Your Name]\n[Portfolio/GitHub Link]`;
+  }
+
+  return { subject, body };
+}
+
+function calculatePipelineMetrics(jobs = pipelineJobs) {
+  const total = jobs.length;
+  const saved = jobs.filter(j => j.status === 'saved').length;
+  const applied = jobs.filter(j => j.status === 'applied').length;
+  const interviewing = jobs.filter(j => j.status === 'interviewing').length;
+  const offer = jobs.filter(j => j.status === 'offer').length;
+
+  const activeInFlight = applied + interviewing;
+  const denominator = applied + interviewing + offer;
+  const interviewRate = denominator > 0 ? Math.round(((interviewing + offer) / denominator) * 100) : 0;
+  const offerRate = denominator > 0 ? Math.round((offer / denominator) * 100) : 0;
+
+  const validScores = jobs.filter(j => typeof j.score === 'number' && j.score > 0);
+  const avgScore = validScores.length > 0
+    ? Math.round(validScores.reduce((acc, curr) => acc + curr.score, 0) / validScores.length)
+    : 75;
+
+  return {
+    total,
+    saved,
+    applied,
+    interviewing,
+    offer,
+    activeInFlight,
+    interviewRate,
+    offerRate,
+    avgScore
+  };
+}
+
+function renderPipelineAnalytics(metrics) {
+  const m = metrics || calculatePipelineMetrics(pipelineJobs);
+
+  const totalEl = document.getElementById('metricTotalRoles');
+  const activeEl = document.getElementById('metricActiveInFlight');
+  const interviewRateEl = document.getElementById('metricInterviewRate');
+  const avgFitEl = document.getElementById('metricAvgFit');
+  const offerCountEl = document.getElementById('metricOfferCount');
+
+  if (totalEl) totalEl.textContent = m.total;
+  if (activeEl) activeEl.textContent = m.activeInFlight;
+  if (interviewRateEl) interviewRateEl.textContent = `${m.interviewRate}%`;
+  if (avgFitEl) avgFitEl.textContent = `${m.avgScore}%`;
+  if (offerCountEl) offerCountEl.textContent = `${m.offer} Offer${m.offer === 1 ? '' : 's'}`;
+
+  const barSaved = document.getElementById('funnelBarSaved');
+  const barApplied = document.getElementById('funnelBarApplied');
+  const barInterview = document.getElementById('funnelBarInterview');
+  const barOffer = document.getElementById('funnelBarOffer');
+
+  if (m.total > 0) {
+    if (barSaved) barSaved.style.width = `${Math.max(5, Math.round((m.saved / m.total) * 100))}%`;
+    if (barApplied) barApplied.style.width = `${Math.max(5, Math.round((m.applied / m.total) * 100))}%`;
+    if (barInterview) barInterview.style.width = `${Math.max(5, Math.round((m.interviewing / m.total) * 100))}%`;
+    if (barOffer) barOffer.style.width = `${Math.max(5, Math.round((m.offer / m.total) * 100))}%`;
+  }
+}
+
+function openFollowupModal(job, defaultType = 'checkin') {
+  const modal = document.getElementById('followup-modal');
+  if (!modal) return;
+
+  const companyInput = document.getElementById('followupCompanyInput');
+  const roleInput = document.getElementById('followupRoleInput');
+  const typeSelect = document.getElementById('followupTypeSelect');
+  const subjectInput = document.getElementById('followupSubjectInput');
+  const bodyText = document.getElementById('followupBodyText');
+
+  const company = job ? (job.company_name || 'Target Company') : 'Target Company';
+  const role = job ? (job.title || 'Software Engineer') : 'Software Engineer';
+
+  if (companyInput) companyInput.value = company;
+  if (roleInput) roleInput.value = role;
+  if (typeSelect) typeSelect.value = defaultType;
+
+  const email = generateFollowupEmail(company, role, defaultType);
+  if (subjectInput) subjectInput.value = email.subject;
+  if (bodyText) bodyText.value = email.body;
+
+  modal.classList.remove('hidden');
+}
 
 function loadPipelineFromStorage() {
   try {
@@ -3430,6 +3545,8 @@ function renderPipeline() {
   if (countOffer) countOffer.textContent = buckets.offer.length;
   if (tabBadge) tabBadge.textContent = pipelineJobs.length;
 
+  renderPipelineAnalytics(calculatePipelineMetrics(pipelineJobs));
+
   const renderColumn = (container, jobs, stageKey) => {
     container.innerHTML = '';
     if (jobs.length === 0) {
@@ -3481,6 +3598,13 @@ function renderPipeline() {
       card.style.borderColor = 'var(--border)';
 
       const colors = getScoreColorClasses(j.score || 70);
+      const followupCheck = checkFollowupDue(j);
+      const followupBadgeHtml = followupCheck.due
+        ? `<button type="button" class="btn-pipe-followup px-2 py-0.5 rounded-md text-[10px] font-bold inline-flex items-center space-x-1 transition hover:opacity-90" style="background: var(--amber-light); color: var(--amber);">
+             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+             <span>${followupCheck.label}</span>
+           </button>`
+        : '';
 
       card.innerHTML = `
         <div class="flex items-start justify-between gap-2">
@@ -3497,6 +3621,7 @@ function renderPipeline() {
           <span>${escapeHtml(j.salary)}</span>
           <span>${escapeHtml(j.created_at)}</span>
         </div>
+        ${followupBadgeHtml ? `<div class="pt-0.5">${followupBadgeHtml}</div>` : ''}
 
         <div class="pt-2 border-t flex items-center justify-between gap-1" style="border-color: var(--border);">
           <select class="pipe-status-select console-input text-[10px] px-2 py-1 rounded-lg cursor-pointer">
@@ -3531,6 +3656,13 @@ function renderPipeline() {
       if (salaryCardBtn) {
         salaryCardBtn.addEventListener('click', () => {
           openSalaryModal(j);
+        });
+      }
+
+      const followupBtn = card.querySelector('.btn-pipe-followup');
+      if (followupBtn) {
+        followupBtn.addEventListener('click', () => {
+          openFollowupModal(j, followupCheck.type || 'checkin');
         });
       }
 
@@ -3606,6 +3738,52 @@ function initPipeline() {
 
       form.reset();
       closeAddModal();
+    });
+  }
+
+  // Pipeline Analytics Toggle Listener
+  const toggleAnalyticsBtn = document.getElementById('togglePipelineAnalyticsBtn');
+  const analyticsPanel = document.getElementById('pipelineAnalyticsPanel');
+  if (toggleAnalyticsBtn && analyticsPanel) {
+    toggleAnalyticsBtn.addEventListener('click', () => {
+      analyticsPanel.classList.toggle('hidden');
+    });
+  }
+
+  // Follow-Up Modal Listeners
+  const closeFollowupBtn = document.getElementById('closeFollowupModalBtn');
+  const closeFollowupBottomBtn = document.getElementById('closeFollowupBtnBottom');
+  const closeFollowupFn = () => {
+    document.getElementById('followup-modal')?.classList.add('hidden');
+  };
+  if (closeFollowupBtn) closeFollowupBtn.addEventListener('click', closeFollowupFn);
+  if (closeFollowupBottomBtn) closeFollowupBottomBtn.addEventListener('click', closeFollowupFn);
+
+  const followupTypeSelect = document.getElementById('followupTypeSelect');
+  if (followupTypeSelect) {
+    followupTypeSelect.addEventListener('change', () => {
+      const company = document.getElementById('followupCompanyInput')?.value.trim() || 'Company';
+      const role = document.getElementById('followupRoleInput')?.value.trim() || 'Software Engineer';
+      const email = generateFollowupEmail(company, role, followupTypeSelect.value);
+      const sub = document.getElementById('followupSubjectInput');
+      const body = document.getElementById('followupBodyText');
+      if (sub) sub.value = email.subject;
+      if (body) body.value = email.body;
+    });
+  }
+
+  const copyFollowupBtn = document.getElementById('copyFollowupEmailBtn');
+  if (copyFollowupBtn) {
+    copyFollowupBtn.addEventListener('click', async () => {
+      const sub = document.getElementById('followupSubjectInput')?.value || '';
+      const body = document.getElementById('followupBodyText')?.value || '';
+      const fullText = `Subject: ${sub}\n\n${body}`;
+      try {
+        await navigator.clipboard.writeText(fullText);
+        showToast('Copied follow-up email to clipboard!', 'success');
+      } catch (_) {
+        showToast('Copied email.', 'success');
+      }
     });
   }
 
@@ -3685,6 +3863,11 @@ if (typeof module !== 'undefined' && module.exports) {
     renderSalaryInsights,
     openSalaryModal,
     initAiActionSuite,
+    calculatePipelineMetrics,
+    renderPipelineAnalytics,
+    checkFollowupDue,
+    generateFollowupEmail,
+    openFollowupModal,
     addJobToPipeline,
     updatePipelineJobStatus,
     deletePipelineJob,

@@ -608,6 +608,69 @@
   </div>
 </div>
 
+<!-- Modal 6: Smart Follow-Up Email Reminder -->
+<div id="followup-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="console-card max-w-xl w-full p-6 shadow-2xl relative space-y-4">
+    <button type="button" id="closeFollowupModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    
+    <div class="flex items-center space-x-3">
+      <div class="p-2.5 rounded-xl" style="background: var(--amber-light); color: var(--amber);">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Follow-Up Email Draft</h3>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--amber-light); color: var(--amber);">Smart Nudge</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Template Selector & Details -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+      <div>
+        <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Company / Team</label>
+        <input type="text" id="followupCompanyInput" class="console-input w-full px-3 py-1.5 text-xs">
+      </div>
+      <div>
+        <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Role Title</label>
+        <input type="text" id="followupRoleInput" class="console-input w-full px-3 py-1.5 text-xs">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Follow-Up Context</label>
+      <select id="followupTypeSelect" class="console-input w-full px-3 py-2 text-xs cursor-pointer">
+        <option value="checkin">5+ Days After Applying (Application Check-In)</option>
+        <option value="thankyou">24-48 Hours After Interview (Thank You Note)</option>
+        <option value="status">1+ Week After Interview (Decision Status Check)</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Subject Line</label>
+      <input type="text" id="followupSubjectInput" class="console-input w-full px-3 py-1.5 text-xs font-medium">
+    </div>
+
+    <div>
+      <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Email Body</label>
+      <textarea id="followupBodyText" rows="7" class="console-input w-full p-3 text-xs leading-relaxed resize-y font-serif"></textarea>
+    </div>
+
+    <div class="pt-3 border-t flex items-center justify-between" style="border-color: var(--border);">
+      <button type="button" id="copyFollowupEmailBtn" class="px-3 py-1.5 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center space-x-1.5" style="background: var(--paper-2); color: var(--ink); border: 1px solid var(--border);">
+        <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Email</span>
+      </button>
+      <button type="button" id="closeFollowupBtnBottom" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center space-x-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>Done</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ========================================================================
      3. Main Workspace Container
      ======================================================================== -->
@@ -1204,10 +1267,59 @@
         </div>
 
         <div class="flex items-center space-x-2 w-full sm:w-auto">
+          <button type="button" id="togglePipelineAnalyticsBtn" class="w-full sm:w-auto px-3 py-2 text-xs font-semibold rounded-xl transition flex items-center justify-center space-x-1.5 hover:bg-slate-500/10" style="background: var(--paper-2); border: 1px solid var(--border); color: var(--ink);">
+            <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span id="analyticsToggleText">Analytics</span>
+          </button>
           <button type="button" id="addPipelineJobBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white flex items-center justify-center space-x-2 shadow-sm rounded-xl">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Add Role</span>
           </button>
+        </div>
+      </div>
+
+      <!-- Pipeline Analytics & Funnel Breakdown Panel (Collapsible) -->
+      <div id="pipelineAnalyticsPanel" class="console-card p-4 sm:p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Application Velocity & Conversion Funnel</h4>
+          </div>
+          <span class="text-[10px] font-mono opacity-70" style="color: var(--ink-3);">Real-time metrics</span>
+        </div>
+
+        <!-- 4 Metric Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
+            <span class="text-[10px] opacity-70 block" style="color: var(--ink-3);">Total Opportunities</span>
+            <span id="metricTotalRoles" class="text-base font-black font-mono mt-0.5 block" style="color: var(--ink);">0</span>
+          </div>
+          <div class="p-3 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
+            <span class="text-[10px] opacity-70 block" style="color: var(--ink-3);">Active in Flight</span>
+            <span id="metricActiveInFlight" class="text-base font-black font-mono mt-0.5 block" style="color: var(--sky);">0</span>
+          </div>
+          <div class="p-3 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
+            <span class="text-[10px] opacity-70 block" style="color: var(--ink-3);">Interview Conversion</span>
+            <span id="metricInterviewRate" class="text-base font-black font-mono mt-0.5 block" style="color: var(--amber);">0%</span>
+          </div>
+          <div class="p-3 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
+            <span class="text-[10px] opacity-70 block" style="color: var(--ink-3);">Average Fit Score</span>
+            <span id="metricAvgFit" class="text-base font-black font-mono mt-0.5 block" style="color: var(--sage);">--%</span>
+          </div>
+        </div>
+
+        <!-- Funnel Progression Bar -->
+        <div class="space-y-1.5 pt-1">
+          <div class="flex items-center justify-between text-[11px] font-medium" style="color: var(--ink-3);">
+            <span>Funnel Distribution: Saved &rarr; Applied &rarr; Interviewing &rarr; Offer</span>
+            <span id="metricOfferCount" class="font-bold font-mono" style="color: var(--sage);">0 Offers</span>
+          </div>
+          <div class="w-full h-2.5 rounded-full overflow-hidden flex" style="background: var(--paper-3);">
+            <div id="funnelBarSaved" class="h-full transition-all duration-500" style="width: 25%; background: var(--border);" title="Saved"></div>
+            <div id="funnelBarApplied" class="h-full transition-all duration-500" style="width: 25%; background: var(--sky);" title="Applied"></div>
+            <div id="funnelBarInterview" class="h-full transition-all duration-500" style="width: 25%; background: var(--amber);" title="Interviewing"></div>
+            <div id="funnelBarOffer" class="h-full transition-all duration-500" style="width: 25%; background: var(--sage);" title="Offer"></div>
+          </div>
         </div>
       </div>
 
