@@ -21,10 +21,10 @@ describe('Sign Out Confirmation Workflow Test Suite', () => {
 
       <div id="logout-modal" class="hidden">
         <button id="closeLogoutModalBtn"></button>
-        <h3>Confirm Sign Out</h3>
-        <p>Are you sure you want to log out of your session?</p>
+        <h3>Sign Out?</h3>
+        <p>Are you sure you want to log out?</p>
         <button id="cancelLogoutBtn">Cancel</button>
-        <button id="confirmLogoutBtn">Confirm Sign Out</button>
+        <button id="confirmLogoutBtn">Sign Out</button>
       </div>
 
       <div id="toast-container"></div>
@@ -122,3 +122,4 @@ describe('Sign Out Confirmation Workflow Test Suite', () => {
     window.confirm = originalConfirm;
   });
 });
+
