@@ -95,3 +95,4 @@ describe('Backend API Contract & Security Test Suite', () => {
     expect(data.message).toBe('Location name cannot contain numbers.');
   });
 });
+

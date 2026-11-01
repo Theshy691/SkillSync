@@ -31,3 +31,4 @@ jobs:
             echo "Checking syntax: $file"
             php -l "$file"
           done
+

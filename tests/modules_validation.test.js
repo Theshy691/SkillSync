@@ -26,3 +26,4 @@ describe('Standalone Validation Module Tests', () => {
     expect(validateLocationName('San Francisco 123').valid).toBe(false);
   });
 });
+

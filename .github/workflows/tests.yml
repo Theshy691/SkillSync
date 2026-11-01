@@ -28,3 +28,4 @@ jobs:
 
       - name: Execute Jest Test Suite
         run: npm test -- --coverage
+
