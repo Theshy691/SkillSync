@@ -2981,6 +2981,72 @@ async function openInterviewModal() {
   }
 }
 
+function evaluateInterviewAnswer(questionObj = {}, userAnswer = '') {
+  const answer = String(userAnswer || '').trim();
+  const talkingPoints = Array.isArray(questionObj.talking_points) ? questionObj.talking_points : [];
+  
+  if (!answer || answer.length < 15) {
+    return {
+      score: 20,
+      grade: 'Needs Practice',
+      coveredPoints: [],
+      missingPoints: talkingPoints,
+      critique: 'Response is too brief. Provide technical specifics detailing Situation, Task, Action taken, and measurable Results.'
+    };
+  }
+
+  const lowerAnswer = answer.toLowerCase();
+  const covered = [];
+  const missing = [];
+
+  talkingPoints.forEach(pt => {
+    const words = pt.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 3);
+    const matches = words.filter(w => lowerAnswer.includes(w));
+    if (matches.length >= 1) {
+      covered.push(pt);
+    } else {
+      missing.push(pt);
+    }
+  });
+
+  const impactKeywords = [
+    'reduce', 'reduced', 'increase', 'increased', 'optimiz', 'scale', 'built',
+    'architect', 'led', 'deliver', 'metric', 'latency', 'throughput', 'percent',
+    '%', 'test', 'monitor', 'failover', 'refactor', 'cache', 'pipeline'
+  ];
+  const impactMatches = impactKeywords.filter(k => lowerAnswer.includes(k));
+  const hasImpact = impactMatches.length >= 2;
+
+  const pointsRatio = talkingPoints.length > 0 ? (covered.length / talkingPoints.length) : 0.8;
+  const coverageScore = Math.round(pointsRatio * 60);
+  const impactScore = hasImpact ? 25 : (impactMatches.length > 0 ? 15 : 5);
+  const lengthScore = answer.length > 150 ? 15 : (answer.length > 60 ? 10 : 5);
+
+  const score = Math.min(100, Math.max(30, coverageScore + impactScore + lengthScore));
+
+  let grade = 'Needs Practice';
+  let critique = '';
+
+  if (score >= 80) {
+    grade = 'Exceptional Delivery';
+    critique = `Excellent response covering ${covered.length} of ${talkingPoints.length} core talking points with quantifiable metrics and production impact.`;
+  } else if (score >= 60) {
+    grade = 'Strong Answer';
+    critique = `Solid answer covering ${covered.length} key points. To achieve Staff/Lead level, incorporate concrete latency benchmarks or architectural trade-offs.`;
+  } else {
+    grade = 'Needs Practice';
+    critique = `Addressed ${covered.length} of ${talkingPoints.length} concepts. Make sure to cover: ${missing.slice(0, 2).join(' and ')}.`;
+  }
+
+  return {
+    score,
+    grade,
+    coveredPoints: covered,
+    missingPoints: missing,
+    critique
+  };
+}
+
 function renderInterviewQuestions(questions) {
   const list = document.getElementById('interviewQuestionsList');
   if (!list) return;
@@ -3029,11 +3095,29 @@ function renderInterviewQuestions(questions) {
           ${pointsHtml}
         </ul>
       </div>
-      <div class="pt-2 border-t flex items-center justify-end" style="border-color: var(--border);">
+
+      <div class="pt-2 border-t flex items-center justify-between" style="border-color: var(--border);">
+        <button type="button" class="btn-practice-toggle px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--amber); border: 1px solid var(--border);">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+          <span>Practice Answer</span>
+        </button>
         <button type="button" class="btn-copy-single-q px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--ink-2); border: 1px solid var(--border);">
           <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
           <span>Copy</span>
         </button>
+      </div>
+
+      <!-- Practice Answer Drawer -->
+      <div class="practice-drawer hidden pt-2 space-y-2 border-t" style="border-color: var(--border);">
+        <textarea class="practice-input console-input w-full p-2.5 text-xs rounded-xl font-sans" rows="3" placeholder="Draft your answer using STAR (Situation, Task, Action, Result)..."></textarea>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] opacity-70" style="color: var(--ink-4);">Instant AI coaching evaluation</span>
+          <button type="button" class="btn-eval-answer px-3 py-1 text-xs font-bold btn-action-primary text-white rounded-lg inline-flex items-center space-x-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Evaluate Response</span>
+          </button>
+        </div>
+        <div class="practice-feedback hidden p-3 rounded-xl border text-xs space-y-2" style="background: var(--surface); border-color: var(--border);"></div>
       </div>
     `;
 
@@ -3046,6 +3130,35 @@ function renderInterviewQuestions(questions) {
         } catch (e) {
           showToast('Copied question to clipboard.', 'success');
         }
+      });
+    }
+
+    const practiceToggleBtn = card.querySelector('.btn-practice-toggle');
+    const practiceDrawer = card.querySelector('.practice-drawer');
+    if (practiceToggleBtn && practiceDrawer) {
+      practiceToggleBtn.addEventListener('click', () => {
+        practiceDrawer.classList.toggle('hidden');
+      });
+    }
+
+    const evalBtn = card.querySelector('.btn-eval-answer');
+    const practiceInput = card.querySelector('.practice-input');
+    const feedbackBox = card.querySelector('.practice-feedback');
+    if (evalBtn && practiceInput && feedbackBox) {
+      evalBtn.addEventListener('click', () => {
+        const result = evaluateInterviewAnswer(q, practiceInput.value);
+        feedbackBox.classList.remove('hidden');
+        const colorClass = result.score >= 80 ? 'text-emerald-600 dark:text-emerald-400' : (result.score >= 60 ? 'text-amber-500' : 'text-rose-500');
+        feedbackBox.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold ${colorClass}">${escapeHtml(result.grade)}</span>
+              <span class="font-mono font-bold text-[11px] opacity-80" style="color: var(--ink);">${result.score}% Match</span>
+            </div>
+            <span class="text-[10px] font-mono opacity-70" style="color: var(--ink-3);">${result.coveredPoints.length}/${(q.talking_points || []).length} Points Covered</span>
+          </div>
+          <p class="text-[11px] leading-relaxed" style="color: var(--ink-2);">${escapeHtml(result.critique)}</p>
+        `;
       });
     }
 
@@ -4168,7 +4281,300 @@ function initRoadmap() {
 }
 
 /**
- * 18. Main Application Initialization
+ * 18. Company Research Dossier
+ */
+function generateCompanyDossier(info = {}) {
+  let company = 'Target Company';
+  let title = 'Software Engineer';
+  let description = '';
+
+  if (typeof info === 'string') {
+    company = info.trim() || 'Target Company';
+  } else if (info && typeof info === 'object') {
+    company = info.company || info.companyName || 'Target Company';
+    title = info.title || info.roleTitle || 'Software Engineer';
+    description = info.description || info.job_description || '';
+  }
+
+  const extractedSkills = extractSkillsFromText(description);
+  const techStack = extractedSkills.length > 0
+    ? extractedSkills.map(s => {
+        const special = {
+          'javascript': 'JavaScript',
+          'typescript': 'TypeScript',
+          'nodejs': 'Node.js',
+          'react': 'React',
+          'postgresql': 'PostgreSQL',
+          'mongodb': 'MongoDB',
+          'graphql': 'GraphQL',
+          'aws': 'AWS',
+          'gcp': 'GCP',
+          'cicd': 'CI/CD'
+        };
+        return special[s.toLowerCase()] || (s.charAt(0).toUpperCase() + s.slice(1));
+      })
+    : ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'Docker', 'AWS'];
+
+  const talkingPoints = [
+    `Designing modular, fault-tolerant architectures with strong automated test coverage and comprehensive telemetry.`,
+    `Tuning query execution plans and caching layers to achieve significant p95/p99 latency reductions.`,
+    `Driving cross-functional execution that directly balances technical debt reduction with ${company}'s product milestones.`,
+    `Fostering trunk-based deployment, branch preview environments, and continuous delivery pipelines.`
+  ];
+
+  const questionsToAsk = [
+    `How does the engineering leadership at ${company} prioritize technical debt versus feature sprint commitments?`,
+    `What are the most significant architecture scaling or throughput hurdles your team is tackling in the coming quarters?`,
+    `Could you walk me through your engineering deployment rhythm—from code review to production canary observability?`,
+    `How are career growth, technical leadership, and engineering impact measured within the team?`
+  ];
+
+  return {
+    company,
+    title,
+    techStack,
+    talkingPoints,
+    questionsToAsk
+  };
+}
+
+function renderCompanyDossier(dossier) {
+  const titleEl = document.getElementById('dossierCompanyTitle');
+  const subtitleEl = document.getElementById('dossierRoleSubtitle');
+  const stackEl = document.getElementById('dossierTechStackTags');
+  const pointsList = document.getElementById('dossierTalkingPointsList');
+  const questionsList = document.getElementById('dossierInterviewerQuestionsList');
+
+  if (titleEl) titleEl.textContent = `${dossier.company} Intelligence Dossier`;
+  if (subtitleEl) subtitleEl.textContent = `${dossier.title} • Inferred engineering context & strategic talking points`;
+
+  if (stackEl) {
+    stackEl.innerHTML = '';
+    dossier.techStack.forEach(skill => {
+      const tag = document.createElement('span');
+      tag.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg border';
+      tag.style.background = 'var(--surface)';
+      tag.style.borderColor = 'var(--border)';
+      tag.style.color = 'var(--ink)';
+      tag.textContent = skill;
+      stackEl.appendChild(tag);
+    });
+  }
+
+  if (pointsList) {
+    pointsList.innerHTML = '';
+    dossier.talkingPoints.forEach(point => {
+      const li = document.createElement('li');
+      li.className = 'text-xs flex items-start space-x-2 leading-relaxed';
+      li.style.color = 'var(--ink-2)';
+      li.innerHTML = `
+        <span class="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 bg-sky-500"></span>
+        <span>${escapeHtml(point)}</span>
+      `;
+      pointsList.appendChild(li);
+    });
+  }
+
+  if (questionsList) {
+    questionsList.innerHTML = '';
+    dossier.questionsToAsk.forEach(q => {
+      const li = document.createElement('li');
+      li.className = 'text-xs flex items-start space-x-2 leading-relaxed';
+      li.style.color = 'var(--ink-2)';
+      li.innerHTML = `
+        <span class="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 bg-amber-500"></span>
+        <span class="font-medium">${escapeHtml(q)}</span>
+      `;
+      questionsList.appendChild(li);
+    });
+  }
+}
+
+function openDossierModal(jobInfo) {
+  const modal = document.getElementById('dossier-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+
+  let info = jobInfo;
+  if (!info) {
+    const jobTextEl = document.getElementById('jobText');
+    const text = jobTextEl ? jobTextEl.value : '';
+    const matchCompany = text.match(/(?:at|company:?|employer:?)\s+([A-Z][A-Za-z0-9&.\s]{2,20})/i);
+    const company = matchCompany ? matchCompany[1].trim() : 'Target Company';
+    const matchTitle = text.match(/(?:role:?|title:?|position:?)\s+([A-Z][A-Za-z0-9&.\s]{2,30})/i);
+    const title = matchTitle ? matchTitle[1].trim() : 'Software Engineer';
+    info = { company, title, description: text };
+  }
+
+  const dossier = generateCompanyDossier(info);
+  renderCompanyDossier(dossier);
+}
+
+function initCompanyDossier() {
+  const openBtn = document.getElementById('companyDossierBtn');
+  const closeBtn = document.getElementById('closeDossierModalBtn');
+  const closeBottomBtn = document.getElementById('closeDossierBtnBottom');
+  const modal = document.getElementById('dossier-modal');
+
+  if (openBtn) {
+    openBtn.addEventListener('click', () => openDossierModal());
+  }
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+  if (closeBottomBtn && modal) {
+    closeBottomBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+}
+
+/**
+ * 19. LinkedIn Cold Outreach Generator
+ */
+let currentOutreachDrafts = {};
+let activeOutreachType = 'connect';
+
+function generateOutreachDrafts(info = {}) {
+  let company = 'Target Company';
+  let title = 'Software Engineer';
+  let topSkills = ['Full-Stack', 'Distributed Systems'];
+
+  if (typeof info === 'string') {
+    company = info.trim() || 'Target Company';
+  } else if (info && typeof info === 'object') {
+    company = info.company || info.companyName || 'Target Company';
+    title = info.title || info.roleTitle || 'Software Engineer';
+    if (info.skills && Array.isArray(info.skills) && info.skills.length > 0) {
+      topSkills = info.skills;
+    } else if (info.description) {
+      const extracted = extractSkillsFromText(info.description);
+      if (extracted.length > 0) topSkills = extracted;
+    }
+  }
+
+  const vaultSkills = typeof getAllVaultSkills === 'function' ? getAllVaultSkills() : [];
+  if (vaultSkills.length > 0) {
+    topSkills = vaultSkills.slice(0, 3).map(s => s.charAt(0).toUpperCase() + s.slice(1));
+  }
+
+  const skillsSnippet = topSkills.slice(0, 2).join(' & ');
+
+  const connect = `Hi! I noticed your work building engineering solutions at ${company}. As a ${title} skilled in ${skillsSnippet}, I'd love to connect and follow ${company}'s technical growth!`;
+
+  const inmail = `Hi [Hiring Manager],\n\nI've been following ${company}'s product updates and noticed your open ${title} position. With a strong track record delivering scalable systems using ${topSkills.join(', ')}, I specialize in shipping high-reliability features and optimizing developer velocity.\n\nI'd welcome the chance to discuss how my technical background aligns with your roadmap. Would you be open to a 10-minute chat this week?\n\nBest regards,\n[Your Name]`;
+
+  const coffee = `Hi [Name],\n\nI came across your profile while researching engineering culture at ${company}. As an engineer working with ${skillsSnippet}, I really admire the architecture and challenges your team is tackling.\n\nIf your schedule allows, I'd love to buy you a virtual coffee for 15 minutes to hear about your experience on the team.\n\nCheers!`;
+
+  return { connect, inmail, coffee, company, title };
+}
+
+function updateOutreachCharCounter(text, type) {
+  const counterEl = document.getElementById('outreachCharCounter');
+  if (!counterEl) return;
+  const len = text.length;
+  if (type === 'connect') {
+    counterEl.textContent = `${len} / 300`;
+    if (len > 300) {
+      counterEl.className = 'font-mono text-[11px] font-bold text-rose-500';
+    } else if (len > 260) {
+      counterEl.className = 'font-mono text-[11px] font-semibold text-amber-500';
+    } else {
+      counterEl.className = 'font-mono text-[11px] text-emerald-600 dark:text-emerald-400';
+    }
+  } else {
+    counterEl.textContent = `${len} chars`;
+    counterEl.className = 'font-mono text-[11px] opacity-70';
+  }
+}
+
+function renderOutreachDraft(type) {
+  activeOutreachType = type || 'connect';
+  const textarea = document.getElementById('outreachMessageText');
+  const typeBtns = document.querySelectorAll('.outreach-type-btn');
+
+  typeBtns.forEach(btn => {
+    if (btn.dataset.type === activeOutreachType) {
+      btn.style.background = 'var(--surface)';
+      btn.style.color = 'var(--ink)';
+      btn.classList.add('active');
+    } else {
+      btn.style.background = 'var(--paper-2)';
+      btn.style.color = 'var(--ink-3)';
+      btn.classList.remove('active');
+    }
+  });
+
+  const text = currentOutreachDrafts[activeOutreachType] || '';
+  if (textarea) {
+    textarea.value = text;
+    updateOutreachCharCounter(text, activeOutreachType);
+  }
+}
+
+function openOutreachModal(jobInfo) {
+  const modal = document.getElementById('outreach-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+
+  let info = jobInfo;
+  if (!info) {
+    const jobTextEl = document.getElementById('jobText');
+    const text = jobTextEl ? jobTextEl.value : '';
+    const matchCompany = text.match(/(?:at|company:?|employer:?)\s+([A-Z][A-Za-z0-9&.\s]{2,20})/i);
+    const company = matchCompany ? matchCompany[1].trim() : 'Target Company';
+    const matchTitle = text.match(/(?:role:?|title:?|position:?)\s+([A-Z][A-Za-z0-9&.\s]{2,30})/i);
+    const title = matchTitle ? matchTitle[1].trim() : 'Software Engineer';
+    info = { company, title, description: text };
+  }
+
+  currentOutreachDrafts = generateOutreachDrafts(info);
+  renderOutreachDraft('connect');
+}
+
+function initLinkedInOutreach() {
+  const openBtn = document.getElementById('linkedinOutreachBtn');
+  const closeBtn = document.getElementById('closeOutreachModalBtn');
+  const closeBottomBtn = document.getElementById('closeOutreachBtnBottom');
+  const copyBtn = document.getElementById('copyOutreachBtn');
+  const textarea = document.getElementById('outreachMessageText');
+  const typeBtns = document.querySelectorAll('.outreach-type-btn');
+  const modal = document.getElementById('outreach-modal');
+
+  if (openBtn) {
+    openBtn.addEventListener('click', () => openOutreachModal());
+  }
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+  if (closeBottomBtn && modal) {
+    closeBottomBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+  if (typeBtns) {
+    typeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        renderOutreachDraft(btn.dataset.type);
+      });
+    });
+  }
+  if (textarea) {
+    textarea.addEventListener('input', () => {
+      updateOutreachCharCounter(textarea.value, activeOutreachType);
+      currentOutreachDrafts[activeOutreachType] = textarea.value;
+    });
+  }
+  if (copyBtn && textarea) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(textarea.value);
+        showToast('Outreach draft copied to clipboard!', 'success');
+      } catch (_) {
+        showToast('Draft copied.', 'success');
+      }
+    });
+  }
+}
+
+/**
+ * 20. Main Application Initialization
  */
 function initApp() {
   if (!checkCdn()) return;
@@ -4189,6 +4595,8 @@ function initApp() {
   initAiActionSuite();
   initPipeline();
   initRoadmap();
+  initCompanyDossier();
+  initLinkedInOutreach();
 }
 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
@@ -4270,6 +4678,18 @@ if (typeof module !== 'undefined' && module.exports) {
     openRoadmapModal,
     initRoadmap,
     getCurrentRoadmapData: () => currentRoadmapData,
+    evaluateInterviewAnswer,
+    generateCompanyDossier,
+    renderCompanyDossier,
+    openDossierModal,
+    initCompanyDossier,
+    generateOutreachDrafts,
+    updateOutreachCharCounter,
+    renderOutreachDraft,
+    openOutreachModal,
+    initLinkedInOutreach,
+    getCurrentOutreachDrafts: () => currentOutreachDrafts,
+    getActiveOutreachType: () => activeOutreachType,
     initApp
   };
 }
