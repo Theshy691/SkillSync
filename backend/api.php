@@ -87,11 +87,22 @@ Compare the provided candidate resume against the target job description.
 1. Calculate an accurate, objective match score from 0 to 100 based on required skills, domain knowledge, years of experience, and qualifications.
 2. Identify all missing skills, missing tools, unmentioned qualifications, or key growth areas the candidate lacks for this role.
 3. Keep missing skills concise (1 to 3 words each, e.g. "Docker", "GraphQL", "Kubernetes", "TypeScript").
+4. Provide a dimensional percentage score breakdown across:
+   - "core_tech": Programming languages, frameworks, and web technologies (0-100)
+   - "devops_cloud": Cloud platforms, infrastructure, containers, databases, and CI/CD (0-100)
+   - "experience_depth": Depth of seniority, project scope, and engineering experience (0-100)
+   - "domain_fit": Overall alignment with the role's domain and responsibilities (0-100)
 
 Output strictly valid JSON matching this schema:
 {
   "match_score": 85,
-  "missing_skills": ["Skill 1", "Skill 2"]
+  "missing_skills": ["Skill 1", "Skill 2"],
+  "breakdown": {
+    "core_tech": 88,
+    "devops_cloud": 75,
+    "experience_depth": 82,
+    "domain_fit": 90
+  }
 }
 
 Candidate Resume:
@@ -196,9 +207,33 @@ function calculateHeuristicMatch(string $resume, string $jobDescription): array 
         return ucwords($s);
     };
 
+    // Calculate category breakdown
+    $coreTaxonomy = ['typescript', 'javascript', 'python', 'php', 'go', 'golang', 'rust', 'c++', 'c#', 'java', 'ruby', 'sql', 'html5', 'css3', 'react', 'react native', 'next.js', 'vue', 'angular', 'svelte', 'node.js', 'node', 'express', 'fastapi', 'django', 'laravel', 'tailwind css', 'tailwind', 'graphql'];
+    $cloudTaxonomy = ['docker', 'kubernetes', 'aws', 'gcp', 'azure', 'terraform', 'postgresql', 'postgres', 'mysql', 'mongodb', 'redis', 'ci/cd', 'github actions', 'linux', 'playwright', 'jest', 'rest api', 'microservices', 'git'];
+
+    $candidateCore = array_intersect($candidateSkills, $coreTaxonomy);
+    $jobCore = array_intersect($jobSkills, $coreTaxonomy);
+    $coreRatio = count($jobCore) > 0 ? count(array_intersect($candidateCore, $jobCore)) / count($jobCore) : $ratio;
+    $coreScore = max(30, min(98, (int)round(35 + ($coreRatio * 60))));
+
+    $candidateCloud = array_intersect($candidateSkills, $cloudTaxonomy);
+    $jobCloud = array_intersect($jobSkills, $cloudTaxonomy);
+    $cloudRatio = count($jobCloud) > 0 ? count(array_intersect($candidateCloud, $jobCloud)) / count($jobCloud) : max(0.4, $ratio * 0.9);
+    $cloudScore = max(30, min(98, (int)round(35 + ($cloudRatio * 60))));
+
+    $lenFactor = min(1.0, mb_strlen($resume) / 1200);
+    $expScore = max(40, min(96, (int)round(45 + ($lenFactor * 25) + ($ratio * 25))));
+    $domainScore = $score;
+
     return [
         'match_score' => $score,
         'missing_skills' => array_values(array_map($ucFirstSkill, array_slice($missing, 0, 5))),
+        'breakdown' => [
+            'core_tech' => $coreScore,
+            'devops_cloud' => $cloudScore,
+            'experience_depth' => $expScore,
+            'domain_fit' => $domainScore
+        ],
         'source' => 'resilient_engine'
     ];
 }
@@ -251,8 +286,28 @@ if (!empty($parsedAi['missing_skills']) && is_array($parsedAi['missing_skills'])
     }
 }
 
+$rawBreakdown = $parsedAi['breakdown'] ?? [];
+$coreTech = isset($rawBreakdown['core_tech']) && is_numeric($rawBreakdown['core_tech'])
+    ? max(20, min(100, intval($rawBreakdown['core_tech'])))
+    : max(30, min(98, (int)round($matchScore * 1.02)));
+$devopsCloud = isset($rawBreakdown['devops_cloud']) && is_numeric($rawBreakdown['devops_cloud'])
+    ? max(20, min(100, intval($rawBreakdown['devops_cloud'])))
+    : max(30, min(95, (int)round($matchScore * 0.92)));
+$expDepth = isset($rawBreakdown['experience_depth']) && is_numeric($rawBreakdown['experience_depth'])
+    ? max(20, min(100, intval($rawBreakdown['experience_depth'])))
+    : max(35, min(96, (int)round($matchScore * 0.96)));
+$domainFit = isset($rawBreakdown['domain_fit']) && is_numeric($rawBreakdown['domain_fit'])
+    ? max(20, min(100, intval($rawBreakdown['domain_fit'])))
+    : max(30, min(99, $matchScore));
+
 // Return validated response
 sendJsonResponse([
     'match_score' => $matchScore,
-    'missing_skills' => array_values(array_unique($missingSkills))
+    'missing_skills' => array_values(array_unique($missingSkills)),
+    'breakdown' => [
+        'core_tech' => $coreTech,
+        'devops_cloud' => $devopsCloud,
+        'experience_depth' => $expDepth,
+        'domain_fit' => $domainFit
+    ]
 ], 200);
