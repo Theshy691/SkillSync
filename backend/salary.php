@@ -188,3 +188,4 @@ function calculateSalaryBenchmarks($role, $location, $skills, $currentOffer) {
 
 $response = calculateSalaryBenchmarks($role, $location, $skills, $currentOffer);
 sendJsonResponse($response, 200);
+
