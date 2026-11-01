@@ -880,7 +880,16 @@ function initJobScraper() {
       }
 
       try {
-        const response = await fetch('scrape.php', {
+        if (supabaseClient && typeof supabaseClient.auth?.getSession === 'function') {
+          try {
+            const { data: sessionData } = await supabaseClient.auth.getSession();
+            if (sessionData && sessionData.session) {
+              currentSession = sessionData.session;
+            }
+          } catch (_) {}
+        }
+
+        let response = await fetch('scrape.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -888,6 +897,23 @@ function initJobScraper() {
           },
           body: JSON.stringify({ url })
         });
+
+        if (response.status === 401 && supabaseClient && typeof supabaseClient.auth?.refreshSession === 'function') {
+          try {
+            const { data: refreshedData, error: refreshErr } = await supabaseClient.auth.refreshSession();
+            if (!refreshErr && refreshedData && refreshedData.session) {
+              currentSession = refreshedData.session;
+              response = await fetch('scrape.php', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${currentSession.access_token}`
+                },
+                body: JSON.stringify({ url })
+              });
+            }
+          } catch (_) {}
+        }
 
         const data = await response.json();
 
@@ -1795,7 +1821,14 @@ async function fetchAndRenderJobs(query = '', remoteOnly = false, resetPage = tr
     if (remoteOnly) params.append('remote', 'true');
     params.append('limit', '50');
 
-    const res = await fetch(`jobs.php?${params.toString()}`);
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 6000) : null;
+
+    const res = await fetch(`jobs.php?${params.toString()}`, {
+      signal: controller ? controller.signal : undefined
+    });
+    if (timeoutId) clearTimeout(timeoutId);
+
     if (!res.ok) throw new Error('Failed to retrieve job listings.');
     const data = await res.json();
     discoveredJobsCache = (data && Array.isArray(data.jobs) && data.jobs.length > 0)
@@ -1932,15 +1965,15 @@ function recomputeAndRenderJobCards() {
         </div>
       </div>
 
-      <div class="flex items-center justify-between pt-3.5 border-t mt-2" style="border-color: var(--border);">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3.5 border-t mt-2" style="border-color: var(--border);">
         <span class="text-xs font-mono font-medium opacity-75" style="color: var(--ink-3);">${escapeHtml(job.salary || 'Competitive')}</span>
         
-        <div class="flex items-center space-x-2">
-          <a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-xs font-semibold rounded-xl transition inline-flex items-center space-x-1" style="background: var(--paper-2); color: var(--ink); border: 1px solid var(--border);">
+        <div class="flex items-center space-x-2 w-full sm:w-auto">
+          <a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial text-center justify-center px-3 py-1.5 text-xs font-semibold rounded-xl transition inline-flex items-center space-x-1" style="background: var(--paper-2); color: var(--ink); border: 1px solid var(--border);">
             <span>Apply</span>
             <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
           </a>
-          <button type="button" class="btn-load-job px-3.5 py-1.5 text-xs font-bold text-white btn-action-primary inline-flex items-center space-x-1.5">
+          <button type="button" class="btn-load-job flex-1 sm:flex-initial justify-center px-3.5 py-1.5 text-xs font-bold text-white btn-action-primary inline-flex items-center space-x-1.5">
             <span>Analyze in Workspace</span>
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
