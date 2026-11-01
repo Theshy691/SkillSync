@@ -22,6 +22,8 @@ function isDemoMode() {
   const cfg = (typeof window !== 'undefined' && window.SKILLSYNC_CONFIG) || {};
   if (cfg.DEMO_MODE === true) return true;
   if (!cfg.SUPABASE_URL || cfg.SUPABASE_URL.includes('your-project-id')) return true;
+  if (currentSession && currentSession.access_token && currentSession.access_token.startsWith('demo-token')) return true;
+  if (typeof localStorage !== 'undefined' && localStorage.getItem('skillsync_demo_session')) return true;
   return supabaseClient === null;
 }
 
@@ -481,6 +483,33 @@ function initAuthForm() {
         await supabaseClient.auth.signOut();
         showToast('Signed out successfully.', 'info');
       }
+    });
+  }
+
+  const closeSessionModalBtn = document.getElementById('closeSessionModalBtn');
+  const sessionDemoBtn = document.getElementById('sessionDemoBtn');
+
+  if (closeSessionModalBtn) {
+    closeSessionModalBtn.addEventListener('click', () => {
+      const modal = document.getElementById('session-modal');
+      if (modal) modal.classList.add('hidden');
+    });
+  }
+
+  if (sessionDemoBtn) {
+    sessionDemoBtn.addEventListener('click', () => {
+      const modal = document.getElementById('session-modal');
+      if (modal) modal.classList.add('hidden');
+      const demoUser = {
+        user: {
+          id: 'demo-user-123',
+          email: 'james@skillsync.demo'
+        },
+        access_token: 'demo-token-123'
+      };
+      localStorage.setItem('skillsync_demo_session', JSON.stringify(demoUser));
+      updateAuthState(demoUser);
+      showToast('Switched to Demo Session. You can run your analysis now!', 'success');
     });
   }
 
@@ -1014,7 +1043,17 @@ function initAnalyzer() {
       }
 
       try {
-        const response = await fetch('api.php', {
+        // Automatically check and refresh token if Supabase session is close to expiry
+        if (supabaseClient && typeof supabaseClient.auth?.getSession === 'function') {
+          try {
+            const { data: sessionData } = await supabaseClient.auth.getSession();
+            if (sessionData && sessionData.session) {
+              currentSession = sessionData.session;
+            }
+          } catch (_) {}
+        }
+
+        let response = await fetch('api.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1025,6 +1064,27 @@ function initAnalyzer() {
             job_description: jobDescription
           })
         });
+
+        // If 401, attempt silent refresh and retry request once before showing modal
+        if (response.status === 401 && supabaseClient && typeof supabaseClient.auth?.refreshSession === 'function') {
+          try {
+            const { data: refreshedData, error: refreshErr } = await supabaseClient.auth.refreshSession();
+            if (!refreshErr && refreshedData && refreshedData.session) {
+              currentSession = refreshedData.session;
+              response = await fetch('api.php', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${currentSession.access_token}`
+                },
+                body: JSON.stringify({
+                  resume,
+                  job_description: jobDescription
+                })
+              });
+            }
+          } catch (_) {}
+        }
 
         const data = await response.json();
 
