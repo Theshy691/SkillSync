@@ -1453,6 +1453,450 @@ function initModals() {
 }
 
 /**
+ * 15. Smart Job Discovery Feed & Real-Time Pre-Scoring Engine
+ */
+let discoveredJobsCache = [];
+let activeWorkspaceTab = 'ats';
+
+const FALLBACK_DISCOVERY_JOBS = [
+  {
+    id: 'job-101',
+    title: 'Senior Frontend Engineer (React & TypeScript)',
+    company_name: 'Vercel',
+    location: 'Remote',
+    remote: true,
+    url: 'https://vercel.com/careers',
+    tags: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'GraphQL'],
+    salary: '$140,000 - $185,000',
+    created_at: '2026-10-31',
+    description: 'Build high-performance web applications with React, Next.js, and TypeScript. Optimize web vitals and collaborate with design and backend teams.'
+  },
+  {
+    id: 'job-102',
+    title: 'Full-Stack Developer (Node.js & React)',
+    company_name: 'Stripe',
+    location: 'San Francisco, CA / Remote',
+    remote: true,
+    url: 'https://stripe.com/jobs',
+    tags: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Docker', 'AWS'],
+    salary: '$150,000 - $195,000',
+    created_at: '2026-10-30',
+    description: 'Design and deploy robust payment infrastructure with TypeScript, Node.js, React, and PostgreSQL. Implement containerized microservices.'
+  },
+  {
+    id: 'job-103',
+    title: 'Backend Engineer (Python & FastAPI)',
+    company_name: 'Datadog',
+    location: 'New York, NY / Remote',
+    remote: true,
+    url: 'https://www.datadoghq.com/careers',
+    tags: ['Python', 'FastAPI', 'PostgreSQL', 'Redis', 'Kubernetes', 'Docker'],
+    salary: '$155,000 - $205,000',
+    created_at: '2026-10-29',
+    description: 'Scale distributed ingestion pipelines and microservices in Python (FastAPI). Manage cache layers with Redis and Kubernetes deployments.'
+  },
+  {
+    id: 'job-104',
+    title: 'Cloud Platform & DevOps Engineer',
+    company_name: 'HashiCorp',
+    location: 'Remote',
+    remote: true,
+    url: 'https://www.hashicorp.com/jobs',
+    tags: ['Kubernetes', 'Terraform', 'Docker', 'AWS', 'CI/CD', 'Linux'],
+    salary: '$145,000 - $190,000',
+    created_at: '2026-10-28',
+    description: 'Automate multi-region cloud infrastructure using Terraform, Kubernetes, and Docker. Build zero-downtime CI/CD deployment pipelines.'
+  },
+  {
+    id: 'job-105',
+    title: 'PHP & Laravel Backend Engineer',
+    company_name: 'Envato',
+    location: 'Remote',
+    remote: true,
+    url: 'https://www.envato.com/careers',
+    tags: ['PHP', 'Laravel', 'MySQL', 'Redis', 'Docker', 'REST API'],
+    salary: '$110,000 - $145,000',
+    created_at: '2026-10-27',
+    description: 'Maintain and modernize marketplace APIs with PHP 8, Laravel, and MySQL. Implement asynchronous job queues and Redis caching.'
+  },
+  {
+    id: 'job-106',
+    title: 'Mobile Engineer (React Native & TypeScript)',
+    company_name: 'Linear',
+    location: 'Remote',
+    remote: true,
+    url: 'https://linear.app/careers',
+    tags: ['React Native', 'TypeScript', 'iOS', 'Android', 'GraphQL'],
+    salary: '$140,000 - $180,000',
+    created_at: '2026-10-26',
+    description: 'Craft high-performance, fluid mobile applications on iOS and Android with React Native and TypeScript.'
+  }
+];
+
+const SKILL_KEYWORDS_TAXONOMY = [
+  'react', 'react native', 'vue.js', 'vue', 'angular', 'svelte', 'next.js',
+  'typescript', 'javascript', 'html5', 'css3', 'tailwind css', 'tailwind',
+  'node.js', 'node', 'express', 'python', 'fastapi', 'django', 'flask',
+  'php', 'laravel', 'ruby', 'go', 'golang', 'rust', 'c++', 'java',
+  'postgresql', 'postgres', 'mysql', 'mongodb', 'redis', 'sqlite',
+  'docker', 'kubernetes', 'terraform', 'aws', 'gcp', 'azure', 'ci/cd',
+  'graphql', 'rest api', 'rest', 'kafka', 'playwright', 'jest', 'linux', 'git'
+];
+
+function extractSkillsFromText(text) {
+  if (!text || typeof text !== 'string') return [];
+  const lower = text.toLowerCase();
+  const matched = new Set();
+  SKILL_KEYWORDS_TAXONOMY.forEach(skill => {
+    const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp('(?:^|[\\s,;:.()/\\[\\]])' + escaped + '(?:$|[\\s,;:.()/\\[\\]])', 'i');
+    if (regex.test(lower)) {
+      matched.add(skill);
+    }
+  });
+  return Array.from(matched);
+}
+
+function calculateJobCompatibility(candidateText, job) {
+  let candidateSkills = extractSkillsFromText(candidateText);
+  const isDefaultProfile = candidateSkills.length === 0;
+
+  if (isDefaultProfile) {
+    candidateSkills = ['react', 'typescript', 'javascript', 'html5', 'css3', 'node.js', 'git', 'rest api'];
+  }
+
+  const jobReqs = new Set();
+  if (Array.isArray(job.tags)) {
+    job.tags.forEach(t => jobReqs.add(t.toLowerCase()));
+  }
+  const descSkills = extractSkillsFromText(job.description || '');
+  descSkills.forEach(s => jobReqs.add(s));
+  const titleSkills = extractSkillsFromText(job.title || '');
+  titleSkills.forEach(s => jobReqs.add(s));
+
+  if (jobReqs.size === 0) {
+    jobReqs.add('software engineering');
+    jobReqs.add('problem solving');
+  }
+
+  const candidateSet = new Set(candidateSkills);
+  const matching = [];
+  const missing = [];
+
+  jobReqs.forEach(req => {
+    let hasMatch = false;
+    candidateSet.forEach(c => {
+      if (c === req || c.includes(req) || req.includes(c)) {
+        hasMatch = true;
+      }
+    });
+
+    if (hasMatch) {
+      matching.push(req);
+    } else {
+      missing.push(req);
+    }
+  });
+
+  const total = matching.length + missing.length;
+  const ratio = total > 0 ? matching.length / total : 0.5;
+  const rawScore = Math.round(38 + (ratio * 58));
+  const score = Math.max(35, Math.min(98, rawScore));
+  const colorInfo = getScoreColorClasses(score);
+
+  return {
+    score,
+    label: colorInfo.label,
+    badgeClass: colorInfo.badge,
+    matchingSkills: matching.slice(0, 4),
+    missingSkills: missing.slice(0, 4),
+    isDefaultProfile
+  };
+}
+
+function switchWorkspaceTab(tabName) {
+  const tabAts = document.getElementById('tabAtsMatcher');
+  const tabDiscovery = document.getElementById('tabJobDiscovery');
+  const atsView = document.getElementById('ats-view');
+  const discoveryView = document.getElementById('discovery-view');
+
+  if (!tabAts || !tabDiscovery || !atsView || !discoveryView) return;
+
+  activeWorkspaceTab = tabName;
+
+  if (tabName === 'ats') {
+    atsView.classList.remove('hidden');
+    discoveryView.classList.add('hidden');
+    tabAts.className = 'tab-btn px-4 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2 shadow-sm';
+    tabAts.style.background = 'var(--surface)';
+    tabAts.style.color = 'var(--ink)';
+    tabDiscovery.className = 'tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2';
+    tabDiscovery.style.background = 'transparent';
+    tabDiscovery.style.color = 'var(--ink-3)';
+  } else {
+    atsView.classList.add('hidden');
+    discoveryView.classList.remove('hidden');
+    tabDiscovery.className = 'tab-btn px-4 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2 shadow-sm';
+    tabDiscovery.style.background = 'var(--surface)';
+    tabDiscovery.style.color = 'var(--ink)';
+    tabAts.className = 'tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2';
+    tabAts.style.background = 'transparent';
+    tabAts.style.color = 'var(--ink-3)';
+
+    if (discoveredJobsCache.length === 0) {
+      fetchAndRenderJobs();
+    } else {
+      recomputeAndRenderJobCards();
+    }
+  }
+}
+
+async function fetchAndRenderJobs(query = '', remoteOnly = false) {
+  const loadingEl = document.getElementById('jobsLoading');
+  const gridEl = document.getElementById('jobsGrid');
+  const emptyEl = document.getElementById('jobsEmpty');
+  const countBadge = document.getElementById('discoveryCountBadge');
+
+  if (loadingEl) loadingEl.classList.remove('hidden');
+  if (gridEl) gridEl.classList.add('hidden');
+  if (emptyEl) emptyEl.classList.add('hidden');
+
+  try {
+    const params = new URLSearchParams();
+    if (query) params.append('q', query);
+    if (remoteOnly) params.append('remote', 'true');
+
+    const res = await fetch(`jobs.php?${params.toString()}`);
+    if (!res.ok) throw new Error('Failed to retrieve job listings.');
+    const data = await res.json();
+    discoveredJobsCache = (data && Array.isArray(data.jobs) && data.jobs.length > 0)
+      ? data.jobs
+      : FALLBACK_DISCOVERY_JOBS;
+  } catch (err) {
+    discoveredJobsCache = FALLBACK_DISCOVERY_JOBS.filter(job => {
+      if (remoteOnly && !job.remote) return false;
+      if (!query) return true;
+      const q = query.toLowerCase();
+      return job.title.toLowerCase().includes(q) ||
+        job.company_name.toLowerCase().includes(q) ||
+        job.tags.some(t => t.toLowerCase().includes(q));
+    });
+  } finally {
+    if (loadingEl) loadingEl.classList.add('hidden');
+    if (countBadge) countBadge.textContent = `${discoveredJobsCache.length} Available`;
+    recomputeAndRenderJobCards();
+  }
+}
+
+function recomputeAndRenderJobCards() {
+  const gridEl = document.getElementById('jobsGrid');
+  const emptyEl = document.getElementById('jobsEmpty');
+  const resumeTextEl = document.getElementById('resumeText');
+  const scoringStatusText = document.getElementById('scoringStatusText');
+
+  if (!gridEl) return;
+  gridEl.innerHTML = '';
+
+  const candidateResume = resumeTextEl ? resumeTextEl.value.trim() : '';
+
+  if (scoringStatusText) {
+    scoringStatusText.textContent = candidateResume.length > 20
+      ? 'Scoring live postings against your uploaded resume.'
+      : 'Using baseline developer profile (upload your resume for custom match scores).';
+  }
+
+  if (!discoveredJobsCache || discoveredJobsCache.length === 0) {
+    if (emptyEl) emptyEl.classList.remove('hidden');
+    gridEl.classList.add('hidden');
+    return;
+  }
+
+  if (emptyEl) emptyEl.classList.add('hidden');
+  gridEl.classList.remove('hidden');
+
+  const scoredList = discoveredJobsCache.map(job => {
+    const compatibility = calculateJobCompatibility(candidateResume, job);
+    return { ...job, compatibility };
+  });
+
+  scoredList.sort((a, b) => b.compatibility.score - a.compatibility.score);
+
+  scoredList.forEach(job => {
+    const card = document.createElement('div');
+    card.className = 'console-card p-5 sm:p-6 flex flex-col justify-between transition hover:translate-y-[-2px]';
+    card.setAttribute('data-job-id', job.id);
+
+    const companyInitial = job.company_name ? job.company_name.charAt(0).toUpperCase() : 'T';
+    const comp = job.compatibility;
+
+    const matchedBadges = comp.matchingSkills.length > 0
+      ? comp.matchingSkills.map(s => `
+          <span class="inline-flex items-center space-x-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            <span>${escapeHtml(s)}</span>
+          </span>
+        `).join(' ')
+      : '';
+
+    const missingBadges = comp.missingSkills.length > 0
+      ? comp.missingSkills.slice(0, 3).map(s => `
+          <span class="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-lg opacity-70" style="background: var(--paper-3); color: var(--ink-3); border: 1px solid var(--border);">
+            ${escapeHtml(s)}
+          </span>
+        `).join(' ')
+      : '';
+
+    card.innerHTML = `
+      <div>
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl font-black text-sm flex items-center justify-center shrink-0 shadow-sm" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--border);">
+              ${escapeHtml(companyInitial)}
+            </div>
+            <div>
+              <h4 class="font-bold text-sm leading-tight" style="color: var(--ink);">${escapeHtml(job.company_name)}</h4>
+              <div class="flex items-center space-x-2 text-[11px] mt-0.5" style="color: var(--ink-3);">
+                <span>${escapeHtml(job.location)}</span>
+                ${job.remote ? `<span class="px-1.5 py-0.2 rounded font-semibold text-[10px] bg-emerald-500/10 text-emerald-600">Remote</span>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <div class="shrink-0 text-right">
+            <span class="px-2.5 py-1 rounded-xl text-xs font-bold inline-flex items-center space-x-1 ${comp.badgeClass}">
+              <span>${comp.score}%</span>
+              <span class="opacity-80 font-medium text-[10px]">Fit</span>
+            </span>
+          </div>
+        </div>
+
+        <h3 class="font-bold text-base mb-2" style="color: var(--ink);">${escapeHtml(job.title)}</h3>
+        <p class="text-xs line-clamp-2 mb-4 leading-relaxed" style="color: var(--ink-3);">${escapeHtml(job.description)}</p>
+
+        <div class="space-y-1.5 mb-4">
+          <div class="text-[10px] uppercase font-bold tracking-wider opacity-60" style="color: var(--ink-4);">ATS Skills Alignment</div>
+          <div class="flex flex-wrap gap-1.5 items-center">
+            ${matchedBadges}
+            ${missingBadges}
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-3.5 border-t mt-2" style="border-color: var(--border);">
+        <span class="text-xs font-mono font-medium opacity-75" style="color: var(--ink-3);">${escapeHtml(job.salary || 'Competitive')}</span>
+        
+        <div class="flex items-center space-x-2">
+          <a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-xs font-semibold rounded-xl transition inline-flex items-center space-x-1" style="background: var(--paper-2); color: var(--ink); border: 1px solid var(--border);">
+            <span>Apply</span>
+            <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+          <button type="button" class="btn-load-job px-3.5 py-1.5 text-xs font-bold text-white btn-action-primary inline-flex items-center space-x-1.5">
+            <span>Analyze in Workspace</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+
+    const loadBtn = card.querySelector('.btn-load-job');
+    if (loadBtn) {
+      loadBtn.addEventListener('click', () => {
+        loadJobIntoWorkspace(job);
+      });
+    }
+
+    gridEl.appendChild(card);
+  });
+}
+
+function loadJobIntoWorkspace(job) {
+  const jobText = document.getElementById('jobText');
+  const jobCount = document.getElementById('jobCount');
+  const scrapeStatusBadge = document.getElementById('scrapeStatusBadge');
+
+  if (jobText) {
+    const formattedDesc =
+      `Target Role: ${job.title} at ${job.company_name}\n` +
+      `Location: ${job.location} | Compensation: ${job.salary || 'Competitive'}\n\n` +
+      `Core Responsibilities & Requirements:\n` +
+      `${job.description}\n\n` +
+      `Preferred Skills: ${Array.isArray(job.tags) ? job.tags.join(', ') : 'Tech stack requirements'}`;
+
+    jobText.value = formattedDesc;
+    updateCharCounter(jobText, jobCount, 5000);
+  }
+
+  if (scrapeStatusBadge) {
+    scrapeStatusBadge.textContent = `Imported: ${job.company_name} - ${job.title}`;
+  }
+
+  switchWorkspaceTab('ats');
+
+  showToast(`Loaded ${job.title} into ATS Workspace.`, 'success');
+
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  if (analyzeBtn) {
+    analyzeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function initJobDiscovery() {
+  const tabAts = document.getElementById('tabAtsMatcher');
+  const tabDiscovery = document.getElementById('tabJobDiscovery');
+  const searchInput = document.getElementById('jobSearchInput');
+  const remoteCheckbox = document.getElementById('remoteFilterCheckbox');
+  const refreshBtn = document.getElementById('refreshJobsBtn');
+  const resumeTextEl = document.getElementById('resumeText');
+
+  if (tabAts) {
+    tabAts.addEventListener('click', () => switchWorkspaceTab('ats'));
+  }
+  if (tabDiscovery) {
+    tabDiscovery.addEventListener('click', () => switchWorkspaceTab('discovery'));
+  }
+
+  let debounceTimer = null;
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const query = searchInput.value.trim();
+        const remoteOnly = remoteCheckbox ? remoteCheckbox.checked : false;
+        fetchAndRenderJobs(query, remoteOnly);
+      }, 250);
+    });
+  }
+
+  if (remoteCheckbox) {
+    remoteCheckbox.addEventListener('change', () => {
+      const query = searchInput ? searchInput.value.trim() : '';
+      fetchAndRenderJobs(query, remoteCheckbox.checked);
+    });
+  }
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      const query = searchInput ? searchInput.value.trim() : '';
+      const remoteOnly = remoteCheckbox ? remoteCheckbox.checked : false;
+      fetchAndRenderJobs(query, remoteOnly);
+      showToast('Refreshing live job listings...', 'info', 1500);
+    });
+  }
+
+  if (resumeTextEl) {
+    let resumeDebounce = null;
+    resumeTextEl.addEventListener('input', () => {
+      clearTimeout(resumeDebounce);
+      resumeDebounce = setTimeout(() => {
+        if (activeWorkspaceTab === 'discovery' && discoveredJobsCache.length > 0) {
+          recomputeAndRenderJobCards();
+        }
+      }, 500);
+    });
+  }
+}
+
+/**
  * 14. Main Application Initialization
  */
 function initApp() {
@@ -1468,6 +1912,7 @@ function initApp() {
   initAnalyzer();
   initExportAndClipboard();
   initModals();
+  initJobDiscovery();
 }
 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
@@ -1490,6 +1935,14 @@ if (typeof module !== 'undefined' && module.exports) {
     extractResumeFromImage,
     renderResults,
     renderDashboardGrid,
+    extractSkillsFromText,
+    calculateJobCompatibility,
+    switchWorkspaceTab,
+    loadJobIntoWorkspace,
+    fetchAndRenderJobs,
+    recomputeAndRenderJobCards,
+    initJobDiscovery,
+    FALLBACK_DISCOVERY_JOBS,
     initApp
   };
 }
