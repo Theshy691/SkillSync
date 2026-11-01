@@ -232,6 +232,44 @@ function escapeHtml(str) {
   });
 }
 
+function cleanJobDescription(text) {
+  if (!text || typeof text !== 'string') return '';
+  let str = text;
+
+  // Decode HTML entities if present (e.g. &lt;p&gt;, &amp;nbsp;, &gt;&lt;/p&gt;)
+  for (let i = 0; i < 2; i++) {
+    if (str.includes('&lt;') || str.includes('&amp;') || str.includes('&gt;') || str.includes('&quot;') || str.includes('&#39;')) {
+      str = str
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/gi, ' ');
+    } else {
+      break;
+    }
+  }
+
+  // Convert block HTML tags into natural clean line breaks and list bullets
+  str = str
+    .replace(/<br\s*[\/]?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<li[^>]*>/gi, '\n• ')
+    .replace(/<\/li>/gi, '')
+    .replace(/<\/(h[1-6]|div|tr)>/gi, '\n\n')
+    .replace(/<[^>]+>/g, '') // strip all other HTML tags
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\u00a0/g, ' ');
+
+  // Normalize spacing
+  str = str.replace(/[ \t]+/g, ' ');
+  str = str.replace(/\n\s+\n/g, '\n\n');
+  str = str.replace(/\n{3,}/g, '\n\n');
+
+  return str.trim();
+}
+
 function updateCharCounter(inputElement, counterElement, max) {
   if (!inputElement || !counterElement) return;
   const len = inputElement.value ? inputElement.value.length : 0;
@@ -2440,7 +2478,7 @@ function loadJobIntoWorkspace(job) {
       `Target Role: ${job.title} at ${job.company_name}\n` +
       `Location: ${job.location} | Compensation: ${job.salary || 'Competitive'}\n\n` +
       `Core Responsibilities & Requirements:\n` +
-      `${job.description}\n\n` +
+      `${cleanJobDescription(job.description)}\n\n` +
       `Preferred Skills: ${Array.isArray(job.tags) ? job.tags.join(', ') : 'Tech stack requirements'}`;
 
     jobText.value = formattedDesc;
@@ -4836,7 +4874,8 @@ function initApp() {
       if (jobData && (jobData.description || jobData.title)) {
         const jobTextarea = document.getElementById('jobText');
         if (jobTextarea) {
-          jobTextarea.value = `Role: ${jobData.title || ''} at ${jobData.company || ''}\nLocation: ${jobData.location || ''}\nSalary: ${jobData.salary || ''}\n\nDescription:\n${jobData.description || ''}`;
+          const cleanDesc = cleanJobDescription(jobData.description || '');
+          jobTextarea.value = `Role: ${jobData.title || ''} at ${jobData.company || ''}\nLocation: ${jobData.location || ''}\nSalary: ${jobData.salary || ''}\n\nDescription:\n${cleanDesc}`;
           const jobCounter = document.getElementById('jobCount') || document.getElementById('jobCharCount');
           if (jobCounter) jobCounter.textContent = `${jobTextarea.value.length.toLocaleString()} chars`;
           showToast(`Loaded ${jobData.title || 'target job'} into ATS workspace.`, 'success', 3500);
@@ -4901,6 +4940,7 @@ if (typeof module !== 'undefined' && module.exports) {
     calculateJobCompatibility,
     switchWorkspaceTab,
     loadJobIntoWorkspace,
+    cleanJobDescription,
     fetchAndRenderJobs,
     recomputeAndRenderJobCards,
     initJobDiscovery,

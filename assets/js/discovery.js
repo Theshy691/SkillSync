@@ -163,6 +163,44 @@
     window.location.href = `app.html?import_url=${encodeURIComponent(rawUrl)}`;
   }
 
+  function cleanJobDescription(text) {
+    if (!text || typeof text !== 'string') return '';
+    let str = text;
+
+    // Decode HTML entities if present (e.g. &lt;p&gt;, &amp;nbsp;, &gt;&lt;/p&gt;)
+    for (let i = 0; i < 2; i++) {
+      if (str.includes('&lt;') || str.includes('&amp;') || str.includes('&gt;') || str.includes('&quot;') || str.includes('&#39;')) {
+        str = str
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&nbsp;/gi, ' ');
+      } else {
+        break;
+      }
+    }
+
+    // Convert block HTML tags into natural clean line breaks and list bullets
+    str = str
+      .replace(/<br\s*[\/]?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<li[^>]*>/gi, '\n• ')
+      .replace(/<\/li>/gi, '')
+      .replace(/<\/(h[1-6]|div|tr)>/gi, '\n\n')
+      .replace(/<[^>]+>/g, '') // strip all other HTML tags
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/\u00a0/g, ' ');
+
+    // Normalize spacing
+    str = str.replace(/[ \t]+/g, ' ');
+    str = str.replace(/\n\s+\n/g, '\n\n');
+    str = str.replace(/\n{3,}/g, '\n\n');
+
+    return str.trim();
+  }
+
   function initTheme() {
     const themeBtn = document.getElementById('themeBtn');
     const label = document.getElementById('themeBtnLabel');
@@ -319,7 +357,7 @@
 
       let snippet = '';
       if (job.description) {
-        snippet = job.description.replace(/\s+/g, ' ').trim();
+        snippet = cleanJobDescription(job.description).replace(/\s+/g, ' ').trim();
         if (snippet.length > 130) snippet = snippet.slice(0, 127) + '...';
       }
 
@@ -427,7 +465,7 @@
 
     const descEl = document.getElementById('modalDescription');
     if (descEl) {
-      descEl.textContent = job.description || 'Full description available on external listing.';
+      descEl.textContent = cleanJobDescription(job.description) || 'Full description available on external listing.';
     }
 
     const platformEngine = window.SkillSyncPlatformJobs;
@@ -462,7 +500,7 @@
       localStorage.setItem('skillsync_pending_job_scan', JSON.stringify({
         title: job.title,
         company: job.company_name,
-        description: job.description,
+        description: cleanJobDescription(job.description),
         tags: job.tags || [],
         salary: job.salary,
         location: job.location
@@ -644,6 +682,7 @@
     module.exports = {
       FALLBACK_PUBLIC_JOBS,
       synthesizeClientOpportunities,
+      cleanJobDescription,
       loadJobs,
       setJobs,
       applyFilters,

@@ -12,6 +12,8 @@ window.SkillSyncPlatformJobs = require('../assets/js/modules/platform_jobs.js');
 const {
   FALLBACK_PUBLIC_JOBS,
   synthesizeClientOpportunities,
+  cleanJobDescription: cleanDiscoveryJobDesc,
+  openJobModal,
   loadJobs,
   setJobs,
   renderCards
@@ -19,6 +21,8 @@ const {
 
 const {
   synthesizeConsoleOpportunities,
+  cleanJobDescription: cleanConsoleJobDesc,
+  loadJobIntoWorkspace,
   fetchAndRenderJobs,
   recomputeAndRenderJobCards,
   setDiscoveredJobsCache
@@ -192,6 +196,81 @@ describe('Dynamic Job Offer Generation & Live Refresh Test Suite', () => {
       const grid = document.getElementById('jobsGrid');
       expect(grid.children.length).toBe(1);
       expect(grid.children[0].innerHTML).toContain('New');
+    });
+  });
+
+  describe('HTML Entity & Tag Cleaner (Eliminating &lt;p&gt; and &gt;&lt;/p&gt; Artifacts)', () => {
+    const rawMessyHtml = '&lt;p&gt;In this role, you will collaborate closely with hardware engineering...&amp;nbsp;&lt;/p&gt;\n' +
+      '&lt;p&gt;&lt;strong&gt;Responsibilities and Duties&lt;/strong&gt;&lt;/p&gt;\n' +
+      '&lt;ul&gt;\n' +
+      '&lt;li&gt;Operate in a highly hands-on environment.&lt;/li&gt;\n' +
+      '&lt;li&gt;Ensure successful implementation.&amp;nbsp;&lt;/li&gt;\n' +
+      '&lt;/ul&gt;';
+
+    test('cleanJobDescription converts HTML entities and block tags to clean human plain text', () => {
+      const cleaned = cleanDiscoveryJobDesc(rawMessyHtml);
+      expect(cleaned).not.toContain('&lt;');
+      expect(cleaned).not.toContain('&gt;');
+      expect(cleaned).not.toContain('&amp;');
+      expect(cleaned).not.toContain('&nbsp;');
+      expect(cleaned).not.toContain('<p>');
+      expect(cleaned).not.toContain('</p>');
+      expect(cleaned).toContain('In this role, you will collaborate closely with hardware engineering...');
+      expect(cleaned).toContain('Responsibilities and Duties');
+      expect(cleaned).toContain('• Operate in a highly hands-on environment.');
+    });
+
+    test('openJobModal renders clean readable description without raw entity garbage', () => {
+      document.body.innerHTML += `
+        <div id="jobDetailModal" style="display: none;">
+          <h3 id="modalRoleTitle"></h3>
+          <span id="modalCompany"></span>
+          <span id="modalLocation"></span>
+          <span id="modalSalary"></span>
+          <div id="modalTags"></div>
+          <div id="modalDescription"></div>
+        </div>
+      `;
+
+      openJobModal({
+        id: 'test-robot-job',
+        title: 'Robotics Integration Engineer',
+        company_name: 'SkyRobotics',
+        location: 'Remote',
+        salary: '$160,000',
+        tags: ['Robotics', 'Python'],
+        description: rawMessyHtml
+      });
+
+      const modalDesc = document.getElementById('modalDescription').textContent;
+      expect(modalDesc).not.toContain('&lt;');
+      expect(modalDesc).not.toContain('&gt;');
+      expect(modalDesc).not.toContain('&amp;');
+      expect(modalDesc).toContain('In this role, you will collaborate closely with hardware engineering...');
+      expect(modalDesc).toContain('• Operate in a highly hands-on environment.');
+    });
+
+    test('loadJobIntoWorkspace formats clean description without HTML tags', () => {
+      document.body.innerHTML += `
+        <textarea id="jobText"></textarea>
+        <span id="jobCount"></span>
+        <span id="scrapeStatusBadge"></span>
+      `;
+
+      loadJobIntoWorkspace({
+        title: 'Robotics Integration Engineer',
+        company_name: 'SkyRobotics',
+        location: 'Remote',
+        salary: '$160,000',
+        tags: ['Robotics', 'Python'],
+        description: rawMessyHtml
+      });
+
+      const jobVal = document.getElementById('jobText').value;
+      expect(jobVal).not.toContain('&lt;');
+      expect(jobVal).not.toContain('&gt;');
+      expect(jobVal).not.toContain('&amp;');
+      expect(jobVal).toContain('Responsibilities and Duties');
     });
   });
 });

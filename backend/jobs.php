@@ -66,7 +66,44 @@ if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTtl)) {
     }
 }
 
-// 3. Fallback Dataset (Used when external network is restricted or offline)
+// 3. HTML Sanitizer & Plain Text Converter
+/**
+ * Decodes HTML entities and converts HTML tags into clean, human-readable plain text.
+ * Strips raw entity remnants (&lt;p&gt;, &amp;nbsp;, &gt;&lt;/p&gt;, etc.)
+ */
+function cleanJobDescriptionText(string $raw): string {
+    if (empty($raw)) return '';
+
+    $str = $raw;
+    // Decode double-encoded HTML entities if present
+    for ($i = 0; $i < 2; $i++) {
+        if (strpos($str, '&lt;') !== false || strpos($str, '&amp;') !== false || strpos($str, '&quot;') !== false) {
+            $str = html_entity_decode($str, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        } else {
+            break;
+        }
+    }
+
+    // Convert block tags to clean whitespace formatting
+    $str = preg_replace('/<br\s*\/?>/i', "\n", $str);
+    $str = preg_replace('/<\/p>/i', "\n\n", $str);
+    $str = preg_replace('/<li[^>]*>/i', "\n• ", $str);
+    $str = preg_replace('/<\/li>/i', "", $str);
+    $str = preg_replace('/<\/(h[1-6]|div|tr)>/i', "\n\n", $str);
+
+    // Strip all remaining HTML tags
+    $str = strip_tags($str);
+
+    // Replace non-breaking spaces and clean whitespace
+    $str = str_replace(["\xc2\xa0", "&nbsp;"], ' ', $str);
+    $str = preg_replace('/[ \t]+/', ' ', $str);
+    $str = preg_replace('/\n\s+\n/', "\n\n", $str);
+    $str = preg_replace('/\n{3,}/', "\n\n", $str);
+
+    return trim($str);
+}
+
+// 4. Fallback Dataset (Used when external network is restricted or offline)
 function getFallbackJobListings(): array {
     return [
         [
@@ -255,7 +292,7 @@ if (!$allJobs) {
                     'tags' => !empty($item['tags']) && is_array($item['tags']) ? array_slice($item['tags'], 0, 8) : ['Tech', 'Engineering'],
                     'salary' => !empty($item['salary']) ? $item['salary'] : 'Competitive',
                     'created_at' => !empty($item['created_at']) ? date('Y-m-d', $item['created_at']) : date('Y-m-d'),
-                    'description' => strip_tags($item['description'] ?? '')
+                    'description' => cleanJobDescriptionText($item['description'] ?? '')
                 ];
             }
         }
