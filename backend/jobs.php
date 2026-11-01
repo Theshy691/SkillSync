@@ -22,13 +22,13 @@ if ($method !== 'GET' && $method !== 'POST') {
 // 1. Extract Query Parameters
 $query = '';
 $remoteOnly = false;
-$limit = 20;
+$limit = 50;
 
 if ($method === 'GET') {
     $query = isset($_GET['q']) ? trim($_GET['q']) : (isset($_GET['query']) ? trim($_GET['query']) : '');
     $remoteOnly = isset($_GET['remote']) && filter_var($_GET['remote'], FILTER_VALIDATE_BOOLEAN);
     if (!empty($_GET['limit']) && is_numeric($_GET['limit'])) {
-        $limit = max(1, min(50, (int)$_GET['limit']));
+        $limit = max(1, min(100, (int)$_GET['limit']));
     }
 } else {
     $rawInput = file_get_contents('php://input');
@@ -37,7 +37,7 @@ if ($method === 'GET') {
         $query = isset($body['q']) ? trim($body['q']) : (isset($body['query']) ? trim($body['query']) : '');
         $remoteOnly = !empty($body['remote']);
         if (!empty($body['limit']) && is_numeric($body['limit'])) {
-            $limit = max(1, min(50, (int)$body['limit']));
+            $limit = max(1, min(100, (int)$body['limit']));
         }
     }
 }
@@ -280,3 +280,4 @@ sendJsonResponse([
     'count' => count($filteredJobs),
     'jobs' => $filteredJobs
 ], 200);
+
