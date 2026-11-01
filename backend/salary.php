@@ -47,6 +47,14 @@ $location = trim($body['location'] ?? 'Remote');
 $skills = is_array($body['skills'] ?? null) ? $body['skills'] : [];
 $currentOfferRaw = trim((string)($body['current_offer'] ?? ''));
 
+// Validate location (cannot contain numbers)
+if (preg_match('/[0-9]/', $location)) {
+    sendJsonResponse([
+        'error' => 'Validation Error',
+        'message' => 'Location name cannot contain numbers.'
+    ], 400);
+}
+
 // Clean current offer to numeric value if present
 $currentOffer = 0;
 if (!empty($currentOfferRaw)) {
