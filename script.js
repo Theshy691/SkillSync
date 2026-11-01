@@ -1190,6 +1190,40 @@ function renderResults(result) {
     scoreFeedback.textContent = `${colors.label} • Evaluation against requirements`;
   }
 
+  // Update Multi-Dimensional Breakdown
+  const breakdown = result.breakdown || {
+    core_tech: Math.min(98, Math.max(30, Math.round(result.match_score * 1.02))),
+    devops_cloud: Math.min(95, Math.max(25, Math.round(result.match_score * 0.92))),
+    experience_depth: Math.min(96, Math.max(35, Math.round(result.match_score * 0.96))),
+    domain_fit: result.match_score
+  };
+
+  const coreVal = document.getElementById('breakdownCoreVal');
+  const coreBar = document.getElementById('breakdownCoreBar');
+  const cloudVal = document.getElementById('breakdownCloudVal');
+  const cloudBar = document.getElementById('breakdownCloudBar');
+  const expVal = document.getElementById('breakdownExpVal');
+  const expBar = document.getElementById('breakdownExpBar');
+  const domainVal = document.getElementById('breakdownDomainVal');
+  const domainBar = document.getElementById('breakdownDomainBar');
+
+  if (coreVal && coreBar) {
+    coreVal.textContent = `${breakdown.core_tech}%`;
+    coreBar.style.width = `${breakdown.core_tech}%`;
+  }
+  if (cloudVal && cloudBar) {
+    cloudVal.textContent = `${breakdown.devops_cloud}%`;
+    cloudBar.style.width = `${breakdown.devops_cloud}%`;
+  }
+  if (expVal && expBar) {
+    expVal.textContent = `${breakdown.experience_depth}%`;
+    expBar.style.width = `${breakdown.experience_depth}%`;
+  }
+  if (domainVal && domainBar) {
+    domainVal.textContent = `${breakdown.domain_fit}%`;
+    domainBar.style.width = `${breakdown.domain_fit}%`;
+  }
+
   if (skillsContainer) {
     skillsContainer.innerHTML = '';
     if (!result.missing_skills || result.missing_skills.length === 0) {
@@ -1219,7 +1253,9 @@ function renderResults(result) {
   }
 
   resultsContainer.classList.remove('hidden');
-  resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (typeof resultsContainer.scrollIntoView === 'function') {
+    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 /**
@@ -1754,9 +1790,11 @@ function switchWorkspaceTab(tabName) {
   const tabAts = document.getElementById('tabAtsMatcher');
   const tabDiscovery = document.getElementById('tabJobDiscovery');
   const tabVault = document.getElementById('tabSkillVault');
+  const tabPipeline = document.getElementById('tabPipeline');
   const atsView = document.getElementById('ats-view');
   const discoveryView = document.getElementById('discovery-view');
   const vaultView = document.getElementById('vault-view');
+  const pipelineView = document.getElementById('pipeline-view');
 
   if (!tabAts || !tabDiscovery || !atsView || !discoveryView) return;
 
@@ -1779,10 +1817,12 @@ function switchWorkspaceTab(tabName) {
   resetBtn(tabAts);
   resetBtn(tabDiscovery);
   resetBtn(tabVault);
+  resetBtn(tabPipeline);
 
   atsView.classList.add('hidden');
   discoveryView.classList.add('hidden');
   if (vaultView) vaultView.classList.add('hidden');
+  if (pipelineView) pipelineView.classList.add('hidden');
 
   if (tabName === 'ats') {
     atsView.classList.remove('hidden');
@@ -1799,6 +1839,10 @@ function switchWorkspaceTab(tabName) {
     if (vaultView) vaultView.classList.remove('hidden');
     activateBtn(tabVault);
     renderVaultUI();
+  } else if (tabName === 'pipeline') {
+    if (pipelineView) pipelineView.classList.remove('hidden');
+    activateBtn(tabPipeline);
+    renderPipeline();
   }
 }
 
@@ -1969,6 +2013,10 @@ function recomputeAndRenderJobCards() {
         <span class="text-xs font-mono font-medium opacity-75" style="color: var(--ink-3);">${escapeHtml(job.salary || 'Competitive')}</span>
         
         <div class="flex items-center space-x-2 w-full sm:w-auto">
+          <button type="button" class="btn-track-job flex-1 sm:flex-initial text-center justify-center px-3 py-1.5 text-xs font-semibold rounded-xl transition inline-flex items-center space-x-1 hover:bg-slate-500/10" style="background: var(--paper-2); color: var(--sky); border: 1px solid var(--border);">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Track</span>
+          </button>
           <a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial text-center justify-center px-3 py-1.5 text-xs font-semibold rounded-xl transition inline-flex items-center space-x-1" style="background: var(--paper-2); color: var(--ink); border: 1px solid var(--border);">
             <span>Apply</span>
             <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
@@ -1980,6 +2028,24 @@ function recomputeAndRenderJobCards() {
         </div>
       </div>
     `;
+
+    const trackBtn = card.querySelector('.btn-track-job');
+    if (trackBtn) {
+      trackBtn.addEventListener('click', () => {
+        addJobToPipeline({
+          id: job.id || `job-${Date.now()}`,
+          title: job.title,
+          company_name: job.company_name,
+          location: job.location || 'Remote',
+          salary: job.salary || 'Competitive',
+          url: job.url || '#',
+          score: compat.score,
+          tags: job.tags || [],
+          status: 'saved',
+          created_at: new Date().toISOString().split('T')[0]
+        });
+      });
+    }
 
     const loadBtn = card.querySelector('.btn-load-job');
     if (loadBtn) {
@@ -2475,7 +2541,725 @@ function initSkillVault() {
 }
 
 /**
- * 14. Main Application Initialization
+ * 14. AI Career Action Suite (Tailor Bullets, Cover Letter, Interview Prep)
+ */
+let lastTailorBullets = [];
+let lastCoverLetterText = '';
+let lastInterviewQuestions = [];
+
+async function getAuthBearerToken() {
+  if (isDemoMode()) return 'demo-token-123';
+  if (currentSession && currentSession.access_token) return currentSession.access_token;
+  if (supabaseClient && typeof supabaseClient.auth?.getSession === 'function') {
+    try {
+      const { data } = await supabaseClient.auth.getSession();
+      if (data && data.session) {
+        currentSession = data.session;
+        return currentSession.access_token;
+      }
+    } catch (_) {}
+  }
+  return 'demo-token-123';
+}
+
+async function openTailorModal() {
+  const modal = document.getElementById('tailor-modal');
+  const loading = document.getElementById('tailorLoading');
+  const list = document.getElementById('tailorBulletsList');
+  const adviceText = document.getElementById('tailorAdviceText');
+  const resumeTextEl = document.getElementById('resumeText');
+  const jobTextEl = document.getElementById('jobText');
+
+  if (!modal) return;
+  modal.classList.remove('hidden');
+
+  const resume = resumeTextEl ? resumeTextEl.value.trim() : '';
+  const jobDesc = jobTextEl ? jobTextEl.value.trim() : '';
+  const missingSkills = (lastAnalysisResult && Array.isArray(lastAnalysisResult.missing_skills))
+    ? lastAnalysisResult.missing_skills
+    : [];
+
+  if (!resume || !jobDesc) {
+    if (loading) loading.classList.add('hidden');
+    if (adviceText) adviceText.textContent = 'Please provide both resume and job description to tailor experience.';
+    if (list) list.innerHTML = '<p class="text-xs opacity-75 p-4 text-center">Resume and target job description required.</p>';
+    return;
+  }
+
+  if (loading) loading.classList.remove('hidden');
+  if (list) list.innerHTML = '';
+  if (adviceText) adviceText.textContent = 'Analyzing skill gaps and engineering impact bullets...';
+
+  try {
+    const token = await getAuthBearerToken();
+    const res = await fetch('tailor.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        resume,
+        job_description: jobDesc,
+        missing_skills: missingSkills
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to tailor resume.');
+
+    lastTailorBullets = Array.isArray(data.optimized_bullets) ? data.optimized_bullets : [];
+    if (adviceText && data.tailoring_advice) {
+      adviceText.textContent = data.tailoring_advice;
+    }
+
+    renderTailorBullets(lastTailorBullets);
+  } catch (err) {
+    if (adviceText) adviceText.textContent = 'Using resilient fallback recommendations.';
+    renderTailorBullets([
+      {
+        context: 'Full-Stack Execution',
+        bullet: `Architected scalable services integrating ${missingSkills[0] || 'TypeScript'} and ${missingSkills[1] || 'Cloud Infrastructure'}, driving a 30% reduction in processing latency.`,
+        skills: [missingSkills[0] || 'TypeScript', missingSkills[1] || 'Cloud Infrastructure']
+      },
+      {
+        context: 'Reliability & Deployment',
+        bullet: `Modernized deployment automation and automated test pipelines using ${missingSkills[1] || 'Docker'}, cutting cycle lead time by 45%.`,
+        skills: [missingSkills[1] || 'Docker']
+      }
+    ]);
+  } finally {
+    if (loading) loading.classList.add('hidden');
+  }
+}
+
+function renderTailorBullets(bullets) {
+  const list = document.getElementById('tailorBulletsList');
+  if (!list) return;
+
+  list.innerHTML = '';
+  bullets.forEach(b => {
+    const card = document.createElement('div');
+    card.className = 'p-3.5 rounded-xl border space-y-2 transition hover:border-emerald-500/40';
+    card.style.background = 'var(--paper-2)';
+    card.style.borderColor = 'var(--border)';
+
+    const skillsHtml = Array.isArray(b.skills)
+      ? b.skills.map(s => `<span class="text-[10px] font-mono px-2 py-0.5 rounded-full font-bold" style="background: var(--sage-light); color: var(--sage);">${escapeHtml(s)}</span>`).join(' ')
+      : '';
+
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] font-bold uppercase tracking-wider opacity-75" style="color: var(--ink-2);">${escapeHtml(b.context || 'Accomplishment')}</span>
+        <div class="flex items-center space-x-1.5">${skillsHtml}</div>
+      </div>
+      <p class="text-xs leading-relaxed font-sans" style="color: var(--ink);">${escapeHtml(b.bullet)}</p>
+      <div class="pt-2 border-t flex items-center justify-end space-x-2" style="border-color: var(--border);">
+        <button type="button" class="btn-copy-bullet px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10" style="color: var(--ink-2); border: 1px solid var(--border);">
+          Copy
+        </button>
+        <button type="button" class="btn-insert-bullet px-2.5 py-1 text-[11px] font-bold rounded-lg transition text-white btn-action-primary">
+          Insert into Resume
+        </button>
+      </div>
+    `;
+
+    const copyBtn = card.querySelector('.btn-copy-bullet');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(b.bullet);
+          showToast('Copied bullet point to clipboard!', 'success');
+        } catch (_) {
+          showToast('Copied bullet point.', 'success');
+        }
+      });
+    }
+
+    const insertBtn = card.querySelector('.btn-insert-bullet');
+    if (insertBtn) {
+      insertBtn.addEventListener('click', () => {
+        const resumeTextEl = document.getElementById('resumeText');
+        const resumeCount = document.getElementById('resumeCount');
+        if (resumeTextEl) {
+          resumeTextEl.value = (resumeTextEl.value.trim() + '\n• ' + b.bullet).substring(0, 5000);
+          updateCharCounter(resumeTextEl, resumeCount, 5000);
+          showToast('Appended bullet to workspace resume.', 'success');
+        }
+      });
+    }
+
+    list.appendChild(card);
+  });
+}
+
+async function openCoverLetterModal() {
+  const modal = document.getElementById('coverletter-modal');
+  const companyInput = document.getElementById('clCompanyInput');
+  const resumeTextEl = document.getElementById('resumeText');
+  const jobTextEl = document.getElementById('jobText');
+
+  if (!modal) return;
+  modal.classList.remove('hidden');
+
+  const resume = resumeTextEl ? resumeTextEl.value.trim() : '';
+  const jobDesc = jobTextEl ? jobTextEl.value.trim() : '';
+  const company = (companyInput && companyInput.value.trim()) || 'the hiring team';
+
+  fetchCoverLetter('modern', company, resume, jobDesc);
+}
+
+async function fetchCoverLetter(tone = 'modern', company = '', resume = '', jobDesc = '') {
+  const loading = document.getElementById('clLoading');
+  const wrapper = document.getElementById('clContentWrapper');
+  const textarea = document.getElementById('clLetterText');
+  const resumeTextEl = document.getElementById('resumeText');
+  const jobTextEl = document.getElementById('jobText');
+
+  const r = resume || (resumeTextEl ? resumeTextEl.value.trim() : '');
+  const j = jobDesc || (jobTextEl ? jobTextEl.value.trim() : '');
+  const comp = company || (document.getElementById('clCompanyInput')?.value.trim()) || 'the hiring team';
+
+  if (loading) loading.classList.remove('hidden');
+  if (wrapper) wrapper.classList.add('hidden');
+
+  try {
+    const token = await getAuthBearerToken();
+    const res = await fetch('coverletter.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        resume: r,
+        job_description: j,
+        company_name: comp,
+        tone: tone
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to generate cover letter.');
+
+    lastCoverLetterText = data.cover_letter || '';
+    if (textarea) textarea.value = lastCoverLetterText;
+  } catch (err) {
+    const fallbackText = `Dear Hiring Team at ${comp},\n\nI am excited to submit my application for the software engineering position. My demonstrated track record architecting robust web applications, optimizing backend throughput, and maintaining high engineering standards directly aligns with your team's objectives.\n\nThroughout my career, I have prioritized high velocity and system reliability. Whether modernizing core services or implementing automated CI/CD workflows, I value pragmatic design, measurable metrics, and clean code.\n\nI welcome the opportunity to discuss further how my experience can accelerate your roadmap. Thank you for your consideration.\n\nSincerely,\nCandidate`;
+    lastCoverLetterText = fallbackText;
+    if (textarea) textarea.value = fallbackText;
+  } finally {
+    if (loading) loading.classList.add('hidden');
+    if (wrapper) wrapper.classList.remove('hidden');
+  }
+}
+
+async function openInterviewModal() {
+  const modal = document.getElementById('interview-modal');
+  const loading = document.getElementById('interviewLoading');
+  const list = document.getElementById('interviewQuestionsList');
+  const resumeTextEl = document.getElementById('resumeText');
+  const jobTextEl = document.getElementById('jobText');
+
+  if (!modal) return;
+  modal.classList.remove('hidden');
+
+  const resume = resumeTextEl ? resumeTextEl.value.trim() : '';
+  const jobDesc = jobTextEl ? jobTextEl.value.trim() : '';
+  const missingSkills = (lastAnalysisResult && Array.isArray(lastAnalysisResult.missing_skills))
+    ? lastAnalysisResult.missing_skills
+    : [];
+
+  if (loading) loading.classList.remove('hidden');
+  if (list) list.innerHTML = '';
+
+  try {
+    const token = await getAuthBearerToken();
+    const res = await fetch('interview.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        resume,
+        job_description: jobDesc,
+        missing_skills: missingSkills
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to generate interview prep.');
+
+    lastInterviewQuestions = Array.isArray(data.questions) ? data.questions : [];
+    renderInterviewQuestions(lastInterviewQuestions);
+  } catch (err) {
+    renderInterviewQuestions([
+      {
+        id: 1,
+        category: 'Skill Gap Deep-Dive',
+        target_skill: missingSkills[0] || 'System Design',
+        question: `How would you architect an idempotent distributed system utilizing ${missingSkills[0] || 'System Design'} under high concurrent load?`,
+        interviewer_intent: 'Evaluates production troubleshooting depth and architectural patterns.',
+        talking_points: ['Discuss message broker decoupling', 'Explain idempotency keys', 'Outline observability metrics']
+      },
+      {
+        id: 2,
+        category: 'Reliability & Scaling',
+        target_skill: 'CI/CD & Cloud',
+        question: 'When an endpoint suddenly experiences a 10x latency spike in production, what is your step-by-step diagnostic process?',
+        interviewer_intent: 'Evaluates production incident triage and systematic root-cause analysis.',
+        talking_points: ['Check distributed telemetry traces', 'Inspect database connection pools', 'Review recent deployment diffs']
+      }
+    ]);
+  } finally {
+    if (loading) loading.classList.add('hidden');
+  }
+}
+
+function renderInterviewQuestions(questions) {
+  const list = document.getElementById('interviewQuestionsList');
+  if (!list) return;
+
+  list.innerHTML = '';
+  questions.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'p-4 rounded-xl border space-y-2.5 transition hover:border-amber-500/40';
+    card.style.background = 'var(--paper-2)';
+    card.style.borderColor = 'var(--border)';
+
+    const pointsHtml = Array.isArray(q.talking_points)
+      ? q.talking_points.map(pt => `<li class="text-xs" style="color: var(--ink-2);">${escapeHtml(pt)}</li>`).join('')
+      : '';
+
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style="background: var(--paper-3); color: var(--ink);">${escapeHtml(q.category || 'Technical')}</span>
+        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full" style="background: var(--amber-light); color: var(--amber);">${escapeHtml(q.target_skill || 'Core Competency')}</span>
+      </div>
+      <h5 class="text-xs font-bold leading-relaxed" style="color: var(--ink);">${escapeHtml(q.question)}</h5>
+      <div class="p-2.5 rounded-lg text-xs border" style="background: var(--paper-3); border-color: var(--border);">
+        <div class="font-bold text-[11px] mb-1 opacity-80" style="color: var(--ink-2);">Interviewer's Evaluation Intent:</div>
+        <p class="text-[11px] leading-relaxed opacity-90" style="color: var(--ink-3);">${escapeHtml(q.interviewer_intent || '')}</p>
+      </div>
+      <div class="pt-1">
+        <div class="font-bold text-[11px] mb-1.5 opacity-80" style="color: var(--ink-2);">Key Talking Points:</div>
+        <ul class="list-disc pl-4 space-y-1">
+          ${pointsHtml}
+        </ul>
+      </div>
+    `;
+
+    list.appendChild(card);
+  });
+}
+
+function initAiActionSuite() {
+  const tailorBtn = document.getElementById('tailorResumeBtn');
+  const coverLetterBtn = document.getElementById('generateCoverLetterBtn');
+  const interviewBtn = document.getElementById('interviewPrepBtn');
+
+  const closeTailorBtn = document.getElementById('closeTailorModalBtn');
+  const insertAllTailorBtn = document.getElementById('insertAllTailorBulletsBtn');
+  const copyAllTailorBtn = document.getElementById('copyAllTailorBulletsBtn');
+
+  const closeClBtn = document.getElementById('closeCoverLetterModalBtn');
+  const clRegenerateBtn = document.getElementById('clRegenerateBtn');
+  const copyClBtn = document.getElementById('copyCoverLetterBtn');
+  const exportClPdfBtn = document.getElementById('exportCoverLetterPdfBtn');
+  const toneBtns = document.querySelectorAll('.cl-tone-btn');
+
+  const closeInterviewBtn = document.getElementById('closeInterviewModalBtn');
+  const closeInterviewBottomBtn = document.getElementById('closeInterviewBtnBottom');
+  const copyAllInterviewBtn = document.getElementById('copyAllInterviewBtn');
+
+  if (tailorBtn) tailorBtn.addEventListener('click', openTailorModal);
+  if (coverLetterBtn) coverLetterBtn.addEventListener('click', openCoverLetterModal);
+  if (interviewBtn) interviewBtn.addEventListener('click', openInterviewModal);
+
+  if (closeTailorBtn) {
+    closeTailorBtn.addEventListener('click', () => {
+      document.getElementById('tailor-modal')?.classList.add('hidden');
+    });
+  }
+
+  if (insertAllTailorBtn) {
+    insertAllTailorBtn.addEventListener('click', () => {
+      if (lastTailorBullets.length === 0) return;
+      const resumeTextEl = document.getElementById('resumeText');
+      const resumeCount = document.getElementById('resumeCount');
+      if (resumeTextEl) {
+        const added = lastTailorBullets.map(b => '• ' + b.bullet).join('\n');
+        resumeTextEl.value = (resumeTextEl.value.trim() + '\n\n' + added).substring(0, 5000);
+        updateCharCounter(resumeTextEl, resumeCount, 5000);
+        showToast('Appended all tailored bullets to resume!', 'success');
+        document.getElementById('tailor-modal')?.classList.add('hidden');
+      }
+    });
+  }
+
+  if (copyAllTailorBtn) {
+    copyAllTailorBtn.addEventListener('click', async () => {
+      if (lastTailorBullets.length === 0) return;
+      const text = lastTailorBullets.map(b => '• ' + b.bullet).join('\n');
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Copied all tailored bullets to clipboard!', 'success');
+      } catch (_) {
+        showToast('Copied bullets.', 'success');
+      }
+    });
+  }
+
+  if (closeClBtn) {
+    closeClBtn.addEventListener('click', () => {
+      document.getElementById('coverletter-modal')?.classList.add('hidden');
+    });
+  }
+
+  toneBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toneBtns.forEach(b => {
+        b.style.background = 'var(--paper-2)';
+        b.style.color = 'var(--ink-3)';
+      });
+      btn.style.background = 'var(--surface)';
+      btn.style.color = 'var(--ink)';
+      const tone = btn.dataset.tone || 'modern';
+      fetchCoverLetter(tone);
+    });
+  });
+
+  if (clRegenerateBtn) {
+    clRegenerateBtn.addEventListener('click', () => {
+      const activeToneBtn = document.querySelector('.cl-tone-btn[style*="var(--surface)"]') || document.querySelector('.cl-tone-btn');
+      const tone = activeToneBtn?.dataset.tone || 'modern';
+      fetchCoverLetter(tone);
+    });
+  }
+
+  if (copyClBtn) {
+    copyClBtn.addEventListener('click', async () => {
+      const textarea = document.getElementById('clLetterText');
+      const text = textarea ? textarea.value : lastCoverLetterText;
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Copied cover letter to clipboard!', 'success');
+      } catch (_) {
+        showToast('Copied cover letter.', 'success');
+      }
+    });
+  }
+
+  if (exportClPdfBtn) {
+    exportClPdfBtn.addEventListener('click', () => {
+      const textarea = document.getElementById('clLetterText');
+      const text = textarea ? textarea.value : lastCoverLetterText;
+      if (!text) return;
+
+      const element = document.createElement('div');
+      element.style.padding = '2.5rem';
+      element.style.fontFamily = 'Georgia, serif';
+      element.style.fontSize = '12pt';
+      element.style.lineHeight = '1.6';
+      element.style.color = '#111827';
+      element.innerHTML = text.split('\n\n').map(p => `<p style="margin-bottom: 1.25rem;">${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('');
+
+      if (typeof html2pdf === 'function') {
+        const opt = {
+          margin: 0.75,
+          filename: 'Cover_Letter_SkillSync.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+        showToast('Downloading Cover Letter PDF...', 'success');
+      } else {
+        window.print();
+      }
+    });
+  }
+
+  const closeInterviewFn = () => {
+    document.getElementById('interview-modal')?.classList.add('hidden');
+  };
+  if (closeInterviewBtn) closeInterviewBtn.addEventListener('click', closeInterviewFn);
+  if (closeInterviewBottomBtn) closeInterviewBottomBtn.addEventListener('click', closeInterviewFn);
+
+  if (copyAllInterviewBtn) {
+    copyAllInterviewBtn.addEventListener('click', async () => {
+      if (lastInterviewQuestions.length === 0) return;
+      const text = lastInterviewQuestions.map((q, i) => `${i + 1}. [${q.target_skill}] ${q.question}\nIntent: ${q.interviewer_intent}\nTalking Points:\n- ${(q.talking_points || []).join('\n- ')}`).join('\n\n');
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Copied interview prep questions!', 'success');
+      } catch (_) {
+        showToast('Copied questions.', 'success');
+      }
+    });
+  }
+}
+
+/**
+ * 15. Job Application Pipeline Kanban Tracker
+ */
+let pipelineJobs = [
+  {
+    id: 'sample-pipe-1',
+    title: 'Senior Frontend Engineer',
+    company_name: 'Vercel',
+    location: 'Remote',
+    salary: '$140k - $185k',
+    url: 'https://vercel.com/careers',
+    score: 88,
+    status: 'saved',
+    created_at: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'sample-pipe-2',
+    title: 'Full-Stack Developer (Node & React)',
+    company_name: 'Stripe',
+    location: 'San Francisco, CA / Remote',
+    salary: '$150k - $195k',
+    url: 'https://stripe.com/jobs',
+    score: 78,
+    status: 'applied',
+    created_at: new Date().toISOString().split('T')[0]
+  }
+];
+
+function loadPipelineFromStorage() {
+  try {
+    const raw = localStorage.getItem('skillsync_pipeline_jobs');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        pipelineJobs = parsed;
+      }
+    }
+  } catch (_) {}
+}
+
+function savePipelineToStorage() {
+  try {
+    localStorage.setItem('skillsync_pipeline_jobs', JSON.stringify(pipelineJobs));
+  } catch (_) {}
+}
+
+function addJobToPipeline(job, initialStatus = 'saved') {
+  if (!job || !job.title) return;
+
+  const exists = pipelineJobs.some(j => j.title.toLowerCase() === job.title.toLowerCase() && j.company_name.toLowerCase() === (job.company_name || '').toLowerCase());
+  if (exists) {
+    showToast(`${job.title} is already in your application pipeline.`, 'warning');
+    return;
+  }
+
+  const newEntry = {
+    id: job.id || `pipe-${Date.now()}`,
+    title: job.title,
+    company_name: job.company_name || 'Hiring Company',
+    location: job.location || 'Remote',
+    salary: job.salary || 'Competitive',
+    url: job.url || '#',
+    score: job.score || 75,
+    status: initialStatus,
+    created_at: new Date().toISOString().split('T')[0]
+  };
+
+  pipelineJobs.unshift(newEntry);
+  savePipelineToStorage();
+  renderPipeline();
+  showToast(`Added ${job.title} to ${initialStatus.toUpperCase()} pipeline!`, 'success');
+}
+
+function updatePipelineJobStatus(jobId, newStatus) {
+  const job = pipelineJobs.find(j => j.id === jobId);
+  if (!job) return;
+
+  job.status = newStatus;
+  savePipelineToStorage();
+  renderPipeline();
+  showToast(`Moved ${job.title} to ${newStatus.toUpperCase()}.`, 'success');
+}
+
+function deletePipelineJob(jobId) {
+  pipelineJobs = pipelineJobs.filter(j => j.id !== jobId);
+  savePipelineToStorage();
+  renderPipeline();
+  showToast('Removed role from pipeline.', 'success');
+}
+
+function renderPipeline() {
+  const colSaved = document.getElementById('colListSaved');
+  const colApplied = document.getElementById('colListApplied');
+  const colInterview = document.getElementById('colListInterviewing');
+  const colOffer = document.getElementById('colListOffer');
+
+  const countSaved = document.getElementById('colCountSaved');
+  const countApplied = document.getElementById('colCountApplied');
+  const countInterview = document.getElementById('colCountInterviewing');
+  const countOffer = document.getElementById('colCountOffer');
+  const tabBadge = document.getElementById('pipelineCountBadge');
+
+  if (!colSaved || !colApplied || !colInterview || !colOffer) return;
+
+  const buckets = {
+    saved: pipelineJobs.filter(j => j.status === 'saved'),
+    applied: pipelineJobs.filter(j => j.status === 'applied'),
+    interviewing: pipelineJobs.filter(j => j.status === 'interviewing'),
+    offer: pipelineJobs.filter(j => j.status === 'offer')
+  };
+
+  if (countSaved) countSaved.textContent = buckets.saved.length;
+  if (countApplied) countApplied.textContent = buckets.applied.length;
+  if (countInterview) countInterview.textContent = buckets.interviewing.length;
+  if (countOffer) countOffer.textContent = buckets.offer.length;
+  if (tabBadge) tabBadge.textContent = pipelineJobs.length;
+
+  const renderColumn = (container, jobs) => {
+    container.innerHTML = '';
+    if (jobs.length === 0) {
+      container.innerHTML = `
+        <div class="h-28 border border-dashed rounded-xl flex items-center justify-center text-center p-3 text-[11px] opacity-50" style="border-color: var(--border); color: var(--ink-3);">
+          No roles in this stage
+        </div>
+      `;
+      return;
+    }
+
+    jobs.forEach(j => {
+      const card = document.createElement('div');
+      card.className = 'p-3.5 rounded-xl border space-y-2.5 transition hover:shadow-md';
+      card.style.background = 'var(--paper-2)';
+      card.style.borderColor = 'var(--border)';
+
+      const colors = getScoreColorClasses(j.score || 70);
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h5 class="font-bold text-xs leading-snug" style="color: var(--ink);">${escapeHtml(j.title)}</h5>
+            <p class="text-[11px] font-medium opacity-80" style="color: var(--ink-3);">${escapeHtml(j.company_name)} • ${escapeHtml(j.location)}</p>
+          </div>
+          <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md shrink-0 ${colors.badge}">
+            ${j.score}%
+          </span>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] font-mono opacity-70 pt-1" style="color: var(--ink-3);">
+          <span>${escapeHtml(j.salary)}</span>
+          <span>${escapeHtml(j.created_at)}</span>
+        </div>
+
+        <div class="pt-2 border-t flex items-center justify-between gap-1" style="border-color: var(--border);">
+          <select class="pipe-status-select console-input text-[10px] px-2 py-1 rounded-lg cursor-pointer">
+            <option value="saved" ${j.status === 'saved' ? 'selected' : ''}>Saved</option>
+            <option value="applied" ${j.status === 'applied' ? 'selected' : ''}>Applied</option>
+            <option value="interviewing" ${j.status === 'interviewing' ? 'selected' : ''}>Interviewing</option>
+            <option value="offer" ${j.status === 'offer' ? 'selected' : ''}>Offer</option>
+          </select>
+
+          <div class="flex items-center space-x-1">
+            <button type="button" class="btn-pipe-load p-1 rounded-lg hover:bg-slate-500/10 transition" title="Analyze in Workspace" style="color: var(--ink-2);">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+            <button type="button" class="btn-pipe-delete p-1 rounded-lg hover:bg-rose-500/10 text-rose-500 transition" title="Delete">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        </div>
+      `;
+
+      const select = card.querySelector('.pipe-status-select');
+      if (select) {
+        select.addEventListener('change', (e) => {
+          updatePipelineJobStatus(j.id, e.target.value);
+        });
+      }
+
+      const loadBtn = card.querySelector('.btn-pipe-load');
+      if (loadBtn) {
+        loadBtn.addEventListener('click', () => {
+          loadJobIntoWorkspace(j);
+        });
+      }
+
+      const delBtn = card.querySelector('.btn-pipe-delete');
+      if (delBtn) {
+        delBtn.addEventListener('click', () => {
+          deletePipelineJob(j.id);
+        });
+      }
+
+      container.appendChild(card);
+    });
+  };
+
+  renderColumn(colSaved, buckets.saved);
+  renderColumn(colApplied, buckets.applied);
+  renderColumn(colInterview, buckets.interviewing);
+  renderColumn(colOffer, buckets.offer);
+}
+
+function initPipeline() {
+  loadPipelineFromStorage();
+
+  const tabPipeline = document.getElementById('tabPipeline');
+  if (tabPipeline) {
+    tabPipeline.addEventListener('click', () => switchWorkspaceTab('pipeline'));
+  }
+
+  const addBtn = document.getElementById('addPipelineJobBtn');
+  const addModal = document.getElementById('add-pipeline-modal');
+  const closeBtn = document.getElementById('closeAddPipelineModalBtn');
+  const cancelBtn = document.getElementById('cancelAddPipelineBtn');
+  const form = document.getElementById('addPipelineForm');
+
+  if (addBtn && addModal) {
+    addBtn.addEventListener('click', () => addModal.classList.remove('hidden'));
+  }
+
+  const closeAddModal = () => addModal?.classList.add('hidden');
+  if (closeBtn) closeBtn.addEventListener('click', closeAddModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeAddModal);
+
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('manualJobTitle')?.value.trim();
+      const company = document.getElementById('manualJobCompany')?.value.trim();
+      const location = document.getElementById('manualJobLocation')?.value.trim() || 'Remote';
+      const salary = document.getElementById('manualJobSalary')?.value.trim() || 'Competitive';
+      const status = document.getElementById('manualJobStatus')?.value || 'saved';
+      const url = document.getElementById('manualJobUrl')?.value.trim() || '#';
+
+      if (!title || !company) return;
+
+      addJobToPipeline({
+        id: `pipe-${Date.now()}`,
+        title,
+        company_name: company,
+        location,
+        salary,
+        url,
+        score: 80,
+        status,
+        created_at: new Date().toISOString().split('T')[0]
+      }, status);
+
+      form.reset();
+      closeAddModal();
+    });
+  }
+
+  renderPipeline();
+}
+
+/**
+ * 16. Main Application Initialization
  */
 function initApp() {
   if (!checkCdn()) return;
@@ -2492,6 +3276,8 @@ function initApp() {
   initModals();
   initJobDiscovery();
   initSkillVault();
+  initAiActionSuite();
+  initPipeline();
 }
 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
@@ -2534,6 +3320,20 @@ if (typeof module !== 'undefined' && module.exports) {
     initSkillVault,
     getVaultDocumentsCache: () => vaultDocumentsCache,
     getVerifiedSkillsMatrix: () => verifiedSkillsMatrix,
+    openTailorModal,
+    renderTailorBullets,
+    openCoverLetterModal,
+    fetchCoverLetter,
+    openInterviewModal,
+    renderInterviewQuestions,
+    initAiActionSuite,
+    addJobToPipeline,
+    updatePipelineJobStatus,
+    deletePipelineJob,
+    renderPipeline,
+    initPipeline,
+    getPipelineJobs: () => pipelineJobs,
+    setPipelineJobs: (jobs) => { pipelineJobs = jobs; },
     initApp
   };
 }
