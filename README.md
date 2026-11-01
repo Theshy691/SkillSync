@@ -14,6 +14,7 @@ SkillSync is an enterprise-grade, full-stack ATS (Applicant Tracking System) sim
 
 ## Key Features
 
+- **Free Public Job Discovery & Explorer (`jobs.html`)**: Freely search, browse, and filter active engineering roles across AI, Cloud/DevOps, Full-Stack, and Frontend without requiring authentication. Includes multi-facet category filtering, remote-only toggle, interactive job preview modals, and a 1-click ATS workspace bridge that transfers job details directly into the scanner.
 - **Gemini AI Resume Matcher Proxy (`api.php`)**: Evaluates resumes against job descriptions with ATS accuracy, returning an objective 0–100 match score and prioritized skill gap recommendations in strict JSON.
 - **AI-Powered Web Scraper with Cache (`scrape.php`)**: Fetches external job postings from URLs (LinkedIn, Indeed, Greenhouse, etc.), extracts core requirements via Gemini AI, and caches results in Supabase to eliminate redundant AI calls.
 - **Client-Side PDF Parsing (`pdf.js`)**: Fast, in-browser PDF resume extraction without transmitting unparsed binary documents.
