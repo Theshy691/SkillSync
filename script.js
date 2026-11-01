@@ -550,6 +550,162 @@ function initCharCounters() {
 }
 
 /**
+ * 7b. Resume Version Manager
+ */
+let resumeVersions = [
+  {
+    id: 'ver-default-1',
+    name: 'Full-Stack Lead (React & Node)',
+    content: 'Full-Stack Software Engineer with 6+ years experience architecting scalable React, Next.js, Node.js, and TypeScript applications. Built event-driven Kafka microservices, optimized PostgreSQL databases, and led CI/CD Docker deployments on AWS.',
+    updated_at: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'ver-default-2',
+    name: 'Cloud & DevOps Specialist',
+    content: 'Senior Cloud & Platform Engineer experienced in Kubernetes, Docker, Terraform, AWS, and GCP infrastructure. Slashed build times by 50% via automated GitHub Actions pipelines and maintained 99.99% system availability.',
+    updated_at: new Date().toISOString().split('T')[0]
+  }
+];
+
+function loadResumeVersionsFromStorage() {
+  try {
+    const raw = localStorage.getItem('skillsync_resume_versions');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        resumeVersions = parsed;
+      }
+    }
+  } catch (_) {}
+}
+
+function saveResumeVersionsToStorage() {
+  try {
+    localStorage.setItem('skillsync_resume_versions', JSON.stringify(resumeVersions));
+  } catch (_) {}
+}
+
+function renderResumeVersionSelect(activeId) {
+  const select = document.getElementById('resumeVersionSelect');
+  if (!select) return;
+
+  select.innerHTML = '';
+  resumeVersions.forEach(ver => {
+    const opt = document.createElement('option');
+    opt.value = ver.id;
+    opt.textContent = ver.name;
+    if (activeId && ver.id === activeId) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+function switchResumeVersion(versionId) {
+  const ver = resumeVersions.find(v => v.id === versionId);
+  if (!ver) return;
+
+  const resumeText = document.getElementById('resumeText');
+  const resumeCount = document.getElementById('resumeCount');
+
+  if (resumeText) {
+    resumeText.value = ver.content;
+    updateCharCounter(resumeText, resumeCount, 5000);
+    if (typeof recomputeAndRenderJobCards === 'function') {
+      recomputeAndRenderJobCards();
+    }
+    showToast(`Switched to "${ver.name}" resume profile`, 'info', 2500);
+  }
+}
+
+function saveResumeVersion(name, content) {
+  if (!name || !name.trim()) return null;
+  const newVer = {
+    id: 'ver-' + Date.now(),
+    name: name.trim(),
+    content: content || '',
+    updated_at: new Date().toISOString().split('T')[0]
+  };
+
+  resumeVersions.unshift(newVer);
+  saveResumeVersionsToStorage();
+  renderResumeVersionSelect(newVer.id);
+  showToast(`Saved resume version "${newVer.name}"!`, 'success');
+  return newVer;
+}
+
+function deleteResumeVersion(versionId) {
+  if (resumeVersions.length <= 1) {
+    showToast('Cannot delete the only resume version.', 'warning');
+    return false;
+  }
+
+  const ver = resumeVersions.find(v => v.id === versionId);
+  const name = ver ? ver.name : 'version';
+  resumeVersions = resumeVersions.filter(v => v.id !== versionId);
+  saveResumeVersionsToStorage();
+
+  const nextVer = resumeVersions[0];
+  renderResumeVersionSelect(nextVer.id);
+  switchResumeVersion(nextVer.id);
+  showToast(`Deleted resume version "${name}".`, 'info');
+  return true;
+}
+
+function initResumeVersionManager() {
+  loadResumeVersionsFromStorage();
+
+  const select = document.getElementById('resumeVersionSelect');
+  const saveBtn = document.getElementById('saveResumeVersionBtn');
+  const deleteBtn = document.getElementById('deleteResumeVersionBtn');
+
+  const saveModal = document.getElementById('save-version-modal');
+  const closeSaveModalBtn = document.getElementById('closeSaveVersionModalBtn');
+  const cancelSaveBtn = document.getElementById('cancelSaveVersionBtn');
+  const confirmSaveBtn = document.getElementById('confirmSaveVersionBtn');
+  const nameInput = document.getElementById('newVersionNameInput');
+
+  if (select) {
+    renderResumeVersionSelect();
+    select.addEventListener('change', (e) => {
+      switchResumeVersion(e.target.value);
+    });
+  }
+
+  if (saveBtn && saveModal) {
+    saveBtn.addEventListener('click', () => {
+      if (nameInput) nameInput.value = '';
+      saveModal.classList.remove('hidden');
+      nameInput?.focus();
+    });
+  }
+
+  const closeSaveModal = () => saveModal?.classList.add('hidden');
+  if (closeSaveModalBtn) closeSaveModalBtn.addEventListener('click', closeSaveModal);
+  if (cancelSaveBtn) cancelSaveBtn.addEventListener('click', closeSaveModal);
+
+  if (confirmSaveBtn) {
+    confirmSaveBtn.addEventListener('click', () => {
+      const name = nameInput?.value.trim();
+      if (!name) {
+        showToast('Please provide a version name.', 'warning');
+        return;
+      }
+      const resumeText = document.getElementById('resumeText')?.value || '';
+      saveResumeVersion(name, resumeText);
+      closeSaveModal();
+    });
+  }
+
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', () => {
+      const activeId = select?.value;
+      if (activeId) {
+        deleteResumeVersion(activeId);
+      }
+    });
+  }
+}
+
+/**
  * 8. Resume Document Extraction (PDF, Image OCR & Clipboard Paste)
  */
 async function extractResumeFromPdf(file) {
@@ -3801,6 +3957,7 @@ function initApp() {
   initAuth();
   initAuthForm();
   initCharCounters();
+  initResumeVersionManager();
   initPdfUpload();
   initJobScraper();
   initAnalyzer();
@@ -3825,6 +3982,13 @@ if (typeof module !== 'undefined' && module.exports) {
     showToast,
     escapeHtml,
     updateCharCounter,
+    loadResumeVersionsFromStorage,
+    saveResumeVersion,
+    deleteResumeVersion,
+    switchResumeVersion,
+    initResumeVersionManager,
+    getResumeVersions: () => resumeVersions,
+    setResumeVersions: (v) => { resumeVersions = v; },
     generateYouTubeLink,
     getScoreColorClasses,
     extractResumeFromFile,

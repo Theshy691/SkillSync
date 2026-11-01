@@ -671,6 +671,40 @@
   </div>
 </div>
 
+<!-- Modal 7: Save Resume Version -->
+<div id="save-version-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="console-card max-w-sm w-full p-6 shadow-2xl relative space-y-4">
+    <button type="button" id="closeSaveVersionModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    
+    <div class="flex items-center space-x-3">
+      <div class="p-2.5 rounded-xl" style="background: var(--sage-light); color: var(--sage);">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+      </div>
+      <div>
+        <h3 class="text-base font-bold" style="color: var(--ink);">Save Resume Version</h3>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Version Name</label>
+      <input type="text" id="newVersionNameInput" placeholder="e.g. Frontend Specialist, Full-Stack Lead" class="console-input w-full px-3 py-2 text-xs">
+    </div>
+
+    <div class="pt-2 flex items-center justify-end space-x-2">
+      <button type="button" id="cancelSaveVersionBtn" class="px-3.5 py-1.5 text-xs font-semibold rounded-xl hover:bg-slate-500/10 transition inline-flex items-center space-x-1" style="color: var(--ink-2);">
+        <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <span>Cancel</span>
+      </button>
+      <button type="button" id="confirmSaveVersionBtn" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center space-x-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>Save Version</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ========================================================================
      3. Main Workspace Container
      ======================================================================== -->
@@ -773,6 +807,21 @@
                 <span id="uploadBtnText">Upload</span>
               </button>
             </div>
+          </div>
+
+          <!-- Resume Version Manager Bar -->
+          <div class="flex items-center space-x-1.5 mb-2.5">
+            <span class="text-[10px] font-bold uppercase tracking-wider opacity-65 shrink-0" style="color: var(--ink-2);">Version:</span>
+            <select id="resumeVersionSelect" class="console-input flex-1 px-2 py-1 text-xs cursor-pointer font-medium">
+              <option value="default">Default Profile</option>
+            </select>
+            <button type="button" id="saveResumeVersionBtn" class="px-2 py-1 text-xs font-semibold rounded-lg hover:bg-slate-500/10 transition inline-flex items-center space-x-1" title="Save Active Resume as Version" style="border: 1px solid var(--border); color: var(--ink);">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+              <span class="hidden sm:inline">Save</span>
+            </button>
+            <button type="button" id="deleteResumeVersionBtn" class="p-1 text-rose-500 hover:bg-rose-500/10 rounded-lg transition" title="Delete Selected Version">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
           </div>
 
           <!-- Resume Textarea -->
