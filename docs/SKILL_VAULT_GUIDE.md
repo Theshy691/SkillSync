@@ -134,3 +134,4 @@ All vault features are thoroughly verified in [`tests/vault.test.js`](file:///Us
 - `renderVaultUI` DOM manipulation and pill updates.
 - `syncVaultToWorkspace` 1-click synthesis into ATS textarea.
 - Non-bleed isolation between manual candidate resumes and the background vault matrix.
+
