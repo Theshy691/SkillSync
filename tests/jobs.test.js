@@ -13,6 +13,7 @@ const {
   recomputeAndRenderJobCards,
   setJobsPage,
   getPaginationState,
+  updateExternalSearchLinks,
   JOBS_PER_PAGE,
   FALLBACK_DISCOVERY_JOBS
 } = require('../script');
@@ -240,6 +241,31 @@ describe('Smart Job Discovery & Pre-Scoring Test Suite', () => {
 
       const state = getPaginationState();
       expect(state.currentPage).toBe(state.totalPages >= 2 ? 2 : state.totalPages);
+    });
+  });
+
+  describe('Multi-Platform External Search Shortcuts', () => {
+    test('updates external links for LinkedIn, Upwork, Indeed, and RemoteOK', () => {
+      document.body.innerHTML += `
+        <a id="extSearchLinkedIn" href="#"></a>
+        <a id="extSearchUpwork" href="#"></a>
+        <a id="extSearchIndeed" href="#"></a>
+        <a id="extSearchRemoteOk" href="#"></a>
+      `;
+
+      updateExternalSearchLinks('React Developer', true);
+
+      const lIn = document.getElementById('extSearchLinkedIn');
+      const up = document.getElementById('extSearchUpwork');
+      const ind = document.getElementById('extSearchIndeed');
+      const rem = document.getElementById('extSearchRemoteOk');
+
+      expect(lIn.href).toContain('linkedin.com/jobs/search/?keywords=React%20Developer');
+      expect(lIn.href).toContain('f_WT=2');
+      expect(up.href).toContain('upwork.com/nx/search/jobs/?q=React%20Developer');
+      expect(up.href).toContain('location=Anywhere');
+      expect(ind.href).toContain('indeed.com/jobs?q=React%20Developer&l=Remote');
+      expect(rem.href).toBe('https://remoteok.com/remote-react-developer-jobs');
     });
   });
 

@@ -2422,6 +2422,29 @@ function loadJobIntoWorkspace(job) {
   }
 }
 
+function updateExternalSearchLinks(query = '', remoteOnly = false) {
+  const rawQ = query ? query.trim() : '';
+  const q = encodeURIComponent(rawQ || 'Software Engineer');
+  const lLinkedIn = document.getElementById('extSearchLinkedIn');
+  const lUpwork = document.getElementById('extSearchUpwork');
+  const lIndeed = document.getElementById('extSearchIndeed');
+  const lRemoteOk = document.getElementById('extSearchRemoteOk');
+
+  if (lLinkedIn) {
+    lLinkedIn.href = `https://www.linkedin.com/jobs/search/?keywords=${q}&f_TPR=r2592000${remoteOnly ? '&f_WT=2' : ''}`;
+  }
+  if (lUpwork) {
+    lUpwork.href = `https://www.upwork.com/nx/search/jobs/?q=${q}&sort=recency${remoteOnly ? '&location=Anywhere' : ''}`;
+  }
+  if (lIndeed) {
+    lIndeed.href = `https://www.indeed.com/jobs?q=${q}${remoteOnly ? '&l=Remote' : ''}`;
+  }
+  if (lRemoteOk) {
+    const tag = rawQ ? encodeURIComponent(rawQ.replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase()) : 'engineer';
+    lRemoteOk.href = `https://remoteok.com/remote-${tag}-jobs`;
+  }
+}
+
 function initJobDiscovery() {
   const tabAts = document.getElementById('tabAtsMatcher');
   const tabDiscovery = document.getElementById('tabJobDiscovery');
@@ -2434,7 +2457,10 @@ function initJobDiscovery() {
     tabAts.addEventListener('click', () => switchWorkspaceTab('ats'));
   }
   if (tabDiscovery) {
-    tabDiscovery.addEventListener('click', () => switchWorkspaceTab('discovery'));
+    tabDiscovery.addEventListener('click', () => {
+      switchWorkspaceTab('discovery');
+      updateExternalSearchLinks(searchInput ? searchInput.value : '', remoteCheckbox ? remoteCheckbox.checked : false);
+    });
   }
 
   let debounceTimer = null;
@@ -2445,6 +2471,7 @@ function initJobDiscovery() {
         const query = searchInput.value.trim();
         const remoteOnly = remoteCheckbox ? remoteCheckbox.checked : false;
         fetchAndRenderJobs(query, remoteOnly);
+        updateExternalSearchLinks(query, remoteOnly);
       }, 250);
     });
   }
@@ -2452,7 +2479,9 @@ function initJobDiscovery() {
   if (remoteCheckbox) {
     remoteCheckbox.addEventListener('change', () => {
       const query = searchInput ? searchInput.value.trim() : '';
-      fetchAndRenderJobs(query, remoteCheckbox.checked);
+      const remoteOnly = remoteCheckbox.checked;
+      fetchAndRenderJobs(query, remoteOnly);
+      updateExternalSearchLinks(query, remoteOnly);
     });
   }
 
@@ -4773,6 +4802,30 @@ function initApp() {
       }
     }
   } catch (_) {}
+
+  // Check for 1-click external job URL import (from LinkedIn, Upwork, Indeed, etc.)
+  try {
+    let importUrl = null;
+    if (typeof window !== 'undefined' && window.location && window.location.search) {
+      const urlParams = new URLSearchParams(window.location.search);
+      importUrl = urlParams.get('import_url');
+    }
+    if (!importUrl) {
+      importUrl = localStorage.getItem('skillsync_pending_job_url');
+    }
+    if (importUrl) {
+      localStorage.removeItem('skillsync_pending_job_url');
+      const jobUrlInput = document.getElementById('jobUrlInput');
+      const scrapeBtn = document.getElementById('scrapeBtn');
+      if (jobUrlInput) {
+        jobUrlInput.value = importUrl;
+        showToast('Importing job from URL into ATS workspace...', 'info', 2500);
+        if (scrapeBtn && typeof scrapeBtn.click === 'function') {
+          setTimeout(() => scrapeBtn.click(), 300);
+        }
+      }
+    }
+  } catch (_) {}
 }
 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
@@ -4869,6 +4922,7 @@ if (typeof module !== 'undefined' && module.exports) {
     validatePersonName,
     validateVersionName,
     validateLocationName,
+    updateExternalSearchLinks,
     performSignOut,
     initAuthForm,
     initApp
