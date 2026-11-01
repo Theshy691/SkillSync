@@ -376,6 +376,25 @@ function showSessionExpiredModal() {
  */
 let isSignUpMode = false;
 
+async function performSignOut() {
+  if (isDemoMode()) {
+    localStorage.removeItem('skillsync_demo_session');
+    updateAuthState(null);
+    showToast('Signed out.', 'info');
+    return;
+  }
+
+  if (supabaseClient) {
+    try {
+      await supabaseClient.auth.signOut();
+      showToast('Signed out successfully.', 'info');
+    } catch (err) {
+      console.error('Sign out error:', err);
+    }
+  }
+  updateAuthState(null);
+}
+
 function initAuthForm() {
   const authForm = document.getElementById('authForm');
   const authTitle = document.getElementById('authTitle');
@@ -470,19 +489,43 @@ function initAuthForm() {
     });
   }
 
+  const logoutModal = document.getElementById('logout-modal');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  const closeLogoutModalBtn = document.getElementById('closeLogoutModalBtn');
+
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
-      if (isDemoMode()) {
-        localStorage.removeItem('skillsync_demo_session');
-        updateAuthState(null);
-        showToast('Signed out.', 'info');
+      if (logoutModal) {
+        logoutModal.classList.remove('hidden');
         return;
       }
 
-      if (supabaseClient) {
-        await supabaseClient.auth.signOut();
-        showToast('Signed out successfully.', 'info');
+      if (typeof window !== 'undefined' && typeof window.confirm === 'function') {
+        const confirmed = window.confirm('Are you sure you want to log out of your account?');
+        if (!confirmed) return;
       }
+
+      await performSignOut();
+    });
+  }
+
+  if (cancelLogoutBtn && logoutModal) {
+    cancelLogoutBtn.addEventListener('click', () => {
+      logoutModal.classList.add('hidden');
+    });
+  }
+
+  if (closeLogoutModalBtn && logoutModal) {
+    closeLogoutModalBtn.addEventListener('click', () => {
+      logoutModal.classList.add('hidden');
+    });
+  }
+
+  if (confirmLogoutBtn && logoutModal) {
+    confirmLogoutBtn.addEventListener('click', async () => {
+      logoutModal.classList.add('hidden');
+      await performSignOut();
     });
   }
 
@@ -4690,6 +4733,8 @@ if (typeof module !== 'undefined' && module.exports) {
     initLinkedInOutreach,
     getCurrentOutreachDrafts: () => currentOutreachDrafts,
     getActiveOutreachType: () => activeOutreachType,
+    performSignOut,
+    initAuthForm,
     initApp
   };
 }
