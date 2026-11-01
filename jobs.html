@@ -255,6 +255,81 @@
       cursor: pointer;
     }
 
+    /* Live Feed Refresh Pill */
+    .refresh-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.55rem 0.85rem;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      user-select: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .refresh-pill-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+      background: var(--accent-light);
+    }
+    .refresh-icon.is-spinning {
+      animation: spinRefresh 0.7s linear infinite;
+    }
+    @keyframes spinRefresh {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .jobs-meta-left {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+    .meta-dot-divider {
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+    .pulse-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.76rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+    }
+    .live-pulse-sm {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-light);
+    }
+    .sync-time-badge {
+      font-size: 0.75rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-muted);
+    }
+    .chip-new {
+      background: var(--accent-light);
+      color: var(--accent);
+      border-color: var(--accent-mid);
+      font-weight: 600;
+      font-size: 0.72rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
     /* Contextual External Platform Bar */
     .platform-banner {
       background: var(--bg-surface);
@@ -739,6 +814,11 @@
             <input type="checkbox" id="discoveryRemoteToggle" />
             <span>Remote only</span>
           </label>
+
+          <button type="button" id="discoveryRefreshBtn" class="refresh-pill-btn" aria-label="Refresh and find new job offers">
+            <svg id="discoveryRefreshIcon" class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span id="discoveryRefreshText">New Roles</span>
+          </button>
         </div>
 
         <!-- Contextual External Platform Banner -->
@@ -788,8 +868,17 @@
     <!-- Job Cards Catalog -->
     <section class="jobs-container">
       <div class="jobs-meta-bar">
-        <span id="discoveryCountText">Loading active tech postings...</span>
-        <span id="discoveryFeedBadge" class="chip" style="font-size: 0.8rem;">Live Feed</span>
+        <div class="jobs-meta-left">
+          <span id="discoveryCountText">Loading active tech postings...</span>
+          <span class="meta-dot-divider">·</span>
+          <span id="discoveryMarketPulse" class="pulse-chip">
+            <span class="live-pulse-sm"></span>
+            <span id="pulseText">Trending: Next.js 15 · Kubernetes · Go</span>
+          </span>
+        </div>
+        <div class="jobs-meta-right">
+          <span id="discoveryLastSync" class="sync-time-badge">Updated just now</span>
+        </div>
       </div>
 
       <!-- Loading State -->
