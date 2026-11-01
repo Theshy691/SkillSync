@@ -1457,6 +1457,8 @@ function initModals() {
  */
 let discoveredJobsCache = [];
 let activeWorkspaceTab = 'ats';
+const JOBS_PER_PAGE = 10;
+let currentJobsPage = 1;
 
 const FALLBACK_DISCOVERY_JOBS = [
   {
@@ -1651,20 +1653,24 @@ function switchWorkspaceTab(tabName) {
   }
 }
 
-async function fetchAndRenderJobs(query = '', remoteOnly = false) {
+async function fetchAndRenderJobs(query = '', remoteOnly = false, resetPage = true) {
+  if (resetPage) currentJobsPage = 1;
   const loadingEl = document.getElementById('jobsLoading');
   const gridEl = document.getElementById('jobsGrid');
   const emptyEl = document.getElementById('jobsEmpty');
   const countBadge = document.getElementById('discoveryCountBadge');
+  const paginationEl = document.getElementById('jobsPagination');
 
   if (loadingEl) loadingEl.classList.remove('hidden');
   if (gridEl) gridEl.classList.add('hidden');
   if (emptyEl) emptyEl.classList.add('hidden');
+  if (paginationEl) paginationEl.classList.add('hidden');
 
   try {
     const params = new URLSearchParams();
     if (query) params.append('q', query);
     if (remoteOnly) params.append('remote', 'true');
+    params.append('limit', '50');
 
     const res = await fetch(`jobs.php?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to retrieve job listings.');
@@ -1691,6 +1697,12 @@ async function fetchAndRenderJobs(query = '', remoteOnly = false) {
 function recomputeAndRenderJobCards() {
   const gridEl = document.getElementById('jobsGrid');
   const emptyEl = document.getElementById('jobsEmpty');
+  const paginationEl = document.getElementById('jobsPagination');
+  const rangeEl = document.getElementById('paginationRange');
+  const totalEl = document.getElementById('paginationTotal');
+  const pageIndicatorEl = document.getElementById('pageIndicator');
+  const prevBtn = document.getElementById('prevJobsPageBtn');
+  const nextBtn = document.getElementById('nextJobsPageBtn');
   const resumeTextEl = document.getElementById('resumeText');
   const scoringStatusText = document.getElementById('scoringStatusText');
 
@@ -1707,6 +1719,7 @@ function recomputeAndRenderJobCards() {
 
   if (!discoveredJobsCache || discoveredJobsCache.length === 0) {
     if (emptyEl) emptyEl.classList.remove('hidden');
+    if (paginationEl) paginationEl.classList.add('hidden');
     gridEl.classList.add('hidden');
     return;
   }
@@ -1721,7 +1734,17 @@ function recomputeAndRenderJobCards() {
 
   scoredList.sort((a, b) => b.compatibility.score - a.compatibility.score);
 
-  scoredList.forEach(job => {
+  // Pagination slicing (10 jobs per page)
+  const totalJobs = scoredList.length;
+  const totalPages = Math.max(1, Math.ceil(totalJobs / JOBS_PER_PAGE));
+  if (currentJobsPage > totalPages) currentJobsPage = totalPages;
+  if (currentJobsPage < 1) currentJobsPage = 1;
+
+  const startIndex = (currentJobsPage - 1) * JOBS_PER_PAGE;
+  const endIndex = Math.min(startIndex + JOBS_PER_PAGE, totalJobs);
+  const paginatedJobs = scoredList.slice(startIndex, endIndex);
+
+  paginatedJobs.forEach(job => {
     const card = document.createElement('div');
     card.className = 'console-card p-5 sm:p-6 flex flex-col justify-between transition hover:translate-y-[-2px]';
     card.setAttribute('data-job-id', job.id);
@@ -1807,6 +1830,36 @@ function recomputeAndRenderJobCards() {
 
     gridEl.appendChild(card);
   });
+
+  // Update Pagination Controls
+  if (paginationEl) {
+    if (totalJobs <= JOBS_PER_PAGE) {
+      paginationEl.classList.add('hidden');
+    } else {
+      paginationEl.classList.remove('hidden');
+      if (rangeEl) rangeEl.textContent = `${startIndex + 1}–${endIndex}`;
+      if (totalEl) totalEl.textContent = `${totalJobs}`;
+      if (pageIndicatorEl) pageIndicatorEl.textContent = `Page ${currentJobsPage} of ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = currentJobsPage <= 1;
+      if (nextBtn) nextBtn.disabled = currentJobsPage >= totalPages;
+    }
+  }
+}
+
+function setJobsPage(pageNumber) {
+  currentJobsPage = pageNumber;
+  recomputeAndRenderJobCards();
+}
+
+function getPaginationState() {
+  const totalJobs = discoveredJobsCache.length;
+  const totalPages = Math.max(1, Math.ceil(totalJobs / JOBS_PER_PAGE));
+  return {
+    currentPage: currentJobsPage,
+    totalPages,
+    totalJobs,
+    jobsPerPage: JOBS_PER_PAGE
+  };
 }
 
 function loadJobIntoWorkspace(job) {
@@ -1894,6 +1947,30 @@ function initJobDiscovery() {
       }, 500);
     });
   }
+
+  const prevPageBtn = document.getElementById('prevJobsPageBtn');
+  const nextPageBtn = document.getElementById('nextJobsPageBtn');
+
+  if (prevPageBtn) {
+    prevPageBtn.addEventListener('click', () => {
+      if (currentJobsPage > 1) {
+        currentJobsPage--;
+        recomputeAndRenderJobCards();
+        document.getElementById('discovery-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+
+  if (nextPageBtn) {
+    nextPageBtn.addEventListener('click', () => {
+      const totalPages = Math.ceil(discoveredJobsCache.length / JOBS_PER_PAGE) || 1;
+      if (currentJobsPage < totalPages) {
+        currentJobsPage++;
+        recomputeAndRenderJobCards();
+        document.getElementById('discovery-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
 }
 
 /**
@@ -1942,6 +2019,9 @@ if (typeof module !== 'undefined' && module.exports) {
     fetchAndRenderJobs,
     recomputeAndRenderJobCards,
     initJobDiscovery,
+    setJobsPage,
+    getPaginationState,
+    JOBS_PER_PAGE,
     FALLBACK_DISCOVERY_JOBS,
     initApp
   };
