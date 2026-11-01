@@ -1,0 +1,168 @@
+openapi: 3.0.3
+info:
+  title: SkillSync ATS & Career Optimization API
+  version: 1.0.0
+  description: >
+    Comprehensive REST API specification for SkillSync's AI-powered ATS resume matching,
+    role-tailored cover letter and interview generation, salary benchmarking, and job scraping.
+servers:
+  - url: http://localhost:8000/backend
+    description: Local Docker Environment
+  - url: https://skillsync.app/backend
+    description: Production Environment
+
+paths:
+  /api.php:
+    post:
+      summary: Evaluate Resume Against Target Job Description
+      description: >
+        Performs AI semantic analysis comparing candidate resume text against target job requirements.
+        Returns match score (0-100), multi-dimensional breakdown, missing skills, and strengths.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resume_text
+                - job_description
+              properties:
+                resume_text:
+                  type: string
+                  maxLength: 5000
+                  example: "Senior Software Engineer with 6+ years in React, Node, and TypeScript."
+                job_description:
+                  type: string
+                  maxLength: 5000
+                  example: "Seeking Full-Stack Engineer skilled in React, TypeScript, GraphQL, and AWS."
+      responses:
+        '200':
+          description: Successful ATS evaluation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /scrape.php:
+    post:
+      summary: Scrape and Extract Job Description from Public URL
+      description: Fetches and cleans job posting content from public career listings.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  example: "https://careers.example.com/job/senior-engineer"
+      responses:
+        '200':
+          description: Job posting extracted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  job_description:
+                    type: string
+                    example: "Role: Senior Backend Engineer at Stripe..."
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AnalysisResponse:
+      type: object
+      properties:
+        match_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 84
+        missing_skills:
+          type: array
+          items:
+            type: string
+          example: ["GraphQL", "Kubernetes"]
+        breakdown:
+          type: object
+          properties:
+            core_tech:
+              type: integer
+              example: 88
+            devops_cloud:
+              type: integer
+              example: 78
+            experience_depth:
+              type: integer
+              example: 85
+            domain_fit:
+              type: integer
+              example: 84
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Invalid Request"
+        message:
+          type: string
+          example: "Detailed error description."
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or expired authentication credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    RateLimited:
+      description: Too many requests within rate limit window
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServerError:
+      description: Internal backend processing failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
