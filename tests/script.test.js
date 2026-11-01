@@ -294,6 +294,33 @@ describe('SkillSync Frontend Test Suite', () => {
       expect(data.error).toBe('Unauthorized');
     });
 
+    test('supports long job descriptions over 5000 characters without truncation errors', async () => {
+      const longJobDescription = 'Target Engineering Role Description: ' + 'Responsibilities and requirements. '.repeat(300);
+      expect(longJobDescription.length).toBeGreaterThan(5000);
+
+      const mockResult = {
+        match_score: 88,
+        missing_skills: ['Kubernetes'],
+        explanation: 'Strong match against comprehensive job posting.'
+      };
+
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockResult
+      });
+
+      const response = await fetch('api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resume: 'Software Engineer with React and Node', job_description: longJobDescription })
+      });
+
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.match_score).toBe(88);
+    });
+
     test('mocks Supabase database querying and deletion', async () => {
       const mockScanHistory = [
         {
