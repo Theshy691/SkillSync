@@ -94,6 +94,92 @@ paths:
         '429':
           $ref: '#/components/responses/RateLimited'
 
+  /salary.php:
+    post:
+      summary: Calculate Market Salary Benchmarks & Negotiation Strategy
+      description: Returns p25, median, p75, p90 percentiles with seniority, location, and skill adjustments.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  example: "Senior Full-Stack Engineer"
+                location:
+                  type: string
+                  example: "Remote"
+                skills:
+                  type: array
+                  items:
+                    type: string
+                  example: ["TypeScript", "AWS", "PostgreSQL"]
+                current_offer:
+                  type: string
+                  example: "$145,000"
+      responses:
+        '200':
+          description: Benchmarks calculated
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /tailor.php:
+    post:
+      summary: Generate Google XYZ Formula Experience Bullets
+      description: Returns optimized resume bullet points tailored to target job requirements.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resume_text
+                - job_description
+              properties:
+                resume_text:
+                  type: string
+                job_description:
+                  type: string
+                missing_skills:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Experience bullets generated
+
+  /jobs.php:
+    get:
+      summary: Autonomous Job Feed Discovery & Filter
+      description: Returns curated engineering job recommendations with pagination.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: remote
+          in: query
+          schema:
+            type: integer
+            enum: [0, 1]
+      responses:
+        '200':
+          description: Job list returned
+
 components:
   securitySchemes:
     BearerAuth:
