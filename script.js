@@ -464,6 +464,9 @@ function initAuthForm() {
   const sessionLoginBtn = document.getElementById('sessionLoginBtn');
   const loginTriggerBtn = document.getElementById('loginTriggerBtn');
   const quickDemoBtn = document.getElementById('quickDemoBtn');
+  const authNameContainer = document.getElementById('authNameContainer');
+  const authFullName = document.getElementById('authFullName');
+  const authNameError = document.getElementById('authNameError');
 
   // Instant Quick Demo Login
   if (quickDemoBtn) {
@@ -481,9 +484,39 @@ function initAuthForm() {
     });
   }
 
+  if (authFullName && authNameError) {
+    authFullName.addEventListener('input', () => {
+      const val = authFullName.value;
+      if (!val) {
+        authNameError.classList.add('hidden');
+        authFullName.classList.remove('border-rose-500');
+        return;
+      }
+      if (/[0-9]/.test(val)) {
+        authNameError.textContent = 'Name cannot contain numbers.';
+        authNameError.classList.remove('hidden');
+        authFullName.classList.add('border-rose-500');
+      } else if (!/^[A-Za-z\u00C0-\u024F\s'-]*$/.test(val)) {
+        authNameError.textContent = 'Name can only contain letters, spaces, hyphens, and apostrophes.';
+        authNameError.classList.remove('hidden');
+        authFullName.classList.add('border-rose-500');
+      } else {
+        authNameError.classList.add('hidden');
+        authFullName.classList.remove('border-rose-500');
+      }
+    });
+  }
+
   if (authSwitchBtn) {
     authSwitchBtn.addEventListener('click', () => {
       isSignUpMode = !isSignUpMode;
+      if (authNameContainer) {
+        if (isSignUpMode) {
+          authNameContainer.classList.remove('hidden');
+        } else {
+          authNameContainer.classList.add('hidden');
+        }
+      }
       if (isSignUpMode) {
         authTitle.textContent = 'Create an Account';
         authSubtitle.textContent = 'Sign up to track and evaluate resume matches';
@@ -507,6 +540,20 @@ function initAuthForm() {
       const password = document.getElementById('authPassword').value;
 
       if (!email || !password) return;
+
+      if (isSignUpMode && authFullName) {
+        const nameVal = authFullName.value.trim();
+        const nameCheck = validatePersonName(nameVal);
+        if (!nameCheck.valid) {
+          if (authNameError) {
+            authNameError.textContent = nameCheck.error;
+            authNameError.classList.remove('hidden');
+          }
+          authFullName.classList.add('border-rose-500');
+          showToast(nameCheck.error, 'error');
+          return;
+        }
+      }
 
       if (authSpinner) authSpinner.classList.remove('hidden');
       if (authSubmitText) authSubmitText.textContent = isSignUpMode ? 'Creating Account...' : 'Signing In...';

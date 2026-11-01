@@ -894,6 +894,12 @@
     </div>
 
     <form id="authForm" class="space-y-4">
+      <div id="authNameContainer" class="hidden">
+        <label class="block text-xs font-semibold mb-1" style="color: var(--ink-2);">Full Name</label>
+        <input type="text" id="authFullName" placeholder="e.g. James Sarmiento" class="console-input w-full px-3.5 py-2.5 text-sm focus:outline-none">
+        <p id="authNameError" class="hidden text-[11px] text-rose-500 font-medium mt-1">Name cannot contain numbers or special characters.</p>
+      </div>
+
       <div>
         <label class="block text-xs font-semibold mb-1" style="color: var(--ink-2);">Email Address</label>
         <input type="email" id="authEmail" required placeholder="you@example.com" class="console-input w-full px-3.5 py-2.5 text-sm focus:outline-none">
