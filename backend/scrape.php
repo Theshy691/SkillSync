@@ -244,12 +244,7 @@ if (!empty($geminiApiKey)) {
 }
 
 if (empty($extractedText)) {
-    $extractedText = mb_substr($plainText, 0, 4800);
-}
-
-// Ensure final description does not exceed 5000 characters
-if (mb_strlen($extractedText) > 4900) {
-    $extractedText = mb_substr($extractedText, 0, 4900) . '...';
+    $extractedText = $plainText;
 }
 
 // 8. Save to Cache Table in Supabase

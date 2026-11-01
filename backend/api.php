@@ -60,14 +60,14 @@ if (empty($resume) || empty($jobDescription)) {
     ], 400);
 }
 
-// Strict Character Limit Verification (5,000 characters maximum)
+// Generous boundary supporting long enterprise job postings and multi-page resumes
 $resumeLength = mb_strlen($resume);
 $jobLength = mb_strlen($jobDescription);
 
-if ($resumeLength > 5000 || $jobLength > 5000) {
+if ($resumeLength > 100000 || $jobLength > 100000) {
     sendJsonResponse([
         'error' => 'Bad Request',
-        'message' => "Character limit exceeded. Resume ({$resumeLength} chars) and job description ({$jobLength} chars) must each be 5,000 characters or fewer."
+        'message' => 'Payload exceeds safety threshold of 100,000 characters.'
     ], 400);
 }
 

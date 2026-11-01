@@ -175,17 +175,9 @@ if (empty($extractedText)) {
     ], 422);
 }
 
-// Clamp to 5,000 characters limit
-$originalLen = mb_strlen($extractedText);
-$truncated = false;
-if ($originalLen > 5000) {
-    $extractedText = mb_substr($extractedText, 0, 5000);
-    $truncated = true;
-}
-
 sendJsonResponse([
     'success' => true,
     'text' => $extractedText,
     'char_count' => mb_strlen($extractedText),
-    'truncated' => $truncated
+    'truncated' => false
 ], 200);
