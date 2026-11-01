@@ -7,14 +7,16 @@
  */
 
 (function (root, factory) {
+  const mod = factory();
   if (typeof module !== 'undefined' && module.exports) {
     // Node.js CommonJS
-    module.exports = factory();
-  } else {
-    // Browser global
-    root.SkillSyncDiscoveryEngine = factory();
+    module.exports = mod;
   }
-})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
+  if (typeof root !== 'undefined') {
+    // Browser / global
+    root.SkillSyncDiscoveryEngine = mod;
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : this, function () {
   'use strict';
 
   const CATEGORY_MAP = {

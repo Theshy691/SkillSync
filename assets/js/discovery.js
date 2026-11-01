@@ -379,6 +379,13 @@
     });
   }
 
+  function setJobs(jobs) {
+    if (Array.isArray(jobs)) {
+      rawJobs = jobs;
+      applyFilters();
+    }
+  }
+
   // Auto-init on DOMContentLoaded
   if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -392,6 +399,8 @@
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
       FALLBACK_PUBLIC_JOBS,
+      loadJobs,
+      setJobs,
       applyFilters,
       renderCards,
       openJobModal,
