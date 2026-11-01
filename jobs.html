@@ -148,6 +148,149 @@
       height: 16px;
       cursor: pointer;
     }
+    .platform-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-bottom: 1.25rem;
+      text-align: left;
+    }
+    .platform-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .platform-label {
+      font-size: 0.78rem;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .platform-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .platform-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 0.45rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .platform-pill:hover {
+      border-color: var(--border-color-hover);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+    .platform-pill.active {
+      background: var(--bg-card);
+      border-color: var(--accent);
+      color: var(--text-primary);
+      box-shadow: 0 4px 12px var(--accent-light);
+    }
+    .platform-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .platform-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+      text-align: left;
+      animation: modalFadeIn 0.2s ease;
+    }
+    .platform-banner-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    @media (min-width: 640px) {
+      .platform-banner-content {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+    .platform-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      background: var(--accent-light);
+      color: var(--accent);
+      display: inline-block;
+      margin-bottom: 0.35rem;
+    }
+    .platform-banner-header h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
+    }
+    .platform-banner-header p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    .platform-importer-box {
+      background: var(--bg-card);
+      border: 1px dashed var(--border-color-hover);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .importer-text strong {
+      display: block;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      margin-bottom: 0.2rem;
+    }
+    .importer-text span {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      margin-bottom: 0.75rem;
+    }
+    .importer-input-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .importer-input-row input {
+      flex: 1 1 260px;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .importer-input-row input:focus {
+      border-color: var(--accent);
+    }
     .filter-pills {
       display: flex;
       gap: 0.5rem;
@@ -469,6 +612,45 @@
 
       <!-- Search Controls -->
       <div class="search-panel">
+        <!-- Platform Selection Bar (SkillSync, LinkedIn, Upwork, Indeed, etc.) -->
+        <div class="platform-bar" id="platformBar">
+          <div class="platform-header">
+            <span class="platform-label">Search Source / Ecosystem</span>
+            <span id="platformActiveStatus" class="chip" style="font-size: 0.75rem; color: var(--accent);">SkillSync Native</span>
+          </div>
+          <div class="platform-pills" id="platformPillsContainer">
+            <button type="button" class="platform-pill active" data-platform="skillsync">
+              <span class="platform-dot" style="background: var(--accent);"></span>
+              <span>SkillSync Feed</span>
+            </button>
+            <button type="button" class="platform-pill" data-platform="linkedin">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #0a66c2;"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              <span>LinkedIn</span>
+            </button>
+            <button type="button" class="platform-pill" data-platform="upwork">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #14a800;"><path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-3.714 0-5.748 2.457-6.435 4.77-1.428-1.84-2.428-4.22-2.91-6.788h-3.414v9.646c0 1.956-1.587 3.543-3.543 3.543s-3.543-1.587-3.543-3.543v-9.646h-3.414v9.646c0 3.841 3.116 6.957 6.957 6.957 3.841 0 6.957-3.116 6.957-6.957v-1.146c.582 1.411 1.489 2.776 2.684 3.917l-1.921 8.944h3.487l1.39-6.471c1.079.623 2.276.963 3.551.963 3.714 0 6.702-2.988 6.702-6.702 0-3.714-2.988-6.702-6.702-6.702z"/></svg>
+              <span>Upwork</span>
+            </button>
+            <button type="button" class="platform-pill" data-platform="indeed">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #2164f3;"><path d="M11.566 21.995v-7.653c-.76.31-1.564.475-2.413.475-3.327 0-6.027-2.698-6.027-6.024 0-3.328 2.7-6.025 6.027-6.025 3.326 0 6.024 2.697 6.024 6.025 0 1.258-.396 2.422-1.06 3.385l5.883 5.882-1.415 1.415-5.88-5.88c-.964.664-2.128 1.06-3.386 1.06-.057 0-.113 0-.169-.002v7.342h-1.584z"/></svg>
+              <span>Indeed</span>
+            </button>
+            <button type="button" class="platform-pill" data-platform="wellfound">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #e03a3c;"><path d="M12 2L2 22h20L12 2zm0 4.8l6.2 12.4H5.8L12 6.8z"/></svg>
+              <span>Wellfound</span>
+            </button>
+            <button type="button" class="platform-pill" data-platform="remoteok">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #ff4742;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+              <span>RemoteOK</span>
+            </button>
+            <button type="button" class="platform-pill" data-platform="glassdoor">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #0caa41;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              <span>Glassdoor</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Input -->
         <div class="search-input-wrap">
           <div class="search-input-box">
             <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -482,6 +664,37 @@
             <input type="checkbox" id="discoveryRemoteToggle" style="accent-color: var(--accent); width: 16px; height: 16px;" />
             <span>Remote Only</span>
           </label>
+        </div>
+
+        <!-- External Search & ATS Importer Banner (Shown when an external platform is active) -->
+        <div id="externalPlatformBanner" class="platform-banner" style="display: none;">
+          <div class="platform-banner-content">
+            <div class="platform-banner-header">
+              <span class="platform-tag" id="platformBannerTag">Platform</span>
+              <h3 id="platformBannerTitle">Search on LinkedIn</h3>
+              <p id="platformBannerDesc">Corporate, tech, and high-growth startup roles.</p>
+            </div>
+            <div class="platform-banner-actions">
+              <a href="#" target="_blank" rel="noopener noreferrer" id="platformLaunchBtn" class="btn-card btn-card-primary">
+                <span>Launch Search on <span id="platformLaunchName">LinkedIn</span></span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick 1-Click Import from Selected Platform into SkillSync ATS -->
+          <div class="platform-importer-box">
+            <div class="importer-text">
+              <strong>Found a role on <span id="importerPlatformName">LinkedIn</span>?</strong>
+              <span>Paste its link to import, extract requirements, and score your resume:</span>
+            </div>
+            <div class="importer-input-row">
+              <input type="url" id="externalJobUrlInput" placeholder="Paste job URL from LinkedIn, Upwork, Indeed, or any career page..." />
+              <button type="button" id="importJobUrlBtn" class="btn-card btn-card-secondary" style="flex: 0 0 auto; white-space: nowrap;">
+                Import &amp; ATS Score &rarr;
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Filter Chips -->
@@ -538,6 +751,11 @@
             <span class="chip" id="modalLocation">Location</span>
             <span class="chip chip-salary" id="modalSalary">Salary</span>
           </div>
+          <div class="modal-external-links" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.65rem;">
+            <a id="modalSearchLinkedIn" href="#" target="_blank" rel="noopener noreferrer" class="chip" style="color: #0a66c2; text-decoration: none; font-size: 0.72rem; font-weight: 600;">LinkedIn &nearr;</a>
+            <a id="modalSearchUpwork" href="#" target="_blank" rel="noopener noreferrer" class="chip" style="color: #14a800; text-decoration: none; font-size: 0.72rem; font-weight: 600;">Upwork &nearr;</a>
+            <a id="modalSearchIndeed" href="#" target="_blank" rel="noopener noreferrer" class="chip" style="color: #2164f3; text-decoration: none; font-size: 0.72rem; font-weight: 600;">Indeed &nearr;</a>
+          </div>
         </div>
         <button type="button" class="close-modal-btn" id="closeModalBtn" aria-label="Close modal">&times;</button>
       </div>
@@ -586,6 +804,7 @@
 
   <!-- Scripts -->
   <script src="assets/js/modules/discovery_engine.js"></script>
+  <script src="assets/js/modules/platform_jobs.js"></script>
   <script src="assets/js/discovery.js"></script>
 </body>
 </html>

@@ -5,8 +5,10 @@
  * @jest-environment jsdom
  */
 
-// Load discovery engine global first
+// Load discovery engine and platform jobs modules globally
 require('../assets/js/modules/discovery_engine.js');
+window.SkillSyncPlatformJobs = require('../assets/js/modules/platform_jobs.js');
+
 const {
   FALLBACK_PUBLIC_JOBS,
   setJobs,
@@ -15,7 +17,10 @@ const {
   openJobModal,
   closeJobModal,
   transferJobToAts,
-  initTheme
+  initTheme,
+  updatePlatformView,
+  handlePlatformSwitch,
+  handleExternalJobImport
 } = require('../assets/js/discovery.js');
 
 describe('Public Job Explorer Page Test Suite', () => {
@@ -24,6 +29,27 @@ describe('Public Job Explorer Page Test Suite', () => {
     document.body.innerHTML = `
       <div id="themeBtn"></div>
       <div id="themeBtnLabel"></div>
+
+      <!-- Platform Selection Controls -->
+      <div id="platformBar">
+        <span id="platformActiveStatus">SkillSync Native</span>
+        <button class="platform-pill active" data-platform="skillsync"></button>
+        <button class="platform-pill" data-platform="linkedin"></button>
+        <button class="platform-pill" data-platform="upwork"></button>
+        <button class="platform-pill" data-platform="indeed"></button>
+      </div>
+
+      <div id="externalPlatformBanner" style="display: none;">
+        <span id="platformBannerTag"></span>
+        <h3 id="platformBannerTitle"></h3>
+        <p id="platformBannerDesc"></p>
+        <span id="platformLaunchName"></span>
+        <a id="platformLaunchBtn" href="#"></a>
+        <span id="importerPlatformName"></span>
+        <input type="url" id="externalJobUrlInput" />
+        <button id="importJobUrlBtn"></button>
+      </div>
+
       <input type="text" id="discoverySearchInput" />
       <input type="checkbox" id="discoveryRemoteToggle" />
       <span id="discoveryCountText"></span>
@@ -39,6 +65,9 @@ describe('Public Job Explorer Page Test Suite', () => {
         <h2 id="modalRoleTitle"></h2>
         <span id="modalLocation"></span>
         <span id="modalSalary"></span>
+        <a id="modalSearchLinkedIn" href="#"></a>
+        <a id="modalSearchUpwork" href="#"></a>
+        <a id="modalSearchIndeed" href="#"></a>
         <div id="modalTags"></div>
         <div id="modalDescription"></div>
       </div>
@@ -60,6 +89,58 @@ describe('Public Job Explorer Page Test Suite', () => {
       expect(root.getAttribute('data-theme')).toBe('light');
       expect(label.textContent).toBe('Dark mode');
       expect(localStorage.getItem('theme')).toBe('light');
+    });
+  });
+
+  describe('Multi-Platform Chooser (LinkedIn, Upwork, Indeed)', () => {
+    test('switches to LinkedIn and shows external search launcher banner', () => {
+      handlePlatformSwitch('linkedin');
+
+      const banner = document.getElementById('externalPlatformBanner');
+      const title = document.getElementById('platformBannerTitle');
+      const launchBtn = document.getElementById('platformLaunchBtn');
+      const activeStatus = document.getElementById('platformActiveStatus');
+
+      expect(banner.style.display).toBe('block');
+      expect(title.textContent).toContain('LinkedIn');
+      expect(launchBtn.href).toContain('linkedin.com/jobs/search');
+      expect(activeStatus.textContent).toContain('Enterprise');
+    });
+
+    test('switches to Upwork and generates recency contract search link', () => {
+      const searchInput = document.getElementById('discoverySearchInput');
+      searchInput.value = 'FastAPI Python';
+
+      handlePlatformSwitch('upwork');
+
+      const launchBtn = document.getElementById('platformLaunchBtn');
+      expect(launchBtn.href).toContain('upwork.com/nx/search/jobs');
+      expect(launchBtn.href).toContain('FastAPI%20Python');
+      expect(launchBtn.href).toContain('sort=recency');
+    });
+
+    test('switches back to SkillSync and hides external banner', () => {
+      handlePlatformSwitch('linkedin');
+      handlePlatformSwitch('skillsync');
+
+      const banner = document.getElementById('externalPlatformBanner');
+      const activeStatus = document.getElementById('platformActiveStatus');
+
+      expect(banner.style.display).toBe('none');
+      expect(activeStatus.textContent).toBe('SkillSync Native');
+    });
+
+    test('handleExternalJobImport sets pending url and redirects to app scanner', () => {
+      delete window.location;
+      window.location = { href: '' };
+
+      const urlInput = document.getElementById('externalJobUrlInput');
+      urlInput.value = 'https://www.linkedin.com/jobs/view/999888';
+
+      handleExternalJobImport();
+
+      expect(localStorage.getItem('skillsync_pending_job_url')).toBe('https://www.linkedin.com/jobs/view/999888');
+      expect(window.location.href).toContain('app.html?import_url=');
     });
   });
 
@@ -102,8 +183,8 @@ describe('Public Job Explorer Page Test Suite', () => {
     });
   });
 
-  describe('Job Detail Modal Lifecycle', () => {
-    test('openJobModal displays modal with full job information', () => {
+  describe('Job Detail Modal Lifecycle & Cross-Platform Comparator', () => {
+    test('openJobModal displays modal and configures cross-platform comparator links', () => {
       const sampleJob = FALLBACK_PUBLIC_JOBS[0];
       openJobModal(sampleJob);
 
@@ -112,6 +193,11 @@ describe('Public Job Explorer Page Test Suite', () => {
       expect(document.getElementById('modalCompany').textContent).toBe(sampleJob.company_name);
       expect(document.getElementById('modalRoleTitle').textContent).toBe(sampleJob.title);
       expect(document.getElementById('modalDescription').textContent).toContain('React');
+
+      const linkedInLink = document.getElementById('modalSearchLinkedIn');
+      const upworkLink = document.getElementById('modalSearchUpwork');
+      expect(linkedInLink.href).toContain('linkedin.com/jobs/search');
+      expect(upworkLink.href).toContain('upwork.com/nx/search/jobs');
     });
 
     test('closeJobModal hides modal display', () => {

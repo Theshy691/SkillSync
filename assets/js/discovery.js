@@ -75,7 +75,93 @@
   let currentPage = 1;
   const PER_PAGE = 6;
   let activeCategory = 'all';
+  let activePlatform = 'skillsync';
   let activeJobModalData = null;
+
+  function updatePlatformView() {
+    const banner = document.getElementById('externalPlatformBanner');
+    const searchInput = document.getElementById('discoverySearchInput');
+    const remoteToggle = document.getElementById('discoveryRemoteToggle');
+    const activeStatus = document.getElementById('platformActiveStatus');
+    const bannerTag = document.getElementById('platformBannerTag');
+    const bannerTitle = document.getElementById('platformBannerTitle');
+    const bannerDesc = document.getElementById('platformBannerDesc');
+    const launchName = document.getElementById('platformLaunchName');
+    const importerName = document.getElementById('importerPlatformName');
+    const launchBtn = document.getElementById('platformLaunchBtn');
+
+    const query = searchInput ? searchInput.value.trim() : '';
+    const remoteOnly = remoteToggle ? remoteToggle.checked : false;
+
+    const platformEngine = window.SkillSyncPlatformJobs;
+    if (!platformEngine) return;
+    const meta = platformEngine.getPlatformMeta(activePlatform);
+
+    if (activePlatform === 'skillsync') {
+      if (banner) banner.style.display = 'none';
+      if (activeStatus) {
+        activeStatus.textContent = 'SkillSync Native';
+        activeStatus.style.color = 'var(--accent)';
+      }
+      if (searchInput && !searchInput.value) {
+        searchInput.placeholder = 'Search by role, company (e.g. Stripe, Vercel), or tech stack (e.g. React, Python)...';
+      }
+    } else {
+      if (banner) banner.style.display = 'block';
+      if (activeStatus) {
+        activeStatus.textContent = meta.category;
+        activeStatus.style.color = meta.color;
+      }
+      if (bannerTag) bannerTag.textContent = meta.category;
+      if (bannerTitle) bannerTitle.textContent = `Search on ${meta.name}`;
+      if (bannerDesc) bannerDesc.textContent = meta.tagline;
+      if (launchName) launchName.textContent = meta.shortName;
+      if (importerName) importerName.textContent = meta.shortName;
+      if (searchInput && !searchInput.value) searchInput.placeholder = meta.placeholder;
+
+      if (launchBtn) {
+        const searchUrl = platformEngine.buildPlatformSearchUrl(activePlatform, query, { remoteOnly });
+        launchBtn.href = searchUrl;
+      }
+    }
+  }
+
+  function handlePlatformSwitch(platformId) {
+    activePlatform = platformId || 'skillsync';
+    const pills = document.querySelectorAll('.platform-pill');
+    pills.forEach(pill => {
+      if (pill.getAttribute('data-platform') === activePlatform) {
+        pill.classList.add('active');
+      } else {
+        pill.classList.remove('active');
+      }
+    });
+
+    updatePlatformView();
+    applyFilters(true);
+  }
+
+  function handleExternalJobImport() {
+    const urlInput = document.getElementById('externalJobUrlInput');
+    const rawUrl = urlInput ? urlInput.value.trim() : '';
+    if (!rawUrl) {
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    try {
+      new URL(rawUrl);
+    } catch (_) {
+      alert('Please enter a valid web URL starting with https://');
+      return;
+    }
+
+    try {
+      localStorage.setItem('skillsync_pending_job_url', rawUrl);
+    } catch (_) {}
+
+    window.location.href = `app.html?import_url=${encodeURIComponent(rawUrl)}`;
+  }
 
   function initTheme() {
     const themeBtn = document.getElementById('themeBtn');
@@ -286,6 +372,17 @@
       descEl.textContent = job.description || 'Full description available on external listing.';
     }
 
+    const platformEngine = window.SkillSyncPlatformJobs;
+    const modalLinkedIn = document.getElementById('modalSearchLinkedIn');
+    const modalUpwork = document.getElementById('modalSearchUpwork');
+    const modalIndeed = document.getElementById('modalSearchIndeed');
+
+    if (platformEngine) {
+      if (modalLinkedIn) modalLinkedIn.href = platformEngine.buildPlatformSearchUrl('linkedin', job.title, { remoteOnly: job.remote });
+      if (modalUpwork) modalUpwork.href = platformEngine.buildPlatformSearchUrl('upwork', job.title, { remoteOnly: job.remote });
+      if (modalIndeed) modalIndeed.href = platformEngine.buildPlatformSearchUrl('indeed', job.title, { remoteOnly: job.remote });
+    }
+
     modal.style.display = 'flex';
     if (typeof document !== 'undefined' && document.body) {
       document.body.style.overflow = 'hidden';
@@ -343,12 +440,40 @@
     if (searchInput) {
       searchInput.addEventListener('input', () => {
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => applyFilters(true), 250);
+        debounceTimer = setTimeout(() => {
+          applyFilters(true);
+          updatePlatformView();
+        }, 250);
       });
     }
 
     if (remoteToggle) {
-      remoteToggle.addEventListener('change', () => applyFilters(true));
+      remoteToggle.addEventListener('change', () => {
+        applyFilters(true);
+        updatePlatformView();
+      });
+    }
+
+    const platformPills = document.querySelectorAll('.platform-pill');
+    platformPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const platform = pill.getAttribute('data-platform');
+        handlePlatformSwitch(platform);
+      });
+    });
+
+    const importBtn = document.getElementById('importJobUrlBtn');
+    const importInput = document.getElementById('externalJobUrlInput');
+    if (importBtn) {
+      importBtn.addEventListener('click', handleExternalJobImport);
+    }
+    if (importInput) {
+      importInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleExternalJobImport();
+        }
+      });
     }
 
     filterPills.forEach(pill => {
@@ -431,6 +556,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       initListeners();
+      updatePlatformView();
       loadJobs();
     });
   }
@@ -446,7 +572,10 @@
       openJobModal,
       closeJobModal,
       transferJobToAts,
-      initTheme
+      initTheme,
+      updatePlatformView,
+      handlePlatformSwitch,
+      handleExternalJobImport
     };
   }
 })();
