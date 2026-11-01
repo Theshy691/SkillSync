@@ -112,6 +112,37 @@
       font-size: 0.72rem;
       padding: 0.2rem 0.65rem;
     }
+    .skill-matrix-tile {
+      background: var(--paper-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: default;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .skill-matrix-tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      border-color: rgba(68, 101, 72, 0.35);
+      background: var(--paper-3);
+    }
+    .skill-logo-box {
+      background: var(--paper-3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .skill-matrix-tile:hover .skill-logo-box {
+      transform: scale(1.08);
+    }
     @media (max-width: 640px) {
       .app-header-container {
         padding: 0.75rem 1rem !important;
@@ -634,7 +665,7 @@
                 <span class="w-2 h-2 rounded-full" style="background: var(--sage);"></span>
                 <span>Languages</span>
               </div>
-              <div id="vaultMatrixLanguages" class="flex flex-wrap gap-2"></div>
+              <div id="vaultMatrixLanguages" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
             </div>
 
             <!-- Frameworks & Libraries -->
@@ -643,7 +674,7 @@
                 <span class="w-2 h-2 rounded-full" style="background: var(--sky);"></span>
                 <span>Frameworks & Libraries</span>
               </div>
-              <div id="vaultMatrixFrameworks" class="flex flex-wrap gap-2"></div>
+              <div id="vaultMatrixFrameworks" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
             </div>
 
             <!-- Cloud, Infrastructure & Databases -->
@@ -652,7 +683,7 @@
                 <span class="w-2 h-2 rounded-full" style="background: var(--amber);"></span>
                 <span>Cloud, Infrastructure & Databases</span>
               </div>
-              <div id="vaultMatrixCloud" class="flex flex-wrap gap-2"></div>
+              <div id="vaultMatrixCloud" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
             </div>
 
             <!-- Certifications & Accreditations -->
@@ -661,7 +692,7 @@
                 <span class="w-2 h-2 rounded-full" style="background: var(--rose);"></span>
                 <span>Verified Certifications</span>
               </div>
-              <div id="vaultMatrixCertifications" class="flex flex-wrap gap-2"></div>
+              <div id="vaultMatrixCertifications" class="flex flex-wrap gap-2.5 sm:gap-3"></div>
             </div>
           </div>
         </div>
