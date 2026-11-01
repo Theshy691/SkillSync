@@ -188,7 +188,7 @@
     <!-- Auth / Profile Container -->
     <div id="authHeaderContainer" class="flex items-center space-x-2">
       <div id="userProfile" class="hidden flex items-center space-x-2">
-        <span id="userEmailBadge" class="text-xs font-medium px-2.5 py-1 rounded-xl bg-slate-200/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 max-w-[160px] truncate"></span>
+        <span id="userEmailBadge" class="text-xs font-medium px-2.5 py-1 rounded-xl bg-slate-200/60 dark:bg-slate-800 text-slate-700 dark:text-slate-200 max-w-[100px] sm:max-w-[160px] truncate"></span>
         <button id="logoutBtn" class="text-xs font-bold px-3 py-1.5 text-rose-500 hover:bg-rose-500/10 rounded-xl transition">
           Sign Out
         </button>
@@ -325,7 +325,7 @@
 
     <!-- View Switcher Tabs: ATS Matcher vs. Smart Job Discovery -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4" style="border-color: var(--border);">
-      <div class="inline-flex p-1 rounded-2xl self-start" style="background: var(--paper-2); border: 1px solid var(--border);">
+      <div class="inline-flex p-1 rounded-2xl self-start max-w-full overflow-x-auto scrollbar-none flex-nowrap" style="background: var(--paper-2); border: 1px solid var(--border);">
         <button type="button" id="tabAtsMatcher" class="tab-btn px-4 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2" style="background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
           <span>ATS Matcher</span>
@@ -657,7 +657,7 @@
               <h4 class="font-bold text-sm" style="color: var(--ink);">Verified Skill Matrix</h4>
               <p class="text-xs" style="color: var(--ink-3);">Extracted from your vault credentials and applied to live job recommendations.</p>
             </div>
-            <button type="button" id="syncVaultToWorkspaceBtn" class="px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center space-x-1.5 self-start sm:self-auto hover:bg-slate-500/10" style="background: var(--paper-2); border: 1px solid var(--border); color: var(--ink);">
+            <button type="button" id="syncVaultToWorkspaceBtn" class="w-full sm:w-auto justify-center px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center space-x-1.5 self-start sm:self-auto hover:bg-slate-500/10" style="background: var(--paper-2); border: 1px solid var(--border); color: var(--ink);">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
               <span>Sync to ATS Workspace</span>
             </button>
