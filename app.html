@@ -286,6 +286,29 @@
   <!-- Workspace Section (Visible when authenticated) -->
   <div id="workspace-section" class="hidden space-y-8">
 
+    <!-- View Switcher Tabs: ATS Matcher vs. Smart Job Discovery -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4" style="border-color: var(--border);">
+      <div class="inline-flex p-1 rounded-2xl self-start" style="background: var(--paper-2); border: 1px solid var(--border);">
+        <button type="button" id="tabAtsMatcher" class="tab-btn px-4 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2" style="background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          <span>ATS Matcher</span>
+        </button>
+        <button type="button" id="tabJobDiscovery" class="tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2" style="color: var(--ink-3);">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>Discover Matching Jobs</span>
+          <span id="discoveryCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold" style="background: var(--sage-light); color: var(--sage);">Live</span>
+        </button>
+      </div>
+
+      <div class="flex items-center space-x-2 text-xs opacity-75" style="color: var(--ink-3);">
+        <span class="w-2 h-2 rounded-full" style="background: var(--sage);"></span>
+        <span id="scoringEngineIndicator">Auto-Scoring vs. Uploaded Resume</span>
+      </div>
+    </div>
+
+    <!-- View 1: ATS Matcher View -->
+    <div id="ats-view" class="space-y-8">
+
     <!-- 2-Column Responsive Workspace Grid -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-6 workspace-grid">
 
@@ -463,6 +486,61 @@
         <h4 class="text-base font-bold" style="color: var(--ink);">No scans yet</h4>
         <p class="text-xs mt-1 max-w-sm mx-auto" style="color: var(--ink-3);">Upload your resume and paste a job description above to run your first analysis.</p>
       </div>
+    </section>
+
+    </div><!-- End #ats-view -->
+
+    <!-- View 2: Smart Job Discovery Feed -->
+    <section id="discovery-view" class="hidden space-y-6">
+
+      <!-- Header & Search Controls -->
+      <div class="console-card p-4 sm:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div class="relative flex-1">
+          <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="jobSearchInput" placeholder="Filter jobs by role, skill, or company (e.g. React, Python, Remote, Vercel)..." class="console-input w-full pl-10 pr-3.5 py-2 text-xs">
+        </div>
+
+        <div class="flex items-center space-x-2.5">
+          <label class="inline-flex items-center space-x-1.5 text-xs font-medium cursor-pointer px-3 py-2 rounded-xl" style="background: var(--paper-2); border: 1px solid var(--border); color: var(--ink-2);">
+            <input type="checkbox" id="remoteFilterCheckbox" class="rounded accent-emerald-600">
+            <span>Remote Only</span>
+          </label>
+
+          <button type="button" id="refreshJobsBtn" class="px-3.5 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-1.5 hover:bg-slate-500/10" style="background: var(--paper-2); border: 1px solid var(--border); color: var(--ink);">
+            <svg id="refreshJobsIcon" class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span id="refreshJobsText">Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Resume Banner for Pre-Scoring -->
+      <div id="resumeScoringBanner" class="px-4 py-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs" style="background: var(--paper-2); border: 1px solid var(--border);">
+        <div class="flex items-center space-x-2">
+          <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span id="scoringStatusText" style="color: var(--ink-2);">Scoring live postings against your uploaded resume profile.</span>
+        </div>
+        <span class="font-mono text-[11px] opacity-75 self-end sm:self-auto" style="color: var(--ink-4);">Ranked by Compatibility</span>
+      </div>
+
+      <!-- Loading State -->
+      <div id="jobsLoading" class="hidden console-card p-12 text-center animate-pulse">
+        <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+        <p class="text-xs font-semibold" style="color: var(--ink);">Fetching active tech listings...</p>
+        <p class="text-[11px] mt-1" style="color: var(--ink-3);">Calculating semantic ATS match scores in real time.</p>
+      </div>
+
+      <!-- Live Job Cards Grid -->
+      <div id="jobsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
+
+      <!-- Empty State -->
+      <div id="jobsEmpty" class="hidden console-card p-12 text-center border-dashed">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3" style="background: var(--paper-3); color: var(--ink-4);">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+        <h4 class="text-sm font-bold" style="color: var(--ink);">No matching jobs found</h4>
+        <p class="text-xs mt-1" style="color: var(--ink-3);">Try broadening your keywords or unchecking the Remote filter.</p>
+      </div>
+
     </section>
 
   </div>
