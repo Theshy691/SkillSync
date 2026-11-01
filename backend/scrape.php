@@ -223,11 +223,8 @@ $geminiErr = curl_error($geminiCurl);
 curl_close($geminiCurl);
 
 if ($geminiErr || $geminiHttpCode !== 200 || empty($geminiResponse)) {
-    error_log("[Scraper] Gemini API error: HTTP {$geminiHttpCode} - {$geminiErr} - Response: {$geminiResponse}");
-    sendJsonResponse([
-        'error' => 'AI Processing Error',
-        'message' => 'Failed to process job description with Gemini AI.'
-    ], 502);
+    error_log("[Scraper] Gemini API error: HTTP {$geminiHttpCode} - {$geminiErr}. Falling back to sanitized page content.");
+    $extractedText = mb_substr($plainText, 0, 4800);
 }
 
 $geminiJson = json_decode($geminiResponse, true);
@@ -245,10 +242,7 @@ if (isset($geminiJson['candidates'][0]['content']['parts'][0]['text'])) {
 }
 
 if (empty($extractedText)) {
-    sendJsonResponse([
-        'error' => 'Extraction Failed',
-        'message' => 'Could not parse clean job requirements from the page.'
-    ], 500);
+    $extractedText = mb_substr($plainText, 0, 4800);
 }
 
 // Ensure final description does not exceed 5000 characters

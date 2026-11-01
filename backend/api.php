@@ -132,27 +132,95 @@ curl_setopt_array($geminiCurl, [
     CURLOPT_SSL_VERIFYPEER => true
 ]);
 
+/**
+ * Heuristic ATS Matching Engine (High-reliability fallback when external AI quota is exhausted)
+ */
+function calculateHeuristicMatch(string $resume, string $jobDescription): array {
+    $taxonomy = [
+        'typescript', 'javascript', 'python', 'php', 'go', 'golang', 'rust', 'c++', 'c#', 'java', 'ruby', 'sql',
+        'html5', 'css3', 'bash', 'react', 'react native', 'next.js', 'vue', 'angular', 'svelte', 'node.js', 'node',
+        'express', 'fastapi', 'django', 'laravel', 'tailwind css', 'tailwind', 'graphql', 'docker', 'kubernetes',
+        'aws', 'gcp', 'azure', 'terraform', 'postgresql', 'postgres', 'mysql', 'mongodb', 'redis', 'ci/cd',
+        'github actions', 'linux', 'playwright', 'jest', 'rest api', 'microservices', 'git'
+    ];
+
+    $resumeLower = mb_strtolower($resume, 'UTF-8');
+    $jobLower = mb_strtolower($jobDescription, 'UTF-8');
+
+    $candidateSkills = [];
+    $jobSkills = [];
+
+    foreach ($taxonomy as $skill) {
+        $escaped = preg_quote($skill, '/');
+        $pattern = '/(?:^|[\s,;:.()\/\\[\\]])' . $escaped . '(?:$|[\s,;:.()\/\\[\\]])/i';
+
+        if (preg_match($pattern, $resumeLower)) {
+            $candidateSkills[] = $skill;
+        }
+        if (preg_match($pattern, $jobLower)) {
+            $jobSkills[] = $skill;
+        }
+    }
+
+    $candidateSkills = array_unique($candidateSkills);
+    $jobSkills = array_unique($jobSkills);
+
+    if (empty($jobSkills)) {
+        $jobSkills = ['software engineering', 'problem solving', 'system design'];
+    }
+
+    $matching = [];
+    $missing = [];
+
+    foreach ($jobSkills as $req) {
+        $hasMatch = false;
+        foreach ($candidateSkills as $c) {
+            if ($c === $req || str_contains($c, $req) || str_contains($req, $c)) {
+                $hasMatch = true;
+                break;
+            }
+        }
+        if ($hasMatch) {
+            $matching[] = $req;
+        } else {
+            $missing[] = $req;
+        }
+    }
+
+    $total = count($matching) + count($missing);
+    $ratio = $total > 0 ? count($matching) / $total : 0.6;
+    $rawScore = (int)round(38 + ($ratio * 58));
+    $score = max(35, min(98, $rawScore));
+
+    $ucFirstSkill = function ($s) {
+        if (in_array(strtolower($s), ['aws', 'gcp', 'cka', 'sql', 'ci/cd', 'html5', 'css3', 'php'])) {
+            return strtoupper($s);
+        }
+        return ucwords($s);
+    };
+
+    return [
+        'match_score' => $score,
+        'missing_skills' => array_values(array_map($ucFirstSkill, array_slice($missing, 0, 5))),
+        'source' => 'resilient_engine'
+    ];
+}
+
 $geminiResponse = curl_exec($geminiCurl);
 $geminiHttpCode = curl_getinfo($geminiCurl, CURLINFO_HTTP_CODE);
 $geminiErr = curl_error($geminiCurl);
 curl_close($geminiCurl);
 
 if ($geminiErr || $geminiHttpCode !== 200 || empty($geminiResponse)) {
-    error_log("[API] Gemini API error: HTTP {$geminiHttpCode} - {$geminiErr} - Response: {$geminiResponse}");
-    sendJsonResponse([
-        'error' => 'AI Processing Error',
-        'message' => 'Failed to analyze resume with Gemini AI. Please try again.'
-    ], 502);
+    error_log("[API] Gemini API error: HTTP {$geminiHttpCode} - {$geminiErr}. Falling back to resilient heuristic engine.");
+    sendJsonResponse(calculateHeuristicMatch($resume, $jobDescription), 200);
 }
 
 $geminiJson = json_decode($geminiResponse, true);
 $rawAiText = $geminiJson['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
 if (empty($rawAiText)) {
-    sendJsonResponse([
-        'error' => 'Analysis Error',
-        'message' => 'No analysis result received from Gemini AI.'
-    ], 500);
+    sendJsonResponse(calculateHeuristicMatch($resume, $jobDescription), 200);
 }
 
 // Clean and decode JSON
@@ -166,11 +234,8 @@ if (!is_array($parsedAi)) {
 }
 
 if (!is_array($parsedAi) || !isset($parsedAi['match_score'])) {
-    error_log("[API] Unexpected response format from AI: {$rawAiText}");
-    sendJsonResponse([
-        'error' => 'Analysis Format Error',
-        'message' => 'Could not parse the AI analysis score and skill gaps.'
-    ], 500);
+    error_log("[API] Unexpected response format from AI: {$rawAiText}. Falling back to resilient heuristic engine.");
+    sendJsonResponse(calculateHeuristicMatch($resume, $jobDescription), 200);
 }
 
 // Normalize and validate score and missing skills
