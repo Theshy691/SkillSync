@@ -172,7 +172,8 @@ if (empty($geminiApiKey)) {
     ], 500);
 }
 
-$geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$geminiApiKey}";
+$geminiModel = getEnvVar('GEMINI_MODEL', 'gemini-2.5-flash');
+$geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiApiKey}";
 
 $prompt = <<<EOT
 You are an expert technical recruiter and job posting parser.

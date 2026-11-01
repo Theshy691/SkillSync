@@ -78,7 +78,8 @@ if (empty($geminiApiKey)) {
     sendJsonResponse(calculateHeuristicMatch($resume, $jobDescription), 200);
 }
 
-$geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$geminiApiKey}";
+$geminiModel = getEnvVar('GEMINI_MODEL', 'gemini-2.5-flash');
+$geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiApiKey}";
 
 $prompt = <<<EOT
 You are an expert ATS (Applicant Tracking System) and senior hiring manager evaluator.
