@@ -82,16 +82,28 @@
     const label = document.getElementById('themeBtnLabel');
     const root = document.documentElement;
 
-    const saved = localStorage.getItem('theme') || 'dark';
+    const saved = localStorage.getItem('skillsync_theme') || localStorage.getItem('theme') || 'dark';
     root.setAttribute('data-theme', saved);
+    root.classList.toggle('dark', saved === 'dark');
+    if (themeBtn) {
+      themeBtn.dataset.themeState = saved;
+      themeBtn.setAttribute('data-theme-state', saved);
+      themeBtn.setAttribute('aria-label', saved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    }
     if (label) label.textContent = saved === 'dark' ? 'Light mode' : 'Dark mode';
 
     if (themeBtn) {
       themeBtn.addEventListener('click', () => {
-        const current = root.getAttribute('data-theme');
+        const current = root.getAttribute('data-theme') || 'dark';
         const next = current === 'dark' ? 'light' : 'dark';
         root.setAttribute('data-theme', next);
+        root.classList.toggle('dark', next === 'dark');
+        themeBtn.dataset.themeState = next;
+        themeBtn.setAttribute('data-theme-state', next);
+        themeBtn.setAttribute('aria-label', next === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+        localStorage.setItem('skillsync_theme', next);
         localStorage.setItem('theme', next);
+        localStorage.setItem('ff-theme', next);
         if (label) label.textContent = next === 'dark' ? 'Light mode' : 'Dark mode';
       });
     }
@@ -168,20 +180,33 @@
       const card = document.createElement('article');
       card.className = 'job-card';
 
-      const tagsHtml = (job.tags || []).slice(0, 4).map(t => `<span class="tag-badge">${escapeHtml(t)}</span>`).join('');
+      const tagsHtml = (job.tags || []).slice(0, 5).map(t => `<span class="tag-badge">${escapeHtml(t)}</span>`).join('');
       const salaryText = job.salary ? escapeHtml(job.salary) : 'Competitive';
       const locText = job.location ? escapeHtml(job.location) : (job.remote ? 'Remote' : 'On-Site');
+
+      let snippet = '';
+      if (job.description) {
+        snippet = job.description.replace(/\s+/g, ' ').trim();
+        if (snippet.length > 130) snippet = snippet.slice(0, 127) + '...';
+      }
 
       card.innerHTML = `
         <div>
           <div class="card-header">
             <span class="company-title">${escapeHtml(job.company_name || 'Tech Co')}</span>
-            ${job.remote ? '<span class="chip" style="font-size: 0.75rem; color: #10b981;">Remote</span>' : ''}
+            ${job.remote ? '<span class="chip chip-remote"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Remote</span>' : ''}
           </div>
           <h3 class="role-title">${escapeHtml(job.title)}</h3>
+          ${snippet ? `<p class="job-snippet">${escapeHtml(snippet)}</p>` : ''}
           <div class="job-meta-chips">
-            <span class="chip">${locText}</span>
-            <span class="chip chip-salary">${salaryText}</span>
+            <span class="chip">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              ${locText}
+            </span>
+            <span class="chip chip-salary">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              ${salaryText}
+            </span>
           </div>
           <div class="tag-cloud">
             ${tagsHtml}
@@ -189,10 +214,12 @@
         </div>
         <div class="card-actions">
           <button type="button" class="btn-card btn-card-secondary btn-quick-view" data-job-id="${escapeHtml(job.id)}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             View Details
           </button>
           <button type="button" class="btn-card btn-card-primary btn-scan-ats" data-job-id="${escapeHtml(job.id)}">
-            Scan Resume &rarr;
+            <span>Scan Resume</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
         </div>
       `;
@@ -251,7 +278,7 @@
 
     const tagsEl = document.getElementById('modalTags');
     if (tagsEl) {
-      tagsEl.innerHTML = (job.tags || []).map(t => `<span class="tag-badge" style="font-size: 0.85rem;">${escapeHtml(t)}</span>`).join('');
+      tagsEl.innerHTML = (job.tags || []).map(t => `<span class="tag-badge" style="font-size: 0.82rem; padding: 0.25rem 0.65rem;">${escapeHtml(t)}</span>`).join('');
     }
 
     const descEl = document.getElementById('modalDescription');
@@ -260,11 +287,17 @@
     }
 
     modal.style.display = 'flex';
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   function closeJobModal() {
     const modal = document.getElementById('jobDetailModal');
     if (modal) modal.style.display = 'none';
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.style.overflow = '';
+    }
     activeJobModalData = null;
   }
 
@@ -377,6 +410,13 @@
         closeJobModal();
       }
     });
+
+    const siteNav = document.getElementById('siteNav');
+    if (siteNav && typeof window !== 'undefined') {
+      window.addEventListener('scroll', () => {
+        siteNav.classList.toggle('is-scrolled', window.scrollY > 30);
+      }, { passive: true });
+    }
   }
 
   function setJobs(jobs) {
