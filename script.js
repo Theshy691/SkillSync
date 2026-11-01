@@ -232,13 +232,18 @@ function escapeHtml(str) {
   });
 }
 
-function updateCharCounter(inputElement, counterElement, max = 5000) {
+function updateCharCounter(inputElement, counterElement, max) {
   if (!inputElement || !counterElement) return;
   const len = inputElement.value ? inputElement.value.length : 0;
-  counterElement.textContent = `${len.toLocaleString()} / ${max.toLocaleString()}`;
-  if (len >= max) {
-    counterElement.classList.add('text-rose-500', 'font-bold');
+  if (typeof max === 'number' && max > 0) {
+    counterElement.textContent = `${len.toLocaleString()} / ${max.toLocaleString()}`;
+    if (len >= max) {
+      counterElement.classList.add('text-rose-500', 'font-bold');
+    } else {
+      counterElement.classList.remove('text-rose-500', 'font-bold');
+    }
   } else {
+    counterElement.textContent = `${len.toLocaleString()} chars`;
     counterElement.classList.remove('text-rose-500', 'font-bold');
   }
 }
@@ -689,10 +694,10 @@ function initCharCounters() {
   const jobCount = document.getElementById('jobCount');
 
   if (resumeText && resumeCount) {
-    resumeText.addEventListener('input', () => updateCharCounter(resumeText, resumeCount, 5000));
+    resumeText.addEventListener('input', () => updateCharCounter(resumeText, resumeCount));
   }
   if (jobText && jobCount) {
-    jobText.addEventListener('input', () => updateCharCounter(jobText, jobCount, 5000));
+    jobText.addEventListener('input', () => updateCharCounter(jobText, jobCount));
   }
 }
 
@@ -891,13 +896,7 @@ async function extractResumeFromPdf(file) {
   }
 
   fullText = fullText.replace(/[ \t]+/g, ' ').trim();
-
-  if (fullText.length > 5000) {
-    fullText = fullText.substring(0, 5000);
-    showToast(`PDF extracted! Truncated to 5,000 characters limit (${pdf.numPages} pages).`, 'warning');
-  } else {
-    showToast(`PDF parsed successfully! (${pdf.numPages} pages)`, 'success');
-  }
+  showToast(`PDF parsed successfully! (${pdf.numPages} pages, ${fullText.length.toLocaleString()} characters)`, 'success');
 
   if (resumeText) {
     resumeText.value = fullText;
@@ -983,13 +982,7 @@ async function extractResumeFromImage(file) {
     }
 
     extractedText = extractedText.replace(/[ \t]+/g, ' ').trim();
-
-    if (extractedText.length > 5000) {
-      extractedText = extractedText.substring(0, 5000);
-      showToast('Image transcribed! Truncated to 5,000 character ATS limit.', 'warning');
-    } else {
-      showToast('Resume image transcribed successfully!', 'success');
-    }
+    showToast('Resume image transcribed successfully!', 'success');
 
     if (resumeText) {
       resumeText.value = extractedText;
@@ -1331,11 +1324,6 @@ function initAnalyzer() {
 
       if (!resume || !jobDescription) {
         showToast('Please provide both your resume and a target job description.', 'warning');
-        return;
-      }
-
-      if (resume.length > 5000 || jobDescription.length > 5000) {
-        showToast('Inputs must not exceed 5,000 characters each.', 'error');
         return;
       }
 
@@ -2417,7 +2405,7 @@ function loadJobIntoWorkspace(job) {
       `Preferred Skills: ${Array.isArray(job.tags) ? job.tags.join(', ') : 'Tech stack requirements'}`;
 
     jobText.value = formattedDesc;
-    updateCharCounter(jobText, jobCount, 5000);
+    updateCharCounter(jobText, jobCount);
   }
 
   if (scrapeStatusBadge) {
@@ -2807,8 +2795,8 @@ function syncVaultToWorkspace() {
     `Experience Highlights:\n` +
     vaultDocumentsCache.map(d => `- [${d.doc_type.toUpperCase()}] ${d.doc_name}: ${d.content_snippet}`).join('\n');
 
-  resumeTextEl.value = summary.substring(0, 5000);
-  updateCharCounter(resumeTextEl, resumeCount, 5000);
+  resumeTextEl.value = summary;
+  updateCharCounter(resumeTextEl, resumeCount);
 
   switchWorkspaceTab('ats');
   showToast('Synced Skill Vault profile into ATS Workspace.', 'success');
@@ -3003,8 +2991,8 @@ function renderTailorBullets(bullets) {
         const resumeTextEl = document.getElementById('resumeText');
         const resumeCount = document.getElementById('resumeCount');
         if (resumeTextEl) {
-          resumeTextEl.value = (resumeTextEl.value.trim() + '\n• ' + b.bullet).substring(0, 5000);
-          updateCharCounter(resumeTextEl, resumeCount, 5000);
+          resumeTextEl.value = (resumeTextEl.value.trim() + '\n• ' + b.bullet);
+          updateCharCounter(resumeTextEl, resumeCount);
           showToast('Appended bullet to workspace resume.', 'success');
         }
       });
@@ -3587,8 +3575,8 @@ function initAiActionSuite() {
       const resumeCount = document.getElementById('resumeCount');
       if (resumeTextEl) {
         const added = lastTailorBullets.map(b => '• ' + b.bullet).join('\n');
-        resumeTextEl.value = (resumeTextEl.value.trim() + '\n\n' + added).substring(0, 5000);
-        updateCharCounter(resumeTextEl, resumeCount, 5000);
+        resumeTextEl.value = (resumeTextEl.value.trim() + '\n\n' + added);
+        updateCharCounter(resumeTextEl, resumeCount);
         showToast('Appended all tailored bullets to resume!', 'success');
         document.getElementById('tailor-modal')?.classList.add('hidden');
       }
@@ -4778,8 +4766,8 @@ function initApp() {
         const jobTextarea = document.getElementById('jobText');
         if (jobTextarea) {
           jobTextarea.value = `Role: ${jobData.title || ''} at ${jobData.company || ''}\nLocation: ${jobData.location || ''}\nSalary: ${jobData.salary || ''}\n\nDescription:\n${jobData.description || ''}`;
-          const jobCounter = document.getElementById('jobCharCount');
-          if (jobCounter) jobCounter.textContent = `${jobTextarea.value.length} / 5000`;
+          const jobCounter = document.getElementById('jobCount') || document.getElementById('jobCharCount');
+          if (jobCounter) jobCounter.textContent = `${jobTextarea.value.length.toLocaleString()} chars`;
           showToast(`Loaded ${jobData.title || 'target job'} into ATS workspace.`, 'success', 3500);
         }
       }
