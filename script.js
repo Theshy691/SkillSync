@@ -1228,8 +1228,9 @@ function renderResults(result) {
     skillsContainer.innerHTML = '';
     if (!result.missing_skills || result.missing_skills.length === 0) {
       skillsContainer.innerHTML = `
-        <span class="text-xs font-medium px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
-          No critical skill gaps identified. Strong alignment with requirements.
+        <span class="inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+          <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          <span>No critical skill gaps identified. Strong alignment with requirements.</span>
         </span>
       `;
     } else {
@@ -1420,8 +1421,9 @@ function renderDashboardGrid(items) {
 
     const skills = Array.isArray(item.missing_skills) ? item.missing_skills : [];
     const skillsHtml = skills.slice(0, 3).map(skill => `
-      <a href="${generateYouTubeLink(skill)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-lg transition" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--border);">
-        ${escapeHtml(skill)}
+      <a href="${generateYouTubeLink(skill)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg transition hover:border-emerald-500/40" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--border);">
+        <svg class="w-3 h-3 text-rose-500 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        <span>${escapeHtml(skill)}</span>
       </a>
     `).join(' ') + (skills.length > 3 ? `<span class="text-[10px] opacity-60" style="color: var(--ink-4);">+${skills.length - 3} more</span>` : '');
 
@@ -2039,7 +2041,7 @@ function recomputeAndRenderJobCards() {
           location: job.location || 'Remote',
           salary: job.salary || 'Competitive',
           url: job.url || '#',
-          score: compat.score,
+          score: comp ? comp.score : 70,
           tags: job.tags || [],
           status: 'saved',
           created_at: new Date().toISOString().split('T')[0]
@@ -2214,8 +2216,12 @@ function renderVaultUI() {
     docsListEl.innerHTML = '';
     if (vaultDocumentsCache.length === 0) {
       docsListEl.innerHTML = `
-        <div class="p-6 text-center border-dashed rounded-xl" style="border: 1px dashed var(--border); color: var(--ink-4);">
-          <p class="text-xs">No documents stored in vault yet.</p>
+        <div class="p-8 text-center border-2 border-dashed rounded-2xl space-y-2" style="border-color: var(--border); color: var(--ink-3);">
+          <div class="w-10 h-10 rounded-xl mx-auto flex items-center justify-center opacity-70" style="background: var(--paper-3);">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <p class="text-xs font-semibold" style="color: var(--ink);">No documents stored in vault yet</p>
+          <p class="text-[11px] opacity-75">Upload your resume or certificates to extract verified skills.</p>
         </div>
       `;
     } else {
@@ -2655,11 +2661,13 @@ function renderTailorBullets(bullets) {
       </div>
       <p class="text-xs leading-relaxed font-sans" style="color: var(--ink);">${escapeHtml(b.bullet)}</p>
       <div class="pt-2 border-t flex items-center justify-end space-x-2" style="border-color: var(--border);">
-        <button type="button" class="btn-copy-bullet px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10" style="color: var(--ink-2); border: 1px solid var(--border);">
-          Copy
+        <button type="button" class="btn-copy-bullet px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--ink-2); border: 1px solid var(--border);">
+          <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+          <span>Copy</span>
         </button>
-        <button type="button" class="btn-insert-bullet px-2.5 py-1 text-[11px] font-bold rounded-lg transition text-white btn-action-primary">
-          Insert into Resume
+        <button type="button" class="btn-insert-bullet px-2.5 py-1 text-[11px] font-bold rounded-lg transition text-white btn-action-primary inline-flex items-center space-x-1">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>Insert into Resume</span>
         </button>
       </div>
     `;
@@ -2829,26 +2837,58 @@ function renderInterviewQuestions(questions) {
     card.style.borderColor = 'var(--border)';
 
     const pointsHtml = Array.isArray(q.talking_points)
-      ? q.talking_points.map(pt => `<li class="text-xs" style="color: var(--ink-2);">${escapeHtml(pt)}</li>`).join('')
+      ? q.talking_points.map(pt => `
+          <li class="text-xs flex items-start space-x-2" style="color: var(--ink-2);">
+            <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            <span>${escapeHtml(pt)}</span>
+          </li>
+        `).join('')
       : '';
 
     card.innerHTML = `
       <div class="flex items-center justify-between">
-        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style="background: var(--paper-3); color: var(--ink);">${escapeHtml(q.category || 'Technical')}</span>
-        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full" style="background: var(--amber-light); color: var(--amber);">${escapeHtml(q.target_skill || 'Core Competency')}</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-flex items-center space-x-1" style="background: var(--paper-3); color: var(--ink);">
+          <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          <span>${escapeHtml(q.category || 'Technical')}</span>
+        </span>
+        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full inline-flex items-center space-x-1" style="background: var(--amber-light); color: var(--amber);">
+          <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>${escapeHtml(q.target_skill || 'Core Competency')}</span>
+        </span>
       </div>
       <h5 class="text-xs font-bold leading-relaxed" style="color: var(--ink);">${escapeHtml(q.question)}</h5>
       <div class="p-2.5 rounded-lg text-xs border" style="background: var(--paper-3); border-color: var(--border);">
-        <div class="font-bold text-[11px] mb-1 opacity-80" style="color: var(--ink-2);">Interviewer's Evaluation Intent:</div>
+        <div class="font-bold text-[11px] mb-1 opacity-80 flex items-center space-x-1.5" style="color: var(--ink-2);">
+          <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          <span>Interviewer's Evaluation Intent:</span>
+        </div>
         <p class="text-[11px] leading-relaxed opacity-90" style="color: var(--ink-3);">${escapeHtml(q.interviewer_intent || '')}</p>
       </div>
       <div class="pt-1">
         <div class="font-bold text-[11px] mb-1.5 opacity-80" style="color: var(--ink-2);">Key Talking Points:</div>
-        <ul class="list-disc pl-4 space-y-1">
+        <ul class="space-y-1.5 pl-0.5">
           ${pointsHtml}
         </ul>
       </div>
+      <div class="pt-2 border-t flex items-center justify-end" style="border-color: var(--border);">
+        <button type="button" class="btn-copy-single-q px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--ink-2); border: 1px solid var(--border);">
+          <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+          <span>Copy Question</span>
+        </button>
+      </div>
     `;
+
+    const copySingleBtn = card.querySelector('.btn-copy-single-q');
+    if (copySingleBtn) {
+      copySingleBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(`${q.question}\nIntent: ${q.interviewer_intent}\nTalking Points:\n- ${(q.talking_points || []).join('\n- ')}`);
+          showToast('Question & talking points copied to clipboard!', 'success');
+        } catch (e) {
+          showToast('Copied question to clipboard.', 'success');
+        }
+      });
+    }
 
     list.appendChild(card);
   });
@@ -3119,12 +3159,45 @@ function renderPipeline() {
   if (countOffer) countOffer.textContent = buckets.offer.length;
   if (tabBadge) tabBadge.textContent = pipelineJobs.length;
 
-  const renderColumn = (container, jobs) => {
+  const renderColumn = (container, jobs, stageKey) => {
     container.innerHTML = '';
     if (jobs.length === 0) {
+      const stageMeta = {
+        saved: {
+          icon: '<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>',
+          title: 'No saved roles',
+          subtitle: 'Track roles from Smart Discovery'
+        },
+        applied: {
+          icon: '<svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>',
+          title: 'No applications yet',
+          subtitle: 'Move roles here once submitted'
+        },
+        interviewing: {
+          icon: '<svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>',
+          title: 'No active interviews',
+          subtitle: 'Use AI Prep when scheduled'
+        },
+        offer: {
+          icon: '<svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>',
+          title: 'No offers yet',
+          subtitle: 'Your accepted job milestones'
+        }
+      }[stageKey] || {
+        icon: '<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>',
+        title: 'No roles in this stage',
+        subtitle: 'Drag or assign roles here'
+      };
+
       container.innerHTML = `
-        <div class="h-28 border border-dashed rounded-xl flex items-center justify-center text-center p-3 text-[11px] opacity-50" style="border-color: var(--border); color: var(--ink-3);">
-          No roles in this stage
+        <div class="h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center p-3 text-[11px] space-y-1.5" style="border-color: var(--border); color: var(--ink-3);">
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center opacity-70" style="background: var(--paper-3);">
+            ${stageMeta.icon}
+          </div>
+          <div>
+            <div class="font-bold text-[11px]" style="color: var(--ink-2);">${stageMeta.title}</div>
+            <div class="text-[10px] opacity-65">${stageMeta.subtitle}</div>
+          </div>
         </div>
       `;
       return;
@@ -3198,10 +3271,10 @@ function renderPipeline() {
     });
   };
 
-  renderColumn(colSaved, buckets.saved);
-  renderColumn(colApplied, buckets.applied);
-  renderColumn(colInterview, buckets.interviewing);
-  renderColumn(colOffer, buckets.offer);
+  renderColumn(colSaved, buckets.saved, 'saved');
+  renderColumn(colApplied, buckets.applied, 'applied');
+  renderColumn(colInterview, buckets.interviewing, 'interviewing');
+  renderColumn(colOffer, buckets.offer, 'offer');
 }
 
 function initPipeline() {

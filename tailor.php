@@ -4,3 +4,4 @@
  * Forwards requests to backend/tailor.php
  */
 require_once __DIR__ . '/backend/tailor.php';
+

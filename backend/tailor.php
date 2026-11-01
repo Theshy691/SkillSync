@@ -195,3 +195,4 @@ sendJsonResponse([
     'optimized_bullets' => $parsedAi['optimized_bullets'],
     'tailoring_advice' => $parsedAi['tailoring_advice'] ?? 'Incorporate these quantified bullets into your most recent experience section.'
 ], 200);
+

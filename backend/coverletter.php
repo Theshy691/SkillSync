@@ -194,3 +194,4 @@ sendJsonResponse([
     'tone' => $tone,
     'company_name' => $companyName
 ], 200);
+
