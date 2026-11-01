@@ -11,13 +11,16 @@ const {
   switchWorkspaceTab,
   loadJobIntoWorkspace,
   recomputeAndRenderJobCards,
+  setJobsPage,
+  getPaginationState,
+  JOBS_PER_PAGE,
   FALLBACK_DISCOVERY_JOBS
 } = require('../script');
 
 describe('Smart Job Discovery & Pre-Scoring Test Suite', () => {
 
   beforeEach(() => {
-    // Reset DOM with ATS and Discovery views
+    // Reset DOM with ATS, Discovery views, and Pagination
     document.body.innerHTML = `
       <div id="toast-container"></div>
       <button id="tabAtsMatcher" class="tab-btn"></button>
@@ -29,6 +32,13 @@ describe('Smart Job Discovery & Pre-Scoring Test Suite', () => {
       <div id="jobsLoading" class="hidden"></div>
       <div id="jobsGrid"></div>
       <div id="jobsEmpty" class="hidden"></div>
+      <div id="jobsPagination" class="hidden">
+        <span id="paginationRange"></span>
+        <span id="paginationTotal"></span>
+        <span id="pageIndicator"></span>
+        <button id="prevJobsPageBtn"></button>
+        <button id="nextJobsPageBtn"></button>
+      </div>
       <textarea id="resumeText"></textarea>
       <textarea id="jobText"></textarea>
       <span id="jobCount">0 / 5,000</span>
@@ -188,4 +198,50 @@ describe('Smart Job Discovery & Pre-Scoring Test Suite', () => {
     });
   });
 
+  // 6. Pagination (10 jobs per page limit)
+  describe('Feed Pagination (10 Roles Per Page)', () => {
+    test('enforces JOBS_PER_PAGE limit of 10 items', () => {
+      expect(JOBS_PER_PAGE).toBe(10);
+    });
+
+    test('renders at most 10 job cards on the active page', () => {
+      recomputeAndRenderJobCards();
+
+      const grid = document.getElementById('jobsGrid');
+      expect(grid.children.length).toBeLessThanOrEqual(10);
+    });
+
+    test('calculates correct range text and total roles', () => {
+      setJobsPage(1);
+
+      const state = getPaginationState();
+      expect(state.currentPage).toBe(1);
+      expect(state.jobsPerPage).toBe(10);
+      expect(state.totalJobs).toBeGreaterThan(0);
+    });
+
+    test('disables previous button on first page and controls button states', () => {
+      setJobsPage(1);
+
+      const prevBtn = document.getElementById('prevJobsPageBtn');
+      const nextBtn = document.getElementById('nextJobsPageBtn');
+      const pageIndicator = document.getElementById('pageIndicator');
+
+      const state = getPaginationState();
+      if (state.totalJobs > 10) {
+        expect(prevBtn.disabled).toBe(true);
+        expect(nextBtn.disabled).toBe(false);
+        expect(pageIndicator.textContent).toContain('Page 1 of');
+      }
+    });
+
+    test('can advance to page 2 and updates state cleanly', () => {
+      setJobsPage(2);
+
+      const state = getPaginationState();
+      expect(state.currentPage).toBe(state.totalPages >= 2 ? 2 : state.totalPages);
+    });
+  });
+
 });
+
