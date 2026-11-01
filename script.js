@@ -4767,6 +4767,24 @@ function initApp() {
   initRoadmap();
   initCompanyDossier();
   initLinkedInOutreach();
+
+  // Check for 1-click job transfer from Discovery explorer
+  try {
+    const pendingScan = localStorage.getItem('skillsync_pending_job_scan');
+    if (pendingScan) {
+      localStorage.removeItem('skillsync_pending_job_scan');
+      const jobData = JSON.parse(pendingScan);
+      if (jobData && (jobData.description || jobData.title)) {
+        const jobTextarea = document.getElementById('jobText');
+        if (jobTextarea) {
+          jobTextarea.value = `Role: ${jobData.title || ''} at ${jobData.company || ''}\nLocation: ${jobData.location || ''}\nSalary: ${jobData.salary || ''}\n\nDescription:\n${jobData.description || ''}`;
+          const jobCounter = document.getElementById('jobCharCount');
+          if (jobCounter) jobCounter.textContent = `${jobTextarea.value.length} / 5000`;
+          showToast(`Loaded ${jobData.title || 'target job'} into ATS workspace.`, 'success', 3500);
+        }
+      }
+    }
+  } catch (_) {}
 }
 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
