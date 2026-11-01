@@ -298,6 +298,11 @@
           <span>Discover Matching Jobs</span>
           <span id="discoveryCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold" style="background: var(--sage-light); color: var(--sage);">Live</span>
         </button>
+        <button type="button" id="tabSkillVault" class="tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2" style="color: var(--ink-3);">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span>Skill Vault</span>
+          <span id="vaultDocsCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold" style="background: var(--paper-3); color: var(--ink);">2</span>
+        </button>
       </div>
 
       <div class="flex items-center space-x-2 text-xs opacity-75" style="color: var(--ink-3);">
@@ -562,6 +567,105 @@
         </div>
         <h4 class="text-sm font-bold" style="color: var(--ink);">No matching jobs found</h4>
         <p class="text-xs mt-1" style="color: var(--ink-3);">Try broadening your keywords or unchecking the Remote filter.</p>
+      </div>
+
+    </section>
+
+    <!-- View 3: Skill Vault & Credential Knowledge Base -->
+    <section id="vault-view" class="hidden space-y-6">
+
+      <!-- Vault Top Banner & Overview -->
+      <div class="console-card p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2 mb-1">
+            <span class="w-2.5 h-2.5 rounded-full" style="background: var(--sage);"></span>
+            <h3 class="text-lg font-bold" style="color: var(--ink);">Candidate Skill Vault</h3>
+          </div>
+          <p class="text-xs leading-relaxed max-w-xl" style="color: var(--ink-3);">
+            Store your master resume, certifications, and technical credentials. The Autonomous Scout Agent synthesizes your verified profile and pre-scores live tech jobs in real time.
+          </p>
+        </div>
+
+        <div class="flex items-center space-x-2 self-stretch sm:self-auto">
+          <input type="file" id="vaultDocFileInput" accept=".pdf, image/*, .png, .jpg, .jpeg, .txt" class="hidden">
+          <button type="button" id="uploadVaultDocBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white flex items-center justify-center space-x-2 shadow-sm rounded-xl">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Add Credential / Document</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2-Column Grid: Left: Stored Documents, Right: Verified Skills Matrix -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Column 1: Stored Documents (1/3 width) -->
+        <div class="console-card p-5 space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border);">
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Stored Credentials</h4>
+            </div>
+            <span id="vaultDocTotalBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-75" style="background: var(--paper-2); color: var(--ink-2);">2 Files</span>
+          </div>
+
+          <div id="vaultDocumentsList" class="space-y-3">
+            <!-- Dynamic Document Cards -->
+          </div>
+        </div>
+
+        <!-- Column 2: Synthesized Verified Skills Matrix (2/3 width) -->
+        <div class="console-card p-6 lg:col-span-2 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b" style="border-color: var(--border);">
+            <div>
+              <h4 class="font-bold text-sm" style="color: var(--ink);">Verified Skill Matrix</h4>
+              <p class="text-xs" style="color: var(--ink-3);">Extracted from your vault credentials and applied to live job recommendations.</p>
+            </div>
+            <button type="button" id="syncVaultToWorkspaceBtn" class="px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center space-x-1.5 self-start sm:self-auto hover:bg-slate-500/10" style="background: var(--paper-2); border: 1px solid var(--border); color: var(--ink);">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>Sync to ATS Workspace</span>
+            </button>
+          </div>
+
+          <!-- Skill Categories Grid -->
+          <div class="space-y-4">
+            <!-- Languages -->
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
+                <span class="w-2 h-2 rounded-full" style="background: var(--sage);"></span>
+                <span>Languages</span>
+              </div>
+              <div id="vaultMatrixLanguages" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Frameworks & Libraries -->
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
+                <span class="w-2 h-2 rounded-full" style="background: var(--sky);"></span>
+                <span>Frameworks & Libraries</span>
+              </div>
+              <div id="vaultMatrixFrameworks" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Cloud, Infrastructure & Databases -->
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
+                <span class="w-2 h-2 rounded-full" style="background: var(--amber);"></span>
+                <span>Cloud, Infrastructure & Databases</span>
+              </div>
+              <div id="vaultMatrixCloud" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Certifications & Accreditations -->
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider mb-2 flex items-center space-x-1.5" style="color: var(--ink-2);">
+                <span class="w-2 h-2 rounded-full" style="background: var(--rose);"></span>
+                <span>Verified Certifications</span>
+              </div>
+              <div id="vaultMatrixCertifications" class="flex flex-wrap gap-2"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </section>

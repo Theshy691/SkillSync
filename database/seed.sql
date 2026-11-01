@@ -27,3 +27,26 @@ VALUES
     NOW() - INTERVAL '3 days'
   )
 ON CONFLICT (id) DO NOTHING;
+
+-- Sample Vault Documents
+INSERT INTO user_vault_documents (id, user_id, doc_type, doc_name, content_snippet, extracted_skills, created_at)
+VALUES
+  (
+    '33333333-3333-3333-3333-333333333333',
+    '00000000-0000-0000-0000-000000000000',
+    'resume',
+    'Master_Resume_2026.pdf',
+    'Full-Stack Developer with expertise in React, TypeScript, Node.js, and PostgreSQL.',
+    '["React", "TypeScript", "Node.js", "PostgreSQL", "Git"]'::jsonb,
+    NOW() - INTERVAL '5 days'
+  ),
+  (
+    '44444444-4444-4444-4444-444444444444',
+    '00000000-0000-0000-0000-000000000000',
+    'certification',
+    'AWS_Solutions_Architect_Associate.pdf',
+    'AWS Certified Solutions Architect – Associate (SAA-C03). Issued Nov 2025.',
+    '["AWS", "Cloud Architecture", "Docker", "S3", "Lambda"]'::jsonb,
+    NOW() - INTERVAL '2 days'
+  )
+ON CONFLICT (id) DO NOTHING;

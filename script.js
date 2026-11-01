@@ -1460,6 +1460,44 @@ let activeWorkspaceTab = 'ats';
 const JOBS_PER_PAGE = 10;
 let currentJobsPage = 1;
 
+let vaultDocumentsCache = [
+  {
+    id: 'doc-vault-1',
+    doc_type: 'resume',
+    doc_name: 'Master_Software_Engineer_CV.pdf',
+    content_snippet: 'Senior Developer with 5 years leading full-stack projects in React, Node.js, TypeScript, and AWS.',
+    extracted_skills: ['React', 'TypeScript', 'Node.js', 'AWS', 'PostgreSQL'],
+    created_at: '2026-10-28'
+  },
+  {
+    id: 'doc-vault-2',
+    doc_type: 'certification',
+    doc_name: 'AWS_Solutions_Architect_Certificate.pdf',
+    content_snippet: 'AWS Certified Solutions Architect – Associate. Verified cloud architecture, Docker, and microservices.',
+    extracted_skills: ['AWS', 'Docker', 'Cloud Architecture'],
+    created_at: '2026-10-30'
+  }
+];
+
+let verifiedSkillsMatrix = {
+  languages: ['TypeScript', 'JavaScript', 'Python', 'SQL'],
+  frameworks: ['React', 'Next.js', 'Node.js', 'FastAPI', 'Tailwind CSS'],
+  cloud: ['Docker', 'AWS', 'PostgreSQL', 'Redis', 'CI/CD'],
+  certifications: ['AWS Certified Solutions Architect']
+};
+
+function getAllVaultSkills() {
+  const all = new Set();
+  if (verifiedSkillsMatrix) {
+    Object.values(verifiedSkillsMatrix).forEach(list => {
+      if (Array.isArray(list)) {
+        list.forEach(s => all.add(s.toLowerCase()));
+      }
+    });
+  }
+  return Array.from(all);
+}
+
 const FALLBACK_DISCOVERY_JOBS = [
   {
     id: 'job-101',
@@ -1559,11 +1597,21 @@ function extractSkillsFromText(text) {
   return Array.from(matched);
 }
 
-function calculateJobCompatibility(candidateText, job) {
+function calculateJobCompatibility(candidateText, job, includeVault = false) {
   let candidateSkills = extractSkillsFromText(candidateText);
-  const isDefaultProfile = candidateSkills.length === 0;
+  let isDefaultProfile = false;
 
-  if (isDefaultProfile) {
+  if (candidateSkills.length === 0) {
+    if (includeVault && typeof getAllVaultSkills === 'function') {
+      const vaultSkills = getAllVaultSkills();
+      if (vaultSkills.length > 0) {
+        candidateSkills = [...vaultSkills];
+      }
+    }
+  }
+
+  if (candidateSkills.length === 0) {
+    isDefaultProfile = true;
     candidateSkills = ['react', 'typescript', 'javascript', 'html5', 'css3', 'node.js', 'git', 'rest api'];
   }
 
@@ -1619,37 +1667,52 @@ function calculateJobCompatibility(candidateText, job) {
 function switchWorkspaceTab(tabName) {
   const tabAts = document.getElementById('tabAtsMatcher');
   const tabDiscovery = document.getElementById('tabJobDiscovery');
+  const tabVault = document.getElementById('tabSkillVault');
   const atsView = document.getElementById('ats-view');
   const discoveryView = document.getElementById('discovery-view');
+  const vaultView = document.getElementById('vault-view');
 
   if (!tabAts || !tabDiscovery || !atsView || !discoveryView) return;
 
   activeWorkspaceTab = tabName;
 
+  const resetBtn = (btn) => {
+    if (!btn) return;
+    btn.className = 'tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2';
+    btn.style.background = 'transparent';
+    btn.style.color = 'var(--ink-3)';
+  };
+
+  const activateBtn = (btn) => {
+    if (!btn) return;
+    btn.className = 'tab-btn px-4 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2 shadow-sm';
+    btn.style.background = 'var(--surface)';
+    btn.style.color = 'var(--ink)';
+  };
+
+  resetBtn(tabAts);
+  resetBtn(tabDiscovery);
+  resetBtn(tabVault);
+
+  atsView.classList.add('hidden');
+  discoveryView.classList.add('hidden');
+  if (vaultView) vaultView.classList.add('hidden');
+
   if (tabName === 'ats') {
     atsView.classList.remove('hidden');
-    discoveryView.classList.add('hidden');
-    tabAts.className = 'tab-btn px-4 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2 shadow-sm';
-    tabAts.style.background = 'var(--surface)';
-    tabAts.style.color = 'var(--ink)';
-    tabDiscovery.className = 'tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2';
-    tabDiscovery.style.background = 'transparent';
-    tabDiscovery.style.color = 'var(--ink-3)';
-  } else {
-    atsView.classList.add('hidden');
+    activateBtn(tabAts);
+  } else if (tabName === 'discovery') {
     discoveryView.classList.remove('hidden');
-    tabDiscovery.className = 'tab-btn px-4 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2 shadow-sm';
-    tabDiscovery.style.background = 'var(--surface)';
-    tabDiscovery.style.color = 'var(--ink)';
-    tabAts.className = 'tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2';
-    tabAts.style.background = 'transparent';
-    tabAts.style.color = 'var(--ink-3)';
-
+    activateBtn(tabDiscovery);
     if (discoveredJobsCache.length === 0) {
       fetchAndRenderJobs();
     } else {
       recomputeAndRenderJobCards();
     }
+  } else if (tabName === 'vault') {
+    if (vaultView) vaultView.classList.remove('hidden');
+    activateBtn(tabVault);
+    renderVaultUI();
   }
 }
 
@@ -1712,9 +1775,13 @@ function recomputeAndRenderJobCards() {
   const candidateResume = resumeTextEl ? resumeTextEl.value.trim() : '';
 
   if (scoringStatusText) {
-    scoringStatusText.textContent = candidateResume.length > 20
-      ? 'Scoring live postings against your uploaded resume.'
-      : 'Using baseline developer profile (upload your resume for custom match scores).';
+    if (candidateResume.length > 20) {
+      scoringStatusText.textContent = 'Scoring live postings against your uploaded resume.';
+    } else if (typeof getAllVaultSkills === 'function' && getAllVaultSkills().length > 0) {
+      scoringStatusText.textContent = `Scoring live postings against ${vaultDocumentsCache.length} verified documents in your Skill Vault.`;
+    } else {
+      scoringStatusText.textContent = 'Using baseline developer profile (upload your resume for custom match scores).';
+    }
   }
 
   if (!discoveredJobsCache || discoveredJobsCache.length === 0) {
@@ -1728,7 +1795,7 @@ function recomputeAndRenderJobCards() {
   gridEl.classList.remove('hidden');
 
   const scoredList = discoveredJobsCache.map(job => {
-    const compatibility = calculateJobCompatibility(candidateResume, job);
+    const compatibility = calculateJobCompatibility(candidateResume, job, true);
     return { ...job, compatibility };
   });
 
@@ -1974,6 +2041,224 @@ function initJobDiscovery() {
 }
 
 /**
+ * 16. Candidate Skill Vault & Unified Credential Profile Engine
+ */
+function renderVaultUI() {
+  const docsListEl = document.getElementById('vaultDocumentsList');
+  const countBadge = document.getElementById('vaultDocsCountBadge');
+  const totalBadge = document.getElementById('vaultDocTotalBadge');
+
+  if (countBadge) countBadge.textContent = vaultDocumentsCache.length;
+  if (totalBadge) totalBadge.textContent = `${vaultDocumentsCache.length} Files`;
+
+  if (docsListEl) {
+    docsListEl.innerHTML = '';
+    if (vaultDocumentsCache.length === 0) {
+      docsListEl.innerHTML = `
+        <div class="p-6 text-center border-dashed rounded-xl" style="border: 1px dashed var(--border); color: var(--ink-4);">
+          <p class="text-xs">No documents stored in vault yet.</p>
+        </div>
+      `;
+    } else {
+      vaultDocumentsCache.forEach(doc => {
+        const docCard = document.createElement('div');
+        docCard.className = 'p-3.5 rounded-xl transition space-y-2 border';
+        docCard.style.background = 'var(--paper-2)';
+        docCard.style.borderColor = 'var(--border)';
+
+        const typeColor = doc.doc_type === 'resume'
+          ? 'background: var(--sage-light); color: var(--sage);'
+          : (doc.doc_type === 'certification'
+            ? 'background: var(--amber-light); color: var(--amber);'
+            : 'background: var(--sky-light); color: var(--sky);');
+
+        const skillsPills = (doc.extracted_skills || []).slice(0, 3).map(s => `
+          <span class="text-[10px] px-1.5 py-0.5 rounded font-mono opacity-80" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--border);">
+            ${escapeHtml(s)}
+          </span>
+        `).join(' ');
+
+        docCard.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style="${typeColor}">
+                ${escapeHtml(doc.doc_type)}
+              </span>
+              <h5 class="text-xs font-bold mt-1.5 leading-snug truncate max-w-[190px]" style="color: var(--ink);" title="${escapeHtml(doc.doc_name)}">
+                ${escapeHtml(doc.doc_name)}
+              </h5>
+            </div>
+            <button type="button" data-doc-id="${doc.id}" class="btn-delete-vault-doc p-1 text-rose-500 hover:bg-rose-500/10 rounded-lg transition" title="Delete credential">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+          <p class="text-[11px] line-clamp-2 opacity-75" style="color: var(--ink-3);">${escapeHtml(doc.content_snippet)}</p>
+          <div class="flex flex-wrap gap-1 pt-1">${skillsPills}</div>
+        `;
+
+        const delBtn = docCard.querySelector('.btn-delete-vault-doc');
+        if (delBtn) {
+          delBtn.addEventListener('click', () => {
+            deleteVaultDocument(doc.id);
+          });
+        }
+
+        docsListEl.appendChild(docCard);
+      });
+    }
+  }
+
+  renderMatrixCategory('vaultMatrixLanguages', verifiedSkillsMatrix.languages, 'var(--sage)');
+  renderMatrixCategory('vaultMatrixFrameworks', verifiedSkillsMatrix.frameworks, 'var(--sky)');
+  renderMatrixCategory('vaultMatrixCloud', verifiedSkillsMatrix.cloud, 'var(--amber)');
+  renderMatrixCategory('vaultMatrixCertifications', verifiedSkillsMatrix.certifications, 'var(--rose)');
+}
+
+function renderMatrixCategory(elementId, items, dotColor) {
+  const container = document.getElementById(elementId);
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!items || items.length === 0) {
+    container.innerHTML = '<span class="text-xs opacity-50" style="color: var(--ink-4);">No verified credentials detected in this category.</span>';
+    return;
+  }
+
+  items.forEach(skill => {
+    const pill = document.createElement('span');
+    pill.className = 'inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold shadow-xs';
+    pill.style.background = 'var(--paper-2)';
+    pill.style.color = 'var(--ink)';
+    pill.style.border = '1px solid var(--border)';
+    pill.innerHTML = `
+      <span class="w-1.5 h-1.5 rounded-full" style="background: ${dotColor};"></span>
+      <span>${escapeHtml(skill)}</span>
+    `;
+    container.appendChild(pill);
+  });
+}
+
+function addDocumentToVault(name, type, text) {
+  const detectedSkills = extractSkillsFromText(text);
+  const formattedSkills = detectedSkills.map(s => ucFirstSkill(s));
+
+  const newDoc = {
+    id: 'doc-vault-' + Date.now(),
+    doc_type: type,
+    doc_name: name || 'Uploaded_Document.pdf',
+    content_snippet: text.substring(0, 150) + '...',
+    extracted_skills: formattedSkills,
+    created_at: new Date().toISOString().split('T')[0]
+  };
+
+  vaultDocumentsCache.unshift(newDoc);
+
+  detectedSkills.forEach(skill => {
+    const sLower = skill.toLowerCase();
+    const formatted = ucFirstSkill(skill);
+
+    if (['python', 'typescript', 'javascript', 'go', 'php', 'rust', 'c++', 'sql', 'bash', 'java'].includes(sLower)) {
+      if (!verifiedSkillsMatrix.languages.includes(formatted)) verifiedSkillsMatrix.languages.push(formatted);
+    } else if (['react', 'react native', 'next.js', 'vue', 'vue.js', 'angular', 'node.js', 'node', 'express', 'fastapi', 'tailwind', 'tailwind css', 'graphql'].includes(sLower)) {
+      if (!verifiedSkillsMatrix.frameworks.includes(formatted)) verifiedSkillsMatrix.frameworks.push(formatted);
+    } else if (['docker', 'kubernetes', 'aws', 'gcp', 'azure', 'terraform', 'postgresql', 'redis', 'ci/cd', 'linux'].includes(sLower)) {
+      if (!verifiedSkillsMatrix.cloud.includes(formatted)) verifiedSkillsMatrix.cloud.push(formatted);
+    }
+  });
+
+  if (type === 'certification' && !verifiedSkillsMatrix.certifications.includes(name)) {
+    verifiedSkillsMatrix.certifications.push(name.replace(/\.[^/.]+$/, ''));
+  }
+
+  renderVaultUI();
+  recomputeAndRenderJobCards();
+  showToast(`Added ${newDoc.doc_name} to Skill Vault.`, 'success');
+}
+
+function deleteVaultDocument(docId) {
+  vaultDocumentsCache = vaultDocumentsCache.filter(d => d.id !== docId);
+  renderVaultUI();
+  recomputeAndRenderJobCards();
+  showToast('Document removed from Skill Vault.', 'info');
+}
+
+function ucFirstSkill(skill) {
+  if (['aws', 'gcp', 'cka', 'sql', 'ci/cd', 'html5', 'css3', 'php'].includes(skill.toLowerCase())) {
+    return skill.toUpperCase();
+  }
+  return skill.charAt(0).toUpperCase() + skill.slice(1);
+}
+
+function syncVaultToWorkspace() {
+  const resumeTextEl = document.getElementById('resumeText');
+  const resumeCount = document.getElementById('resumeCount');
+
+  if (!resumeTextEl) return;
+
+  const allSkills = getAllVaultSkills();
+  const certs = verifiedSkillsMatrix.certifications || [];
+
+  const summary =
+    `Candidate Profile Synthesized from Skill Vault\n` +
+    `-----------------------------------------\n` +
+    `Verified Technical Skills: ${allSkills.map(s => ucFirstSkill(s)).join(', ')}\n` +
+    `Certifications: ${certs.length > 0 ? certs.join(', ') : 'None listed'}\n\n` +
+    `Experience Highlights:\n` +
+    vaultDocumentsCache.map(d => `- [${d.doc_type.toUpperCase()}] ${d.doc_name}: ${d.content_snippet}`).join('\n');
+
+  resumeTextEl.value = summary.substring(0, 5000);
+  updateCharCounter(resumeTextEl, resumeCount, 5000);
+
+  switchWorkspaceTab('ats');
+  showToast('Synced Skill Vault profile into ATS Workspace.', 'success');
+}
+
+function initSkillVault() {
+  const tabVault = document.getElementById('tabSkillVault');
+  const uploadBtn = document.getElementById('uploadVaultDocBtn');
+  const fileInput = document.getElementById('vaultDocFileInput');
+  const syncBtn = document.getElementById('syncVaultToWorkspaceBtn');
+
+  if (tabVault) {
+    tabVault.addEventListener('click', () => switchWorkspaceTab('vault'));
+  }
+
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const fileName = file.name;
+      const isCert = fileName.toLowerCase().includes('cert') || fileName.toLowerCase().includes('aws') || fileName.toLowerCase().includes('license');
+      const docType = isCert ? 'certification' : (fileName.toLowerCase().includes('resume') || fileName.toLowerCase().includes('cv') ? 'resume' : 'project');
+
+      try {
+        const text = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : 'Credential verification payload');
+          reader.onerror = () => resolve('Extracted credential text');
+          reader.readAsText(file);
+        });
+
+        addDocumentToVault(fileName, docType, text);
+      } catch (_) {
+        addDocumentToVault(fileName, docType, `Extracted ${fileName} technical verification.`);
+      }
+
+      fileInput.value = '';
+    });
+  }
+
+  if (syncBtn) {
+    syncBtn.addEventListener('click', syncVaultToWorkspace);
+  }
+
+  renderVaultUI();
+}
+
+/**
  * 14. Main Application Initialization
  */
 function initApp() {
@@ -1990,6 +2275,7 @@ function initApp() {
   initExportAndClipboard();
   initModals();
   initJobDiscovery();
+  initSkillVault();
 }
 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
@@ -2023,6 +2309,14 @@ if (typeof module !== 'undefined' && module.exports) {
     getPaginationState,
     JOBS_PER_PAGE,
     FALLBACK_DISCOVERY_JOBS,
+    getAllVaultSkills,
+    renderVaultUI,
+    addDocumentToVault,
+    deleteVaultDocument,
+    syncVaultToWorkspace,
+    initSkillVault,
+    getVaultDocumentsCache: () => vaultDocumentsCache,
+    getVerifiedSkillsMatrix: () => verifiedSkillsMatrix,
     initApp
   };
 }
