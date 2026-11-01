@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="assets/css/landing-page.css">
 
   <style>
-    /* FortiFocus CSS Variables Mapping for Public Discovery Explorer */
+    /* FortiFocus Design Tokens & Senior Design Typography */
     :root {
       --text-primary: var(--ink);
       --text-secondary: var(--ink-3);
@@ -34,69 +34,152 @@
       --text-primary: var(--ink);
       --text-secondary: var(--ink-3);
       --text-muted: var(--ink-4);
-      --bg-card: #141821;
-      --bg-surface: #11141a;
-      --border-color: var(--border);
-      --border-color-hover: var(--border-2);
+      --bg-card: #13161f;
+      --bg-surface: #191e2b;
+      --border-color: rgba(255, 239, 222, 0.08);
+      --border-color-hover: rgba(255, 239, 222, 0.18);
       --accent: var(--sage);
       --accent-hover: #8ed098;
       --accent-light: var(--sage-light);
       --accent-mid: var(--sage-mid);
     }
 
-    /* Scoped Discovery Page Custom Styles */
+    /* Hero Section */
     .discovery-hero {
-      padding: 7.5rem 1.5rem 3rem;
+      padding: 7rem 1.5rem 2.5rem;
       text-align: center;
-      max-width: 960px;
+      max-width: 860px;
       margin: 0 auto;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+    .hero-eyebrow .live-pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
     }
     .discovery-title {
       font-family: 'Fraunces', serif;
-      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-size: clamp(2.3rem, 5vw, 3.4rem);
       font-weight: 400;
       line-height: 1.15;
       color: var(--text-primary);
       margin-bottom: 1rem;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.025em;
     }
     .discovery-title em {
       font-style: italic;
       color: var(--accent);
-      text-decoration: underline;
-      text-decoration-color: var(--accent-mid);
-      text-underline-offset: 6px;
+      font-weight: 400;
     }
     .discovery-subtitle {
-      font-size: 1.125rem;
+      font-size: 1.05rem;
       color: var(--text-secondary);
-      max-width: 640px;
-      margin: 0 auto 2.5rem;
+      max-width: 580px;
+      margin: 0 auto 2.25rem;
       line-height: 1.6;
     }
-    .search-panel {
+
+    /* Senior Search Console */
+    .search-console {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 1.5rem;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+      border-radius: 18px;
+      padding: 1.25rem;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.05);
       margin-bottom: 2.5rem;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
+    .search-console:focus-within {
+      border-color: var(--border-color-hover);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Platform Segmented Tabs */
+    .platform-segment-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .platform-segment-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .platform-pills {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
+    .platform-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    }
+    .platform-pill:hover {
+      color: var(--text-primary);
+      background: var(--bg-surface);
+    }
+    .platform-pill.active {
+      background: var(--bg-surface);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .platform-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Unified Search Input */
     .search-input-wrap {
       display: flex;
       gap: 0.75rem;
-      flex-wrap: wrap;
       align-items: center;
+      flex-wrap: wrap;
     }
     .search-input-box {
-      flex: 1 1 300px;
+      flex: 1 1 320px;
       position: relative;
     }
     .search-input-box input {
       width: 100%;
-      padding: 0.9rem 1rem 0.9rem 2.85rem;
+      padding: 0.85rem 3.5rem 0.85rem 2.85rem;
       border-radius: 12px;
       border: 1px solid var(--border-color);
       background: var(--bg-surface);
@@ -109,10 +192,12 @@
     }
     .search-input-box input::placeholder {
       color: var(--text-muted);
-      opacity: 0.8;
+      opacity: 0.75;
+      font-size: 0.92rem;
     }
     .search-input-box input:focus {
       border-color: var(--accent);
+      background: var(--bg-card);
       box-shadow: 0 0 0 3px var(--accent-light);
     }
     .search-icon {
@@ -120,107 +205,76 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--text-secondary);
+      color: var(--text-muted);
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    .search-input-box:focus-within .search-icon {
+      color: var(--accent);
+    }
+    .kbd-shortcut {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 0.15rem 0.45rem;
+      border-radius: 5px;
       pointer-events: none;
     }
+
+    /* Minimal Remote Switch */
     .remote-switch-label {
       display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
-      font-size: 0.875rem;
+      gap: 0.5rem;
+      font-size: 0.84rem;
       font-weight: 500;
-      color: var(--text-primary);
+      color: var(--text-secondary);
       cursor: pointer;
-      margin-left: auto;
       user-select: none;
-      padding: 0.55rem 0.95rem;
+      padding: 0.55rem 0.85rem;
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
+      white-space: nowrap;
     }
     .remote-switch-label:hover {
       border-color: var(--border-color-hover);
+      color: var(--text-primary);
     }
     .remote-switch-label input {
       accent-color: var(--accent);
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       cursor: pointer;
     }
-    .platform-bar {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-      margin-bottom: 1.25rem;
-      text-align: left;
-    }
-    .platform-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .platform-label {
-      font-size: 0.78rem;
-      font-family: 'DM Mono', monospace;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-    .platform-pills {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .platform-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      padding: 0.45rem 0.85rem;
-      border-radius: 10px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-family: 'DM Sans', sans-serif;
-    }
-    .platform-pill:hover {
-      border-color: var(--border-color-hover);
-      color: var(--text-primary);
-      transform: translateY(-1px);
-    }
-    .platform-pill.active {
-      background: var(--bg-card);
-      border-color: var(--accent);
-      color: var(--text-primary);
-      box-shadow: 0 4px 12px var(--accent-light);
-    }
-    .platform-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
+
+    /* Contextual External Platform Bar */
     .platform-banner {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 1.25rem;
-      margin-top: 1.25rem;
+      border-radius: 14px;
+      padding: 1.1rem 1.25rem;
+      margin-top: 1rem;
       text-align: left;
-      animation: modalFadeIn 0.2s ease;
+      animation: bannerSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes bannerSlideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .platform-banner-content {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
+      gap: 0.85rem;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.85rem;
       border-bottom: 1px solid var(--border-color);
     }
     @media (min-width: 640px) {
@@ -232,99 +286,111 @@
     }
     .platform-tag {
       font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 0.2rem 0.55rem;
-      border-radius: 6px;
+      letter-spacing: 0.06em;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
       background: var(--accent-light);
       color: var(--accent);
       display: inline-block;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.25rem;
     }
     .platform-banner-header h3 {
-      font-size: 1.15rem;
-      font-weight: 700;
+      font-size: 1.05rem;
+      font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.15rem;
     }
     .platform-banner-header p {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-secondary);
       margin: 0;
     }
     .platform-importer-box {
       background: var(--bg-card);
-      border: 1px dashed var(--border-color-hover);
-      border-radius: 12px;
-      padding: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
     }
     .importer-text strong {
-      display: block;
+      display: inline-block;
       color: var(--text-primary);
-      font-size: 0.875rem;
-      margin-bottom: 0.2rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-right: 0.4rem;
     }
     .importer-text span {
-      display: block;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       font-size: 0.8rem;
-      margin-bottom: 0.75rem;
     }
     .importer-input-row {
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
+      margin-top: 0.65rem;
     }
     .importer-input-row input {
       flex: 1 1 260px;
-      padding: 0.65rem 0.85rem;
+      padding: 0.55rem 0.85rem;
       border-radius: 8px;
       border: 1px solid var(--border-color);
       background: var(--bg-surface);
       color: var(--text-primary);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       outline: none;
       box-sizing: border-box;
+      transition: border-color 0.18s;
     }
     .importer-input-row input:focus {
       border-color: var(--accent);
     }
+
+    /* Category Filter Pills (Typographic & Quiet) */
     .filter-pills {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.4rem;
       flex-wrap: wrap;
-      margin-top: 1.25rem;
+      margin-top: 1.1rem;
       align-items: center;
-      padding-top: 1.15rem;
+      padding-top: 0.9rem;
       border-top: 1px solid var(--border-color);
     }
+    .filter-pills-label {
+      font-size: 0.75rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-right: 0.4rem;
+    }
     .filter-pill {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
+      background: transparent;
+      border: 1px solid transparent;
       color: var(--text-secondary);
-      padding: 0.45rem 1rem;
-      border-radius: 9999px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
       font-family: 'DM Sans', sans-serif;
     }
     .filter-pill:hover {
-      border-color: var(--border-color-hover);
       color: var(--text-primary);
-      transform: translateY(-1px);
+      background: var(--bg-surface);
     }
     .filter-pill.active {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: var(--accent);
-      box-shadow: 0 2px 10px var(--accent-light);
+      background: var(--bg-surface);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+      font-weight: 600;
     }
+
+    /* Jobs Container & Meta */
     .jobs-container {
-      max-width: 1200px;
+      max-width: 1140px;
       margin: 0 auto;
       padding: 0 1.5rem 5rem;
     }
@@ -334,56 +400,60 @@
       align-items: center;
       margin-bottom: 1.5rem;
       color: var(--text-secondary);
-      font-size: 0.9rem;
+      font-size: 0.875rem;
+      padding: 0 0.25rem;
     }
+
+    /* Editorial Job Cards */
     .job-cards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.25rem;
     }
     .job-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 18px;
-      padding: 1.6rem;
+      border-radius: 14px;
+      padding: 1.4rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
       position: relative;
     }
     .job-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-2px);
       border-color: var(--border-color-hover);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
     }
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.65rem;
     }
     .company-title {
       font-family: 'DM Mono', monospace;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--accent);
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
     }
     .role-title {
-      font-size: 1.2rem;
-      font-weight: 700;
+      font-size: 1.1rem;
+      font-weight: 600;
       color: var(--text-primary);
-      margin: 0.25rem 0 0.5rem;
+      margin: 0.2rem 0 0.45rem;
       line-height: 1.35;
+      letter-spacing: -0.01em;
     }
     .job-snippet {
-      font-size: 0.875rem;
+      font-size: 0.84rem;
       color: var(--text-secondary);
       line-height: 1.55;
-      margin-bottom: 1rem;
+      margin-bottom: 0.85rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -391,22 +461,22 @@
     }
     .job-meta-chips {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.45rem;
       flex-wrap: wrap;
-      margin-bottom: 1rem;
-      font-size: 0.8rem;
+      margin-bottom: 0.85rem;
+      font-size: 0.78rem;
     }
     .chip {
-      padding: 0.25rem 0.65rem;
-      border-radius: 9999px;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 500;
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.3rem;
     }
     .chip-remote {
       background: var(--accent-light);
@@ -415,60 +485,59 @@
       font-weight: 600;
     }
     .chip-salary {
-      background: var(--accent-light);
-      color: var(--accent);
-      border-color: var(--accent-mid);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border-color: var(--border-color);
       font-family: 'DM Mono', monospace;
-      font-weight: 600;
-      font-size: 0.78rem;
+      font-weight: 500;
+      font-size: 0.75rem;
     }
     .tag-cloud {
       display: flex;
-      gap: 0.4rem;
+      gap: 0.35rem;
       flex-wrap: wrap;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.1rem;
     }
     .tag-badge {
-      font-size: 0.74rem;
-      padding: 0.2rem 0.55rem;
-      border-radius: 6px;
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
       background: var(--bg-surface);
-      color: var(--text-secondary);
+      color: var(--text-muted);
       border: 1px solid var(--border-color);
       font-family: 'DM Mono', monospace;
-      font-weight: 500;
+      font-weight: 400;
     }
     .card-actions {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.65rem;
       margin-top: auto;
-      padding-top: 1.15rem;
+      padding-top: 1rem;
       border-top: 1px solid var(--border-color);
     }
     .btn-card {
       flex: 1;
-      padding: 0.7rem 1rem;
-      border-radius: 10px;
-      font-size: 0.85rem;
+      padding: 0.6rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.4rem;
+      gap: 0.35rem;
       font-family: 'DM Sans', sans-serif;
     }
     .btn-card-primary {
       background: var(--accent);
       color: #ffffff;
       border: 1px solid transparent;
-      box-shadow: 0 2px 8px var(--accent-light);
     }
     .btn-card-primary:hover {
-      filter: brightness(1.08);
+      background: var(--accent-hover);
       transform: translateY(-1px);
     }
     .btn-card-secondary {
@@ -478,14 +547,15 @@
     }
     .btn-card-secondary:hover {
       border-color: var(--border-color-hover);
-      background: var(--paper-3);
+      background: var(--bg-card);
       transform: translateY(-1px);
     }
+
     /* Modal Styles */
     .discovery-modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.72);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       z-index: 1000;
@@ -497,22 +567,22 @@
     .discovery-modal-box {
       background: var(--bg-card);
       border: 1px solid var(--border-color-hover);
-      border-radius: 20px;
-      max-width: 720px;
+      border-radius: 16px;
+      max-width: 680px;
       width: 100%;
-      max-height: 88vh;
+      max-height: 86vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
-      animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+      animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       overflow: hidden;
     }
     @keyframes modalFadeIn {
-      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      from { opacity: 0; transform: scale(0.97) translateY(6px); }
       to { opacity: 1; transform: scale(1) translateY(0); }
     }
     .modal-head {
-      padding: 1.5rem 1.75rem;
+      padding: 1.4rem 1.6rem;
       border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
@@ -520,52 +590,55 @@
       background: var(--bg-surface);
     }
     .modal-body {
-      padding: 1.75rem;
+      padding: 1.6rem;
       overflow-y: auto;
       color: var(--text-primary);
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       line-height: 1.65;
     }
     .modal-foot {
-      padding: 1.25rem 1.75rem;
+      padding: 1.15rem 1.6rem;
       border-top: 1px solid var(--border-color);
       display: flex;
       justify-content: flex-end;
-      gap: 0.75rem;
+      gap: 0.65rem;
       background: var(--bg-surface);
     }
     .close-modal-btn {
       background: transparent;
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       cursor: pointer;
       line-height: 1;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
     }
     .close-modal-btn:hover {
       color: var(--text-primary);
       border-color: var(--border-color-hover);
-      background: var(--paper-3);
+      background: var(--bg-card);
     }
 
     @media (max-width: 640px) {
       .discovery-hero {
         padding: 5.5rem 1rem 2rem;
       }
-      .search-panel {
+      .search-console {
         padding: 1rem;
+      }
+      .platform-segment-bar {
+        flex-direction: column;
+        align-items: flex-start;
       }
       .remote-switch-label {
         width: 100%;
         justify-content: space-between;
-        margin-left: 0;
       }
       .job-cards-grid {
         grid-template-columns: 1fr;
@@ -605,68 +678,70 @@
   <main>
     <!-- Hero & Search Header -->
     <header class="discovery-hero">
+      <div class="hero-eyebrow">
+        <span class="live-pulse"></span>
+        <span>Real-Time Tech Job Intelligence</span>
+      </div>
       <h1 class="discovery-title">Discover Tech Roles &amp; <em>Test Your Fit</em></h1>
       <p class="discovery-subtitle">
         Freely search verified engineering, cloud, and AI opportunities. 1-click test your resume compatibility in our live ATS workspace.
       </p>
 
-      <!-- Search Controls -->
-      <div class="search-panel">
-        <!-- Platform Selection Bar (SkillSync, LinkedIn, Upwork, Indeed, etc.) -->
-        <div class="platform-bar" id="platformBar">
-          <div class="platform-header">
-            <span class="platform-label">Search Source / Ecosystem</span>
-            <span id="platformActiveStatus" class="chip" style="font-size: 0.75rem; color: var(--accent);">SkillSync Native</span>
-          </div>
+      <!-- Senior Search Console -->
+      <div class="search-console" id="searchConsole">
+        <!-- Platform Segmented Tabs -->
+        <div class="platform-segment-bar" id="platformBar">
           <div class="platform-pills" id="platformPillsContainer">
             <button type="button" class="platform-pill active" data-platform="skillsync">
               <span class="platform-dot" style="background: var(--accent);"></span>
               <span>SkillSync Feed</span>
             </button>
             <button type="button" class="platform-pill" data-platform="linkedin">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #0a66c2;"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #0a66c2;"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
               <span>LinkedIn</span>
             </button>
             <button type="button" class="platform-pill" data-platform="upwork">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #14a800;"><path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-3.714 0-5.748 2.457-6.435 4.77-1.428-1.84-2.428-4.22-2.91-6.788h-3.414v9.646c0 1.956-1.587 3.543-3.543 3.543s-3.543-1.587-3.543-3.543v-9.646h-3.414v9.646c0 3.841 3.116 6.957 6.957 6.957 3.841 0 6.957-3.116 6.957-6.957v-1.146c.582 1.411 1.489 2.776 2.684 3.917l-1.921 8.944h3.487l1.39-6.471c1.079.623 2.276.963 3.551.963 3.714 0 6.702-2.988 6.702-6.702 0-3.714-2.988-6.702-6.702-6.702z"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #14a800;"><path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-3.714 0-5.748 2.457-6.435 4.77-1.428-1.84-2.428-4.22-2.91-6.788h-3.414v9.646c0 1.956-1.587 3.543-3.543 3.543s-3.543-1.587-3.543-3.543v-9.646h-3.414v9.646c0 3.841 3.116 6.957 6.957 6.957 3.841 0 6.957-3.116 6.957-6.957v-1.146c.582 1.411 1.489 2.776 2.684 3.917l-1.921 8.944h3.487l1.39-6.471c1.079.623 2.276.963 3.551.963 3.714 0 6.702-2.988 6.702-6.702 0-3.714-2.988-6.702-6.702-6.702z"/></svg>
               <span>Upwork</span>
             </button>
             <button type="button" class="platform-pill" data-platform="indeed">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #2164f3;"><path d="M11.566 21.995v-7.653c-.76.31-1.564.475-2.413.475-3.327 0-6.027-2.698-6.027-6.024 0-3.328 2.7-6.025 6.027-6.025 3.326 0 6.024 2.697 6.024 6.025 0 1.258-.396 2.422-1.06 3.385l5.883 5.882-1.415 1.415-5.88-5.88c-.964.664-2.128 1.06-3.386 1.06-.057 0-.113 0-.169-.002v7.342h-1.584z"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #2164f3;"><path d="M11.566 21.995v-7.653c-.76.31-1.564.475-2.413.475-3.327 0-6.027-2.698-6.027-6.024 0-3.328 2.7-6.025 6.027-6.025 3.326 0 6.024 2.697 6.024 6.025 0 1.258-.396 2.422-1.06 3.385l5.883 5.882-1.415 1.415-5.88-5.88c-.964.664-2.128 1.06-3.386 1.06-.057 0-.113 0-.169-.002v7.342h-1.584z"/></svg>
               <span>Indeed</span>
             </button>
             <button type="button" class="platform-pill" data-platform="wellfound">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #e03a3c;"><path d="M12 2L2 22h20L12 2zm0 4.8l6.2 12.4H5.8L12 6.8z"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #e03a3c;"><path d="M12 2L2 22h20L12 2zm0 4.8l6.2 12.4H5.8L12 6.8z"/></svg>
               <span>Wellfound</span>
             </button>
             <button type="button" class="platform-pill" data-platform="remoteok">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #ff4742;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #ff4742;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
               <span>RemoteOK</span>
             </button>
             <button type="button" class="platform-pill" data-platform="glassdoor">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #0caa41;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #0caa41;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
               <span>Glassdoor</span>
             </button>
           </div>
+          <span id="platformActiveStatus" class="chip" style="font-size: 0.72rem; color: var(--accent); padding: 0.2rem 0.55rem;">SkillSync Native</span>
         </div>
 
         <!-- Search Input -->
         <div class="search-input-wrap">
           <div class="search-input-box">
-            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="text" id="discoverySearchInput" placeholder="Search by role, company (e.g. Stripe, Vercel), or tech stack (e.g. React, Python)..." autocomplete="off" />
+            <input type="text" id="discoverySearchInput" placeholder="Search by role, company, or tech stack (e.g. React, Python, Remote)..." autocomplete="off" />
+            <span class="kbd-shortcut">/</span>
           </div>
 
           <label class="remote-switch-label">
-            <input type="checkbox" id="discoveryRemoteToggle" style="accent-color: var(--accent); width: 16px; height: 16px;" />
-            <span>Remote Only</span>
+            <input type="checkbox" id="discoveryRemoteToggle" />
+            <span>Remote only</span>
           </label>
         </div>
 
-        <!-- External Search & ATS Importer Banner (Shown when an external platform is active) -->
+        <!-- Contextual External Platform Banner -->
         <div id="externalPlatformBanner" class="platform-banner" style="display: none;">
           <div class="platform-banner-content">
             <div class="platform-banner-header">
@@ -676,8 +751,8 @@
             </div>
             <div class="platform-banner-actions">
               <a href="#" target="_blank" rel="noopener noreferrer" id="platformLaunchBtn" class="btn-card btn-card-primary">
-                <span>Launch Search on <span id="platformLaunchName">LinkedIn</span></span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                <span>Launch on <span id="platformLaunchName">LinkedIn</span></span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
               </a>
             </div>
           </div>
@@ -686,10 +761,10 @@
           <div class="platform-importer-box">
             <div class="importer-text">
               <strong>Found a role on <span id="importerPlatformName">LinkedIn</span>?</strong>
-              <span>Paste its link to import, extract requirements, and score your resume:</span>
+              <span>Paste its URL to parse qualifications and score your fit:</span>
             </div>
             <div class="importer-input-row">
-              <input type="url" id="externalJobUrlInput" placeholder="Paste job URL from LinkedIn, Upwork, Indeed, or any career page..." />
+              <input type="url" id="externalJobUrlInput" placeholder="https://www.linkedin.com/jobs/view/..." />
               <button type="button" id="importJobUrlBtn" class="btn-card btn-card-secondary" style="flex: 0 0 auto; white-space: nowrap;">
                 Import &amp; ATS Score &rarr;
               </button>
@@ -697,14 +772,15 @@
           </div>
         </div>
 
-        <!-- Filter Chips -->
+        <!-- Category Filters -->
         <div class="filter-pills" id="filterPillsContainer">
-          <button type="button" class="filter-pill active" data-category="all">All Roles</button>
+          <span class="filter-pills-label">Discipline</span>
+          <button type="button" class="filter-pill active" data-category="all">All</button>
           <button type="button" class="filter-pill" data-category="frontend">Frontend</button>
           <button type="button" class="filter-pill" data-category="backend">Backend</button>
           <button type="button" class="filter-pill" data-category="fullstack">Full-Stack</button>
           <button type="button" class="filter-pill" data-category="devops">Cloud &amp; DevOps</button>
-          <button type="button" class="filter-pill" data-category="ai">AI / Machine Learning</button>
+          <button type="button" class="filter-pill" data-category="ai">AI / ML</button>
         </div>
       </div>
     </header>

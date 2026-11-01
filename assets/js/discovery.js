@@ -534,6 +534,13 @@
       if (e.key === 'Escape' && activeJobModalData) {
         closeJobModal();
       }
+      if (e.key === '/' && document.activeElement !== searchInput && (!document.activeElement || (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'))) {
+        e.preventDefault();
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
     });
 
     const siteNav = document.getElementById('siteNav');
