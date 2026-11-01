@@ -439,7 +439,120 @@
   </div>
 </div>
 
-<!-- Modal 4: Add Role Manually to Application Pipeline -->
+<!-- Modal 4: Salary Insights & Negotiation Coach -->
+<div id="salary-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="console-card max-w-2xl w-full p-6 shadow-2xl relative space-y-4 max-h-[92vh] flex flex-col">
+    <button type="button" id="closeSalaryModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    
+    <div class="flex items-center space-x-3">
+      <div class="p-2.5 rounded-xl" style="background: var(--sage-light); color: var(--sage);">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Salary & Negotiation Coach</h3>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--sage-light); color: var(--sage);">Market Benchmarks</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inputs Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+      <div>
+        <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Target Role</label>
+        <input type="text" id="salaryRoleInput" placeholder="e.g. Senior Full-Stack Engineer" class="console-input w-full px-3 py-1.5 text-xs">
+      </div>
+      <div>
+        <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Location</label>
+        <input type="text" id="salaryLocationInput" placeholder="e.g. Remote, San Francisco" class="console-input w-full px-3 py-1.5 text-xs">
+      </div>
+      <div>
+        <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Current Offer (Optional)</label>
+        <div class="flex items-center space-x-1.5">
+          <input type="text" id="salaryOfferInput" placeholder="e.g. $140,000" class="console-input flex-1 px-3 py-1.5 text-xs">
+          <button type="button" id="recalculateSalaryBtn" class="px-3 py-1.5 text-xs font-semibold btn-action-primary text-white rounded-xl transition flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scrollable Content Area -->
+    <div class="space-y-4 overflow-y-auto pr-1 flex-1">
+      <!-- 4 Percentile Cards -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--ink-2);">Market Compensation Tiers</div>
+          <span id="salaryOfferStatusBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full" style="background: var(--paper-3); color: var(--ink-3);">Market Rate</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div class="p-3 rounded-xl border text-center" style="background: var(--paper-2); border-color: var(--border);">
+            <span class="text-[10px] opacity-65 block" style="color: var(--ink-3);">25th Percentile</span>
+            <span id="salaryBenchP25" class="text-sm font-bold font-mono mt-0.5 block" style="color: var(--ink);">$125,000</span>
+          </div>
+          <div class="p-3 rounded-xl border text-center ring-2 ring-emerald-500/30" style="background: var(--sage-light); border-color: var(--sage);">
+            <span class="text-[10px] font-bold block" style="color: var(--sage);">Market Median (50th)</span>
+            <span id="salaryBenchMedian" class="text-base font-black font-mono mt-0.5 block" style="color: var(--sage);">$145,000</span>
+          </div>
+          <div class="p-3 rounded-xl border text-center" style="background: var(--paper-2); border-color: var(--border);">
+            <span class="text-[10px] opacity-65 block" style="color: var(--ink-3);">75th Percentile</span>
+            <span id="salaryBenchP75" class="text-sm font-bold font-mono mt-0.5 block" style="color: var(--ink);">$165,000</span>
+          </div>
+          <div class="p-3 rounded-xl border text-center" style="background: var(--paper-2); border-color: var(--border);">
+            <span class="text-[10px] opacity-65 block" style="color: var(--ink-3);">90th (Top Tier)</span>
+            <span id="salaryBenchP90" class="text-sm font-bold font-mono mt-0.5 block" style="color: var(--ink);">$185,000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggested Counter-Offer Anchor -->
+      <div class="p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3" style="background: var(--paper-3); border-color: var(--border);">
+        <div class="flex items-center space-x-2.5">
+          <div class="p-2 rounded-lg" style="background: var(--surface); color: var(--sage);">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          </div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider block opacity-70" style="color: var(--ink);">Strategic Counter Target</span>
+            <span class="text-xs" style="color: var(--ink-3);">Recommended anchor for maximum win-rate</span>
+          </div>
+        </div>
+        <span id="salaryTargetCounter" class="text-lg font-black font-mono px-3 py-1 rounded-xl self-start sm:self-auto" style="background: var(--sage-light); color: var(--sage);">$158,000</span>
+      </div>
+
+      <!-- Talking Points -->
+      <div>
+        <div class="text-[11px] font-bold uppercase tracking-wider mb-2" style="color: var(--ink-2);">Leverage Talking Points</div>
+        <ul id="salaryTalkingPointsList" class="space-y-1.5">
+          <!-- Dynamic talking points -->
+        </ul>
+      </div>
+
+      <!-- Script Draft -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <div class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--ink-2);">Counter-Offer Email Script</div>
+          <button type="button" id="copySalaryScriptBtn" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="background: var(--paper-2); color: var(--ink-2); border: 1px solid var(--border);">
+            <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            <span>Copy Script</span>
+          </button>
+        </div>
+        <textarea id="salaryScriptText" rows="6" class="console-input w-full p-3 text-xs font-mono leading-relaxed resize-y" placeholder="Generated counter-offer script..."></textarea>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="pt-3 border-t flex items-center justify-end" style="border-color: var(--border);">
+      <button type="button" id="closeSalaryBtnBottom" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>Done</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 5: Add Role Manually to Application Pipeline -->
 <div id="add-pipeline-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="console-card max-w-md w-full p-6 shadow-2xl relative space-y-4">
     <button type="button" id="closeAddPipelineModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
@@ -798,7 +911,7 @@
           <div class="text-[11px] font-bold uppercase tracking-wider mb-2.5" style="color: var(--ink-2);">
             AI Career Action Tools
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <button type="button" id="tailorResumeBtn" class="p-3 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-center justify-between cursor-pointer group hover:border-emerald-500/40" style="background: var(--paper-2); border-color: var(--border);">
               <div class="flex items-center space-x-2.5">
                 <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--sage-light); color: var(--sage);">
@@ -833,6 +946,19 @@
                 <div>
                   <h5 class="text-xs font-bold" style="color: var(--ink);">Interview Prep</h5>
                   <span class="text-[10px] opacity-70" style="color: var(--ink-3);">5 Target Questions</span>
+                </div>
+              </div>
+              <svg class="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <button type="button" id="salaryCoachBtn" class="p-3 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-center justify-between cursor-pointer group hover:border-emerald-500/40" style="background: var(--paper-2); border-color: var(--border);">
+              <div class="flex items-center space-x-2.5">
+                <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--sage-light); color: var(--sage);">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                  <h5 class="text-xs font-bold" style="color: var(--ink);">Salary Coach</h5>
+                  <span class="text-[10px] opacity-70" style="color: var(--ink-3);">Benchmarking & Script</span>
                 </div>
               </div>
               <svg class="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>

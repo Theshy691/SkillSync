@@ -2897,10 +2897,238 @@ function renderInterviewQuestions(questions) {
   });
 }
 
+/**
+ * 14b. Salary Benchmarking & AI Negotiation Coach
+ */
+let lastSalaryData = null;
+
+function calculateSalaryBenchmarks(role = 'Software Engineer', location = 'Remote', skills = [], currentOffer = 0) {
+  const roleLower = (role || '').toLowerCase();
+  const locLower = (location || '').toLowerCase();
+  let base = 115000;
+  if (roleLower.includes('senior') || roleLower.includes('sr')) base = 150000;
+  else if (roleLower.includes('lead') || roleLower.includes('staff') || roleLower.includes('principal')) base = 185000;
+  else if (roleLower.includes('junior') || roleLower.includes('jr') || roleLower.includes('entry')) base = 85000;
+
+  if (roleLower.includes('architect') || roleLower.includes('director')) base = Math.max(base, 195000);
+  else if (roleLower.includes('devops') || roleLower.includes('sre') || roleLower.includes('cloud')) base += 12000;
+  else if (roleLower.includes('ai') || roleLower.includes('ml') || roleLower.includes('data')) base += 15000;
+
+  let locMultiplier = 1.0;
+  if (locLower.includes('san francisco') || locLower.includes('sf') || locLower.includes('silicon valley')) locMultiplier = 1.25;
+  else if (locLower.includes('new york') || locLower.includes('nyc')) locMultiplier = 1.20;
+  else if (locLower.includes('seattle') || locLower.includes('boston')) locMultiplier = 1.15;
+  else if (locLower.includes('london') || locLower.includes('uk')) locMultiplier = 0.90;
+  else if (locLower.includes('remote')) locMultiplier = 1.05;
+
+  let skillBonus = 0;
+  const premiums = [];
+  (skills || []).forEach(s => {
+    const sl = (s || '').toLowerCase();
+    if (sl === 'aws' || sl === 'gcp' || sl === 'kubernetes' || sl === 'docker') {
+      skillBonus += 3000;
+      premiums.push({ skill: s, premium: '+4% Cloud/Infra' });
+    } else if (sl === 'react' || sl === 'next.js' || sl === 'typescript') {
+      skillBonus += 2500;
+      premiums.push({ skill: s, premium: '+3% Modern Stack' });
+    } else if (sl === 'python' || sl === 'fastapi' || sl.includes('ai')) {
+      skillBonus += 3500;
+      premiums.push({ skill: s, premium: '+5% Systems/AI' });
+    }
+  });
+  skillBonus = Math.min(skillBonus, 18000);
+
+  const median = Math.round(((base * locMultiplier) + skillBonus) / 1000) * 1000;
+  const p25 = Math.round((median * 0.88) / 1000) * 1000;
+  const p75 = Math.round((median * 1.14) / 1000) * 1000;
+  const p90 = Math.round((median * 1.28) / 1000) * 1000;
+
+  const numOffer = typeof currentOffer === 'number' ? currentOffer : parseInt(String(currentOffer).replace(/[^0-9]/g, ''), 10) || 0;
+  let targetCounter = Math.round((median * 1.08) / 1000) * 1000;
+  let status = 'at_market';
+  let diff = 0;
+  let percentDiff = 0;
+
+  if (numOffer > 0) {
+    diff = numOffer - median;
+    percentDiff = Math.round((diff / median) * 1000) / 10;
+    if (numOffer < p25) {
+      status = 'below_market';
+      targetCounter = Math.round((median * 1.05) / 1000) * 1000;
+    } else if (numOffer > p75) {
+      status = 'above_market';
+      targetCounter = Math.round((numOffer * 1.05) / 1000) * 1000;
+    } else {
+      status = 'at_market';
+      targetCounter = Math.round(Math.max(numOffer * 1.07, median * 1.08) / 1000) * 1000;
+    }
+  }
+
+  const fmt = (n) => '$' + n.toLocaleString();
+  const script = `Dear [Hiring Manager / Recruiter],\n\nThank you very much for extending the offer for the ${role} position. I am enthusiastic about the opportunity to join the team and contribute to your upcoming technical milestones.\n\n` +
+    (numOffer > 0
+      ? `Based on comprehensive industry benchmarks for ${role} roles in ${location}, as well as my verified track record with ${skills.length > 0 ? skills.slice(0, 3).join(', ') : 'modern system architecture'}, I would like to propose a base salary of ${fmt(targetCounter)}.\n\n`
+      : `Based on market benchmarks for this role in ${location} and my technical background in ${skills.length > 0 ? skills.slice(0, 3).join(', ') : 'core engineering'}, I am targeting a base compensation of ${fmt(targetCounter)}.\n\n`) +
+    `I am confident this reflects the immediate impact I will deliver to your engineering deliverables. If there is flexibility around this figure or components like sign-on bonus and equity, I would be delighted to discuss.\n\nThank you again for your time and support.\n\nWarm regards,\n[Your Name]`;
+
+  return {
+    success: true,
+    role,
+    location,
+    benchmarks: {
+      p25,
+      median,
+      p75,
+      p90,
+      formatted_p25: fmt(p25),
+      formatted_median: fmt(median),
+      formatted_p75: fmt(p75),
+      formatted_p90: fmt(p90),
+      target_counter: targetCounter,
+      formatted_counter: fmt(targetCounter)
+    },
+    offer_analysis: {
+      current_offer: numOffer,
+      formatted_current: numOffer > 0 ? fmt(numOffer) : 'Not specified',
+      status,
+      percent_diff: percentDiff,
+      difference: diff
+    },
+    skill_premiums: premiums.slice(0, 4),
+    talking_points: [
+      `Benchmark alignment: The 50th percentile market rate for ${role} in ${location} is ${fmt(median)}.`,
+      `Core stack leverage: Deep proficiency in ${skills.length > 0 ? skills.slice(0, 3).join(', ') : 'required systems'} reduces ramp-up time to near zero.`,
+      `Counter-offer recommendation: Anchor at ${fmt(targetCounter)} (approx. 7-10% above baseline) leaving room for mutual compromise.`,
+      `Flexible levers: If base budget is constrained, negotiate equity grants, a one-time sign-on bonus, or an accelerated 6-month review.`
+    ],
+    script
+  };
+}
+
+async function fetchSalaryBenchmarks(role, location, skills, currentOffer) {
+  if (isDemoMode()) {
+    return calculateSalaryBenchmarks(role, location, skills, currentOffer);
+  }
+
+  try {
+    const token = await getAuthBearerToken();
+    const res = await fetch('/backend/salary.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ role, location, skills, current_offer: currentOffer })
+    });
+
+    if (res.ok) {
+      return await res.json();
+    }
+    return calculateSalaryBenchmarks(role, location, skills, currentOffer);
+  } catch (_) {
+    return calculateSalaryBenchmarks(role, location, skills, currentOffer);
+  }
+}
+
+function renderSalaryInsights(data) {
+  if (!data || !data.benchmarks) return;
+  lastSalaryData = data;
+
+  const p25El = document.getElementById('salaryBenchP25');
+  const medianEl = document.getElementById('salaryBenchMedian');
+  const p75El = document.getElementById('salaryBenchP75');
+  const p90El = document.getElementById('salaryBenchP90');
+  const targetCounterEl = document.getElementById('salaryTargetCounter');
+  const statusBadge = document.getElementById('salaryOfferStatusBadge');
+  const talkingPointsList = document.getElementById('salaryTalkingPointsList');
+  const scriptText = document.getElementById('salaryScriptText');
+
+  if (p25El) p25El.textContent = data.benchmarks.formatted_p25;
+  if (medianEl) medianEl.textContent = data.benchmarks.formatted_median;
+  if (p75El) p75El.textContent = data.benchmarks.formatted_p75;
+  if (p90El) p90El.textContent = data.benchmarks.formatted_p90;
+  if (targetCounterEl) targetCounterEl.textContent = data.benchmarks.formatted_counter;
+
+  if (statusBadge) {
+    const status = data.offer_analysis?.status || 'at_market';
+    if (status === 'below_market') {
+      statusBadge.textContent = 'Below Market';
+      statusBadge.style.background = 'var(--rose-light)';
+      statusBadge.style.color = 'var(--rose)';
+    } else if (status === 'above_market') {
+      statusBadge.textContent = 'Top Tier';
+      statusBadge.style.background = 'var(--sky-light)';
+      statusBadge.style.color = 'var(--sky)';
+    } else {
+      statusBadge.textContent = 'Market Competitive';
+      statusBadge.style.background = 'var(--sage-light)';
+      statusBadge.style.color = 'var(--sage)';
+    }
+  }
+
+  if (talkingPointsList && Array.isArray(data.talking_points)) {
+    talkingPointsList.innerHTML = data.talking_points.map(pt => `
+      <li class="text-xs flex items-start space-x-2" style="color: var(--ink-2);">
+        <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <span>${escapeHtml(pt)}</span>
+      </li>
+    `).join('');
+  }
+
+  if (scriptText) {
+    scriptText.value = data.script || '';
+  }
+}
+
+async function openSalaryModal(jobOrRole) {
+  const modal = document.getElementById('salary-modal');
+  if (!modal) return;
+
+  const roleInput = document.getElementById('salaryRoleInput');
+  const locInput = document.getElementById('salaryLocationInput');
+  const offerInput = document.getElementById('salaryOfferInput');
+
+  let role = 'Senior Full-Stack Engineer';
+  let location = 'Remote';
+  let currentOffer = '';
+  let skills = [];
+
+  if (typeof jobOrRole === 'object' && jobOrRole !== null) {
+    role = jobOrRole.title || role;
+    location = jobOrRole.location || location;
+    currentOffer = jobOrRole.salary || '';
+    skills = jobOrRole.tags || [];
+  } else if (typeof jobOrRole === 'string' && jobOrRole.trim()) {
+    role = jobOrRole.trim();
+  } else {
+    const jobTextEl = document.getElementById('jobText');
+    if (jobTextEl && jobTextEl.value) {
+      const firstLine = jobTextEl.value.split('\n')[0].replace(/[^a-zA-Z0-9\s-]/g, '').trim();
+      if (firstLine.length > 5 && firstLine.length < 50) {
+        role = firstLine;
+      }
+    }
+  }
+
+  if (skills.length === 0 && typeof getAllVaultSkills === 'function') {
+    skills = getAllVaultSkills().slice(0, 5);
+  }
+
+  if (roleInput) roleInput.value = role;
+  if (locInput) locInput.value = location;
+  if (offerInput) offerInput.value = currentOffer;
+
+  modal.classList.remove('hidden');
+
+  const data = await fetchSalaryBenchmarks(role, location, skills, currentOffer);
+  renderSalaryInsights(data);
+}
+
 function initAiActionSuite() {
   const tailorBtn = document.getElementById('tailorResumeBtn');
   const coverLetterBtn = document.getElementById('generateCoverLetterBtn');
   const interviewBtn = document.getElementById('interviewPrepBtn');
+  const salaryBtn = document.getElementById('salaryCoachBtn');
 
   const closeTailorBtn = document.getElementById('closeTailorModalBtn');
   const insertAllTailorBtn = document.getElementById('insertAllTailorBulletsBtn');
@@ -3040,6 +3268,46 @@ function initAiActionSuite() {
         showToast('Copied interview prep questions!', 'success');
       } catch (_) {
         showToast('Copied questions.', 'success');
+      }
+    });
+  }
+
+  // Salary Coach Listeners
+  const closeSalaryBtn = document.getElementById('closeSalaryModalBtn');
+  const closeSalaryBottomBtn = document.getElementById('closeSalaryBtnBottom');
+  const recalcSalaryBtn = document.getElementById('recalculateSalaryBtn');
+  const copySalaryBtn = document.getElementById('copySalaryScriptBtn');
+
+  if (salaryBtn) salaryBtn.addEventListener('click', () => openSalaryModal());
+
+  const closeSalaryFn = () => {
+    document.getElementById('salary-modal')?.classList.add('hidden');
+  };
+  if (closeSalaryBtn) closeSalaryBtn.addEventListener('click', closeSalaryFn);
+  if (closeSalaryBottomBtn) closeSalaryBottomBtn.addEventListener('click', closeSalaryFn);
+
+  if (recalcSalaryBtn) {
+    recalcSalaryBtn.addEventListener('click', async () => {
+      const role = document.getElementById('salaryRoleInput')?.value.trim() || 'Software Engineer';
+      const loc = document.getElementById('salaryLocationInput')?.value.trim() || 'Remote';
+      const offer = document.getElementById('salaryOfferInput')?.value.trim() || '';
+      const skills = typeof getAllVaultSkills === 'function' ? getAllVaultSkills().slice(0, 5) : [];
+      const data = await fetchSalaryBenchmarks(role, loc, skills, offer);
+      renderSalaryInsights(data);
+      showToast('Updated salary benchmarks!', 'success');
+    });
+  }
+
+  if (copySalaryBtn) {
+    copySalaryBtn.addEventListener('click', async () => {
+      const textarea = document.getElementById('salaryScriptText');
+      const text = textarea ? textarea.value : (lastSalaryData?.script || '');
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Copied negotiation script to clipboard!', 'success');
+      } catch (_) {
+        showToast('Copied script.', 'success');
       }
     });
   }
@@ -3239,6 +3507,9 @@ function renderPipeline() {
           </select>
 
           <div class="flex items-center space-x-1">
+            <button type="button" class="btn-pipe-salary p-1 rounded-lg hover:bg-slate-500/10 transition" title="Salary Coach & Script" style="color: var(--sage);">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </button>
             <button type="button" class="btn-pipe-load p-1 rounded-lg hover:bg-slate-500/10 transition" title="Analyze in Workspace" style="color: var(--ink-2);">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
@@ -3253,6 +3524,13 @@ function renderPipeline() {
       if (select) {
         select.addEventListener('change', (e) => {
           updatePipelineJobStatus(j.id, e.target.value);
+        });
+      }
+
+      const salaryCardBtn = card.querySelector('.btn-pipe-salary');
+      if (salaryCardBtn) {
+        salaryCardBtn.addEventListener('click', () => {
+          openSalaryModal(j);
         });
       }
 
@@ -3402,6 +3680,10 @@ if (typeof module !== 'undefined' && module.exports) {
     fetchCoverLetter,
     openInterviewModal,
     renderInterviewQuestions,
+    calculateSalaryBenchmarks,
+    fetchSalaryBenchmarks,
+    renderSalaryInsights,
+    openSalaryModal,
     initAiActionSuite,
     addJobToPipeline,
     updatePipelineJobStatus,
