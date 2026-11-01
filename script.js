@@ -765,6 +765,11 @@ function switchResumeVersion(versionId) {
 
 function saveResumeVersion(name, content) {
   if (!name || !name.trim()) return null;
+  const validation = validateVersionName(name);
+  if (!validation.valid) {
+    showToast(validation.error, 'error');
+    return null;
+  }
   const newVer = {
     id: 'ver-' + Date.now(),
     name: name.trim(),
@@ -834,6 +839,11 @@ function initResumeVersionManager() {
       const name = nameInput?.value.trim();
       if (!name) {
         showToast('Please provide a version name.', 'warning');
+        return;
+      }
+      const validation = validateVersionName(name);
+      if (!validation.valid) {
+        showToast(validation.error, 'error');
         return;
       }
       const resumeText = document.getElementById('resumeText')?.value || '';
@@ -3707,6 +3717,13 @@ function initAiActionSuite() {
       const role = document.getElementById('salaryRoleInput')?.value.trim() || 'Software Engineer';
       const loc = document.getElementById('salaryLocationInput')?.value.trim() || 'Remote';
       const offer = document.getElementById('salaryOfferInput')?.value.trim() || '';
+
+      const locCheck = validateLocationName(loc);
+      if (!locCheck.valid) {
+        showToast(locCheck.error, 'error');
+        return;
+      }
+
       const skills = typeof getAllVaultSkills === 'function' ? getAllVaultSkills().slice(0, 5) : [];
       const data = await fetchSalaryBenchmarks(role, loc, skills, offer);
       renderSalaryInsights(data);
@@ -4139,6 +4156,12 @@ function initPipeline() {
       const url = document.getElementById('manualJobUrl')?.value.trim() || '#';
 
       if (!title || !company) return;
+
+      const locCheck = validateLocationName(location);
+      if (!locCheck.valid) {
+        showToast(locCheck.error, 'error');
+        return;
+      }
 
       addJobToPipeline({
         id: `pipe-${Date.now()}`,
