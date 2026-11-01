@@ -61,7 +61,7 @@ describe('Resume Version Manager Test Suite', () => {
       const counter = document.getElementById('resumeCount');
 
       expect(textarea.value).toBe('Experienced in AWS, Docker, and Kubernetes.');
-      expect(counter.textContent).toContain(' / 5,000');
+      expect(counter.textContent).toContain('chars');
     });
 
     test('saveResumeVersion adds new version and saves to localStorage', () => {

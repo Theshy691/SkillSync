@@ -760,7 +760,7 @@ function switchResumeVersion(versionId) {
 
   if (resumeText) {
     resumeText.value = ver.content;
-    updateCharCounter(resumeText, resumeCount, 5000);
+    updateCharCounter(resumeText, resumeCount);
     if (typeof recomputeAndRenderJobCards === 'function') {
       recomputeAndRenderJobCards();
     }
@@ -900,7 +900,7 @@ async function extractResumeFromPdf(file) {
 
   if (resumeText) {
     resumeText.value = fullText;
-    updateCharCounter(resumeText, resumeCount, 5000);
+    updateCharCounter(resumeText, resumeCount);
   }
   return fullText;
 }
@@ -986,7 +986,7 @@ async function extractResumeFromImage(file) {
 
     if (resumeText) {
       resumeText.value = extractedText;
-      updateCharCounter(resumeText, resumeCount, 5000);
+      updateCharCounter(resumeText, resumeCount);
     }
     return extractedText;
   } catch (err) {
@@ -1170,7 +1170,7 @@ function initJobScraper() {
 
           if (jobText) {
             jobText.value = sampleJob;
-            updateCharCounter(jobText, jobCount, 5000);
+            updateCharCounter(jobText, jobCount);
           }
 
           if (scrapeStatusBadge) {
@@ -1234,7 +1234,7 @@ function initJobScraper() {
 
         if (jobText && data.cleaned_description) {
           jobText.value = data.cleaned_description;
-          updateCharCounter(jobText, jobCount, 5000);
+          updateCharCounter(jobText, jobCount);
         }
 
         if (scrapeStatusBadge) {
