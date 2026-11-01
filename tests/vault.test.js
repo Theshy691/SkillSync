@@ -7,6 +7,7 @@
 
 const {
   getAllVaultSkills,
+  getSkillLogoSvg,
   renderVaultUI,
   addDocumentToVault,
   deleteVaultDocument,
@@ -138,6 +139,33 @@ describe('Skill Vault & Multi-Document Profile Synthesis Test Suite', () => {
       expect(langEl.children.length).toBeGreaterThan(0);
       expect(fwEl.children.length).toBeGreaterThan(0);
       expect(cloudEl.children.length).toBeGreaterThan(0);
+    });
+
+    test('renderVaultUI displays skills with logo centered on top and text below it', () => {
+      renderVaultUI();
+
+      const langEl = document.getElementById('vaultMatrixLanguages');
+      expect(langEl.children.length).toBeGreaterThan(0);
+
+      const firstTile = langEl.children[0];
+      expect(firstTile.classList.contains('skill-matrix-tile')).toBe(true);
+
+      const logoBox = firstTile.querySelector('.skill-logo-box');
+      expect(logoBox).not.toBeNull();
+      expect(logoBox.innerHTML).toContain('<svg');
+
+      const labelSpan = firstTile.querySelector('span');
+      expect(labelSpan).not.toBeNull();
+      expect(labelSpan.textContent.trim().length).toBeGreaterThan(0);
+    });
+
+    test('getSkillLogoSvg returns dedicated brand SVGs for tech stack', () => {
+      expect(getSkillLogoSvg('TypeScript')).toContain('3178C6');
+      expect(getSkillLogoSvg('JavaScript')).toContain('F7DF1E');
+      expect(getSkillLogoSvg('Python')).toContain('3776AB');
+      expect(getSkillLogoSvg('React')).toContain('61DAFB');
+      expect(getSkillLogoSvg('Docker')).toContain('2496ED');
+      expect(getSkillLogoSvg('AWS Certified Solutions Architect', 'vaultMatrixCertifications')).toContain('FF9900');
     });
   });
 
