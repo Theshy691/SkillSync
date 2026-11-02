@@ -1258,12 +1258,16 @@
       </div>
     </section>
 
-    <!-- Central Action: Analyze Button -->
-    <div class="flex justify-center">
-      <button type="button" id="analyzeBtn" class="w-full sm:w-auto min-w-[260px] px-8 py-3.5 btn-action-primary text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2.5 text-base">
+    <!-- Central Action: Analyze & Speedrun Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+      <button type="button" id="analyzeBtn" class="w-full sm:w-auto min-w-[240px] px-8 py-3.5 btn-action-primary text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2.5 text-base cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         <span id="analyzeBtnText">Run Match Analysis</span>
         <svg id="analyzeSpinner" class="hidden animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+      </button>
+      <button type="button" id="quickSpeedrunBtn" onclick="typeof openSpeedrunModal === 'function' ? openSpeedrunModal() : (window.openSpeedrunModal && window.openSpeedrunModal())" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl border font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-sm hover:border-amber-500/50 hover:-translate-y-0.5 cursor-pointer" style="background: var(--paper-2); border-color: var(--border); color: var(--ink);">
+        <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>⚡ 1-Click Speedrun Kit</span>
       </button>
     </div>
 
@@ -1335,7 +1339,7 @@
               <p class="text-xs" style="color: var(--ink-2);">Instant tailored resume with XYZ metrics + cover letter + hiring manager DM + Kanban logging.</p>
             </div>
           </div>
-          <button type="button" id="launchSpeedrunBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white rounded-xl shadow-md inline-flex items-center justify-center space-x-1.5 whitespace-nowrap">
+          <button type="button" id="launchSpeedrunBtn" onclick="typeof openSpeedrunModal === 'function' ? openSpeedrunModal() : (window.openSpeedrunModal && window.openSpeedrunModal())" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white rounded-xl shadow-md inline-flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             <span>Compile Speedrun Kit</span>
           </button>
@@ -1434,6 +1438,22 @@
             AI Career Action Tools
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <button type="button" id="speedrunActionCardBtn" onclick="typeof openSpeedrunModal === 'function' ? openSpeedrunModal() : (window.openSpeedrunModal && window.openSpeedrunModal())" class="p-3 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-center justify-between cursor-pointer group hover:border-amber-500/50 shadow-sm" style="background: var(--paper-2); border-color: var(--amber);">
+              <div class="flex items-center space-x-2.5">
+                <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--amber-light); color: var(--amber);">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <div>
+                  <div class="flex items-center space-x-1.5">
+                    <h5 class="text-xs font-bold" style="color: var(--ink);">Speedrun Kit</h5>
+                    <span class="text-[9px] font-mono px-1.5 py-0.2 rounded font-bold" style="background: var(--amber-light); color: var(--amber);">⚡ 1-Click</span>
+                  </div>
+                  <span class="text-[10px] opacity-70" style="color: var(--ink-3);">Resume + Cover + Outreach</span>
+                </div>
+              </div>
+              <svg class="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
             <button type="button" id="tailorResumeBtn" class="p-3 rounded-xl border text-left transition hover:-translate-y-0.5 flex items-center justify-between cursor-pointer group hover:border-emerald-500/40" style="background: var(--paper-2); border-color: var(--border);">
               <div class="flex items-center space-x-2.5">
                 <div class="p-2 rounded-xl shrink-0 transition group-hover:scale-105" style="background: var(--sage-light); color: var(--sage);">
@@ -1913,7 +1933,7 @@
 
 <!-- Client Scripts -->
 <script src="config.js"></script>
-<script src="script.js?v=2.2.0"></script>
+<script src="script.js?v=2.3.0"></script>
 <script>
   // Sync FortiFocus data-theme on load and toggle
   document.addEventListener("DOMContentLoaded", () => {

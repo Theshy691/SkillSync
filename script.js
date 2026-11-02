@@ -5305,12 +5305,19 @@ function compileSpeedrunKit(targetJobInfo) {
   // Bullets list
   const bulletsList = document.getElementById('speedrunBulletsList');
   if (bulletsList && currentSpeedrunKit.tailored_bullets) {
-    bulletsList.innerHTML = currentSpeedrunKit.tailored_bullets.map((b, idx) => `
+    bulletsList.innerHTML = currentSpeedrunKit.tailored_bullets.map((b, idx) => {
+      const text = (typeof b === 'object' && b !== null && b.bullet) ? b.bullet : String(b);
+      const impact = (typeof b === 'object' && b !== null && b.impact) ? b.impact : '';
+      return `
       <div class="p-2.5 rounded-lg border flex items-start justify-between gap-2" style="background: var(--paper-2); border-color: var(--border);">
-        <p class="text-xs leading-relaxed flex-1" style="color: var(--ink);"><span class="font-bold text-amber-500 font-mono">XYZ #${idx + 1}:</span> ${escapeHtml(b)}</p>
-        <button type="button" class="speedrun-copy-single-bullet px-2 py-0.5 text-[10px] rounded hover:bg-slate-500/10 font-mono transition shrink-0" data-bullet="${escapeHtml(b)}" style="border: 1px solid var(--border); color: var(--ink-2);">Copy</button>
+        <div class="flex-1 space-y-0.5">
+          <p class="text-xs leading-relaxed" style="color: var(--ink);"><span class="font-bold text-amber-500 font-mono">XYZ #${idx + 1}:</span> ${escapeHtml(text)}</p>
+          ${impact ? `<span class="inline-block text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold text-emerald-600 bg-emerald-500/10">📈 ${escapeHtml(impact)}</span>` : ''}
+        </div>
+        <button type="button" class="speedrun-copy-single-bullet px-2 py-0.5 text-[10px] rounded hover:bg-slate-500/10 font-mono transition shrink-0 cursor-pointer" data-bullet="${escapeHtml(text)}" style="border: 1px solid var(--border); color: var(--ink-2);">Copy</button>
       </div>
-    `).join('');
+      `;
+    }).join('');
 
     bulletsList.querySelectorAll('.speedrun-copy-single-bullet').forEach(btn => {
       btn.addEventListener('click', async (e) => {
@@ -5392,8 +5399,13 @@ function openSpeedrunModal(jobInfo) {
 }
 
 function initSpeedrunKit() {
-  const launchBtn = document.getElementById('launchSpeedrunBtn');
+  const launchBtns = [
+    document.getElementById('launchSpeedrunBtn'),
+    document.getElementById('quickSpeedrunBtn'),
+    document.getElementById('speedrunActionCardBtn')
+  ].filter(Boolean);
   const closeBtn = document.getElementById('closeSpeedrunModalBtn');
+  const closeBtnBottom = document.getElementById('closeSpeedrunBtnBottom');
   const modal = document.getElementById('speedrun-modal');
   const tabBtns = document.querySelectorAll('.speedrun-tab-btn');
   const applyBulletsBtn = document.getElementById('speedrunApplyBulletsBtn');
@@ -5405,12 +5417,19 @@ function initSpeedrunKit() {
   const copyAllBtn = document.getElementById('speedrunCopyAllBtn');
   const outreachTextarea = document.getElementById('speedrunOutreachText');
 
-  if (launchBtn) {
-    launchBtn.addEventListener('click', () => openSpeedrunModal());
-  }
+  launchBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSpeedrunModal();
+    });
+  });
 
   if (closeBtn && modal) {
     closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  }
+
+  if (closeBtnBottom && modal) {
+    closeBtnBottom.addEventListener('click', () => modal.classList.add('hidden'));
   }
 
   if (modal) {
@@ -5432,7 +5451,10 @@ function initSpeedrunKit() {
       const resumeEl = document.getElementById('resumeText');
       if (resumeEl && currentSpeedrunKit && currentSpeedrunKit.tailored_bullets) {
         const bulletsBlock = "\n\nTAILORED IMPACT HIGHLIGHTS (XYZ):\n" + 
-          currentSpeedrunKit.tailored_bullets.map(b => `• ${b}`).join('\n');
+          currentSpeedrunKit.tailored_bullets.map(b => {
+            const text = (typeof b === 'object' && b !== null && b.bullet) ? b.bullet : String(b);
+            return `• ${text}`;
+          }).join('\n');
         resumeEl.value = (resumeEl.value.trim() + bulletsBlock).trim();
         const resumeCounter = document.getElementById('resumeCharCount') || document.getElementById('resumeCount');
         if (resumeCounter) resumeCounter.textContent = `${resumeEl.value.length.toLocaleString()} chars`;
@@ -5550,7 +5572,10 @@ Target: ${currentSpeedrunKit.role} @ ${currentSpeedrunKit.company}
 =========================================
 
 --- 1. TAILORED RESUME HIGHLIGHTS (XYZ) ---
-${(currentSpeedrunKit.tailored_bullets || []).map((b, i) => `${i + 1}. ${b}`).join('\n')}
+${(currentSpeedrunKit.tailored_bullets || []).map((b, i) => {
+  const text = (typeof b === 'object' && b !== null && b.bullet) ? b.bullet : String(b);
+  return `${i + 1}. ${text}`;
+}).join('\n')}
 
 --- 2. COVER LETTER ---
 ${currentSpeedrunKit.cover_letter || ''}
@@ -5566,6 +5591,12 @@ ${currentSpeedrunKit.outreach_dm || ''}
       }
     });
   }
+}
+
+if (typeof window !== 'undefined') {
+  window.openSpeedrunModal = openSpeedrunModal;
+  window.compileSpeedrunKit = compileSpeedrunKit;
+  window.initSpeedrunKit = initSpeedrunKit;
 }
 
 /**
@@ -5655,8 +5686,12 @@ function initApp() {
   } catch (_) {}
 }
 
-if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', initApp);
+if (typeof module === 'undefined' && typeof window !== 'undefined' && typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 }
 
 if (typeof module !== 'undefined' && module.exports) {
