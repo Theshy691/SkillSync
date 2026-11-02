@@ -1117,6 +1117,39 @@
   </div>
 </div>
 
+<!-- Modal 12: Resume Credibility & Anti-Hallucination Radar -->
+<div id="integrity-modal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-spring-backdrop flex items-center justify-center p-4">
+  <div class="console-card modal-spring-card max-w-2xl w-full p-6 shadow-2xl relative space-y-4 max-h-[92vh] flex flex-col">
+    <button type="button" id="closeIntegrityModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+
+    <div class="flex items-center space-x-3">
+      <div class="p-2.5 rounded-xl" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      </div>
+      <div>
+        <h3 class="font-bold text-base" style="color: var(--ink);">Resume Credibility &amp; Anti-Hallucination Radar</h3>
+        <p class="text-xs" style="color: var(--ink-2);">Forensic checks for timeline anachronisms, buzzword stuffing, and metric plausibility.</p>
+      </div>
+    </div>
+
+    <div id="integrityReportContainer" class="flex-1 overflow-y-auto space-y-4 py-2">
+      <!-- Dynamically populated by SkillSyncAuthenticity.renderIntegrityReportHtml -->
+    </div>
+
+    <div class="pt-3 border-t flex items-center justify-between" style="border-color: var(--border);">
+      <button type="button" id="reAuditIntegrityBtn" class="px-3.5 py-1.5 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center space-x-1.5" style="background: var(--paper-2); color: var(--ink); border: 1px solid var(--border);">
+        <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span>Re-Audit</span>
+      </button>
+      <button type="button" id="closeIntegrityModalBottomBtn" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center space-x-1.5">
+        <span>Done</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ========================================================================
      3. Main Workspace Container
      ======================================================================== -->
@@ -1358,13 +1391,17 @@
               <h3 class="font-bold text-base" style="color: var(--ink);">Resume</h3>
             </div>
 
-            <!-- PDF / Image Upload Button -->
+            <!-- PDF / Image Upload & Fact-Check Radar Buttons -->
             <div class="flex items-center space-x-2">
-              <input type="file" id="resumeFileInput" accept=".pdf, image/*, .png, .jpg, .jpeg, .webp" class="hidden">
-              <button type="button" id="uploadPdfBtn" class="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition" style="background: var(--sage-light); color: var(--sage); border: 1px solid var(--border);">
+              <input type="file" id="resumeFileInput" accept=".pdf, image/*, .png, .jpg, .jpeg, .webp, .txt, .md" class="hidden">
+              <button type="button" id="uploadPdfBtn" class="btn-tactile inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition" style="background: var(--sage-light); color: var(--sage); border: 1px solid var(--border);">
                 <svg id="uploadIconDefault" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                 <svg id="uploadIconSpinner" class="hidden animate-spin w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                 <span id="uploadBtnText">Upload</span>
+              </button>
+              <button type="button" id="auditCredibilityBtn" class="btn-tactile inline-flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl transition hover:border-amber-500/40" style="background: var(--surface-2); color: var(--amber, #f59e0b); border: 1px solid var(--border);" title="Audit Resume Credibility & Fact-Check Claims">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span class="hidden sm:inline">Fact-Check</span>
               </button>
             </div>
           </div>
@@ -2149,6 +2186,7 @@
 <script src="assets/js/modules/resume_hud.js"></script>
 <script src="assets/js/modules/radar_chart.js"></script>
 <script src="assets/js/modules/typewriter.js"></script>
+<script src="assets/js/modules/authenticity.js"></script>
 
 <!-- Global Command Palette Modal (Cmd + K) -->
 <div id="cmdPaletteModal" class="cmd-palette-backdrop hidden" aria-hidden="true" role="dialog" aria-modal="true">
