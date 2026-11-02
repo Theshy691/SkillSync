@@ -1611,8 +1611,13 @@ function renderResults(result) {
         element: scoreNumber,
         suffix: '%',
         onComplete: (finalScore) => {
-          if (finalScore >= 85 && typeof SkillSyncParticles !== 'undefined' && typeof SkillSyncParticles.burstConfetti === 'function') {
-            SkillSyncParticles.burstConfetti({ count: 70 });
+          if (finalScore >= 85) {
+            if (typeof SkillSyncParticles !== 'undefined' && typeof SkillSyncParticles.burstConfetti === 'function') {
+              SkillSyncParticles.burstConfetti({ count: 70 });
+            }
+            if (typeof SkillSyncAudio !== 'undefined' && typeof SkillSyncAudio.playSuccessChime === 'function') {
+              SkillSyncAudio.playSuccessChime();
+            }
           }
         }
       });
@@ -2260,6 +2265,10 @@ function switchWorkspaceTab(tabName) {
   const pipelineView = document.getElementById('pipeline-view');
 
   if (!tabAts || !tabDiscovery || !atsView || !discoveryView) return;
+
+  if (typeof SkillSyncAudio !== 'undefined' && typeof SkillSyncAudio.playTabSwitch === 'function') {
+    SkillSyncAudio.playTabSwitch();
+  }
 
   activeWorkspaceTab = tabName;
 
@@ -4519,8 +4528,13 @@ function updatePipelineJobStatus(jobId, newStatus) {
   savePipelineToStorage();
   renderPipeline();
 
-  if (newStatus.toLowerCase() === 'offer' && typeof SkillSyncParticles !== 'undefined' && typeof SkillSyncParticles.burstConfetti === 'function') {
-    SkillSyncParticles.burstConfetti({ count: 95 });
+  if (newStatus.toLowerCase() === 'offer') {
+    if (typeof SkillSyncParticles !== 'undefined' && typeof SkillSyncParticles.burstConfetti === 'function') {
+      SkillSyncParticles.burstConfetti({ count: 95 });
+    }
+    if (typeof SkillSyncAudio !== 'undefined' && typeof SkillSyncAudio.playOfferFanfare === 'function') {
+      SkillSyncAudio.playOfferFanfare();
+    }
     showToast(`Congratulations! Moved ${job.title} to OFFER stage!`, 'success', 5000);
   } else {
     showToast(`Moved ${job.title} to ${newStatus.toUpperCase()}.`, 'success');
@@ -5962,7 +5976,48 @@ function openIntegrityModal() {
     }
   }
 
-  modal.classList.remove('hidden');
+  if (modal) {
+    modal.classList.remove('hidden');
+    if (typeof SkillSyncAudio !== 'undefined' && typeof SkillSyncAudio.playAuditRadar === 'function') {
+      SkillSyncAudio.playAuditRadar();
+    }
+  }
+}
+
+/**
+ * 23. Tactile Audio Feedback Controller
+ */
+function initAudioFeedbackController() {
+  const toggleBtn = document.getElementById('soundFxToggle');
+  const onIcon = document.getElementById('soundFxOnIcon');
+  const offIcon = document.getElementById('soundFxOffIcon');
+
+  const updateUI = () => {
+    const isEnabled = typeof SkillSyncAudio !== 'undefined' && SkillSyncAudio.isAudioEnabled();
+    if (onIcon) onIcon.classList.toggle('hidden', !isEnabled);
+    if (offIcon) offIcon.classList.toggle('hidden', isEnabled);
+    if (toggleBtn) {
+      toggleBtn.title = isEnabled ? 'Tactile Sound Effects: ON (Click to mute)' : 'Tactile Sound Effects: OFF (Click to enable)';
+    }
+  };
+
+  updateUI();
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      if (typeof SkillSyncAudio !== 'undefined') {
+        const nextState = !SkillSyncAudio.isAudioEnabled();
+        SkillSyncAudio.setAudioEnabled(nextState);
+        updateUI();
+        if (nextState) {
+          SkillSyncAudio.playClick();
+          showToast('Tactile audio feedback enabled.', 'info', 2000);
+        } else {
+          showToast('Tactile audio feedback muted.', 'info', 2000);
+        }
+      }
+    });
+  }
 }
 
 function initIntegrityAuditor() {
@@ -6025,6 +6080,7 @@ function initApp() {
   initResumeHud();
   initCommandPalette();
   initIntegrityAuditor();
+  initAudioFeedbackController();
 
   let speedrunHandled = false;
 
@@ -6223,6 +6279,7 @@ if (typeof module !== 'undefined' && module.exports) {
     initAuthForm,
     openIntegrityModal,
     initIntegrityAuditor,
+    initAudioFeedbackController,
     initApp
   };
 }
