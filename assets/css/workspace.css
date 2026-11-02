@@ -1,0 +1,285 @@
+/**
+ * SkillSync - Modern Workspace & Quiet Chrome Stylesheet
+ * File: assets/css/workspace.css
+ *
+ * Implements "quiet chrome, high density" pro developer tool aesthetics
+ * inspired by Linear, Raycast, and Supabase:
+ * - Subtle flat surfaces with hairline borders (no nested cards)
+ * - Cohesive segmented tab controls
+ * - High-contrast semantic indicator colors
+ * - Tactile spring interactions and keyboard shortcuts
+ */
+
+:root {
+  --ws-bg: var(--paper);
+  --ws-surface: var(--surface);
+  --ws-surface-subtle: var(--surface-2);
+  --ws-border: var(--border);
+  --ws-border-focus: rgba(124, 181, 133, 0.4);
+  --ws-ink-primary: var(--ink);
+  --ws-ink-secondary: var(--ink-2);
+  --ws-ink-muted: var(--ink-3);
+  --ws-ink-faint: var(--ink-4);
+  --ws-radius-sm: 8px;
+  --ws-radius-md: 12px;
+  --ws-radius-lg: 18px;
+  --ws-radius-xl: 24px;
+  --ws-transition-spring: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==============================================================================
+ * 1. Global Reset & Typography Polish
+ * ============================================================================== */
+body {
+  background-color: var(--ws-bg);
+  color: var(--ws-ink-primary);
+  letter-spacing: -0.011em;
+}
+
+/* Focus Rings */
+:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+
+/* ==============================================================================
+ * 2. Segmented Workspace Tab Controller
+ * ============================================================================== */
+.workspace-segment-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--paper-2);
+  border: 1px solid var(--ws-border);
+  border-radius: var(--ws-radius-lg);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.workspace-segment-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--ws-radius-md);
+  color: var(--ws-ink-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: var(--ws-transition-spring);
+  user-select: none;
+}
+
+.workspace-segment-tab:hover {
+  color: var(--ws-ink-primary);
+  background: rgba(var(--paper-rgb), 0.5);
+}
+
+.workspace-segment-tab.active {
+  color: var(--ws-ink-primary);
+  background: var(--ws-surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* ==============================================================================
+ * 3. Dual-Pane Input Studio
+ * ============================================================================== */
+.studio-pane {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-border);
+  border-radius: var(--ws-radius-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 12px 28px -6px rgba(0, 0, 0, 0.08);
+  transition: var(--ws-transition-spring);
+}
+
+.studio-pane:hover {
+  border-color: rgba(124, 181, 133, 0.25);
+}
+
+.studio-pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--ws-border);
+}
+
+.studio-pane-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ws-ink-primary);
+  letter-spacing: -0.01em;
+}
+
+.studio-pane-editor {
+  width: 100%;
+  padding: 16px 18px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ws-ink-primary);
+  resize: vertical;
+  min-height: 220px;
+  font-family: inherit;
+}
+
+.studio-pane-editor::placeholder {
+  color: var(--ws-ink-faint);
+  opacity: 0.7;
+}
+
+.studio-pane-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-top: 1px solid var(--ws-border);
+  background: var(--paper-2);
+  font-size: 11px;
+  color: var(--ws-ink-muted);
+}
+
+/* ==============================================================================
+ * 4. Keyboard Shortcut Badges
+ * ============================================================================== */
+.shortcut-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+  color: var(--ws-ink-muted);
+  background: var(--paper-3);
+  border: 1px solid var(--ws-border);
+  border-radius: 6px;
+  line-height: 1.2;
+}
+
+/* ==============================================================================
+ * 5. Primary Command Action Button
+ * ============================================================================== */
+.btn-command-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #07090d;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(0, 0, 0, 0.04) 100%), var(--sage);
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: var(--ws-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 8px 20px -4px rgba(124, 181, 133, 0.35);
+  cursor: pointer;
+  transition: var(--ws-transition-spring);
+  letter-spacing: -0.01em;
+}
+
+.btn-command-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16), 0 12px 28px -4px rgba(124, 181, 133, 0.45);
+}
+
+.btn-command-primary:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+
+/* ==============================================================================
+ * 6. Intelligence Results Dock (Flat, High-Density)
+ * ============================================================================== */
+.results-dock {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-border);
+  border-radius: var(--ws-radius-xl);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 20px 48px -12px rgba(0, 0, 0, 0.14);
+}
+
+.results-dock-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--ws-border);
+}
+
+.pillar-metric-card {
+  padding: 12px 14px;
+  background: var(--paper-2);
+  border: 1px solid var(--ws-border);
+  border-radius: var(--ws-radius-md);
+  transition: var(--ws-transition-spring);
+}
+
+.pillar-metric-card:hover {
+  border-color: rgba(124, 181, 133, 0.3);
+}
+
+/* ==============================================================================
+ * 7. Action Studio Strip (Pro Developer Grid)
+ * ============================================================================== */
+.action-studio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.action-studio-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--paper-2);
+  border: 1px solid var(--ws-border);
+  border-radius: var(--ws-radius-md);
+  text-align: left;
+  cursor: pointer;
+  transition: var(--ws-transition-spring);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-studio-card:hover {
+  transform: translateY(-1.5px);
+  background: var(--paper-3);
+  border-color: rgba(124, 181, 133, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.action-studio-card:active {
+  transform: translateY(0);
+}
+
+/* ==============================================================================
+ * 8. Responsive Cleanups
+ * ============================================================================== */
+@media (max-width: 640px) {
+  .workspace-segment-tab span {
+    display: none;
+  }
+  .workspace-segment-tab {
+    padding: 6px 10px;
+  }
+  .action-studio-grid {
+    grid-template-columns: 1fr;
+  }
+}
