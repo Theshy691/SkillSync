@@ -2771,29 +2771,29 @@ function renderVaultUI() {
     docsListEl.innerHTML = '';
     if (vaultDocumentsCache.length === 0) {
       docsListEl.innerHTML = `
-        <div class="p-8 text-center border-2 border-dashed rounded-2xl space-y-2" style="border-color: var(--border); color: var(--ink-3);">
+        <div class="p-8 text-center border border-dashed rounded-2xl space-y-2" style="border-color: var(--ws-border, var(--border)); color: var(--ink-3);">
           <div class="w-10 h-10 rounded-xl mx-auto flex items-center justify-center opacity-70" style="background: var(--paper-3);">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           </div>
           <p class="text-xs font-semibold" style="color: var(--ink);">No documents stored in vault yet</p>
-          <p class="text-[11px] opacity-75">Upload your resume or certificates to extract verified skills.</p>
+          <p class="text-xs opacity-75">Upload your resume or certificates to extract verified skills.</p>
         </div>
       `;
     } else {
       vaultDocumentsCache.forEach(doc => {
         const docCard = document.createElement('div');
-        docCard.className = 'p-3.5 rounded-xl transition space-y-2 border';
+        docCard.className = 'p-3.5 rounded-xl transition duration-150 space-y-2 border hover:border-emerald-500/30';
         docCard.style.background = 'var(--paper-2)';
-        docCard.style.borderColor = 'var(--border)';
+        docCard.style.borderColor = 'var(--ws-border, var(--border))';
 
         const typeColor = doc.doc_type === 'resume'
-          ? 'background: var(--sage-light); color: var(--sage);'
+          ? 'background: var(--sage-light); color: var(--sage); border: 1px solid rgba(124, 181, 133, 0.25);'
           : (doc.doc_type === 'certification'
-            ? 'background: var(--amber-light); color: var(--amber);'
-            : 'background: var(--sky-light); color: var(--sky);');
+            ? 'background: var(--amber-light); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.25);'
+            : 'background: var(--sky-light); color: var(--sky); border: 1px solid rgba(56, 189, 248, 0.25);');
 
         const skillsPills = (doc.extracted_skills || []).slice(0, 3).map(s => `
-          <span class="text-[10px] px-1.5 py-0.5 rounded font-mono opacity-80" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--border);">
+          <span class="text-xs px-2 py-0.5 rounded font-mono font-medium border" style="background: var(--paper-3); color: var(--ink); border-color: var(--ws-border, var(--border));">
             ${escapeHtml(s)}
           </span>
         `).join(' ');
@@ -2801,7 +2801,7 @@ function renderVaultUI() {
         docCard.innerHTML = `
           <div class="flex items-start justify-between gap-2">
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" style="${typeColor}">
+              <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md inline-block" style="${typeColor}">
                 ${escapeHtml(doc.doc_type)}
               </span>
               <h5 class="text-xs font-bold mt-1.5 leading-snug truncate max-w-[190px]" style="color: var(--ink);" title="${escapeHtml(doc.doc_name)}">
@@ -2812,8 +2812,8 @@ function renderVaultUI() {
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
           </div>
-          <p class="text-[11px] line-clamp-2 opacity-75" style="color: var(--ink-3);">${escapeHtml(doc.content_snippet)}</p>
-          <div class="flex flex-wrap gap-1 pt-1">${skillsPills}</div>
+          <p class="text-xs line-clamp-2 opacity-80" style="color: var(--ink-3);">${escapeHtml(doc.content_snippet)}</p>
+          <div class="flex flex-wrap gap-1.5 pt-1">${skillsPills}</div>
         `;
 
         const delBtn = docCard.querySelector('.btn-delete-vault-doc');
@@ -2958,11 +2958,11 @@ function renderMatrixCategory(elementId, items, dotColor) {
   items.forEach(skill => {
     const tile = document.createElement('div');
     tile.className = isCertCategory
-      ? 'skill-matrix-tile p-3 rounded-2xl border transition group'
-      : 'skill-matrix-tile p-2.5 sm:p-3 rounded-2xl border transition group';
+      ? 'skill-matrix-tile p-3 rounded-xl border transition duration-150 group cursor-default'
+      : 'skill-matrix-tile p-2.5 sm:p-3 rounded-xl border transition duration-150 group cursor-default';
 
     tile.style.background = 'var(--paper-2)';
-    tile.style.borderColor = 'var(--border)';
+    tile.style.borderColor = 'var(--ws-border, var(--border))';
     tile.style.minWidth = isCertCategory ? '150px' : '82px';
     tile.style.maxWidth = isCertCategory ? '240px' : '96px';
 
@@ -2972,7 +2972,7 @@ function renderMatrixCategory(elementId, items, dotColor) {
       <div class="skill-logo-box w-9 h-9 sm:w-10 sm:h-10 rounded-xl mb-2 flex items-center justify-center shadow-xs" style="background: var(--paper-3);">
         ${logoSvg}
       </div>
-      <span class="text-[11px] font-bold tracking-tight text-center leading-snug line-clamp-2 w-full" style="color: var(--ink);" title="${escapeHtml(skill)}">
+      <span class="text-xs font-bold tracking-tight text-center leading-snug line-clamp-2 w-full" style="color: var(--ink);" title="${escapeHtml(skill)}">
         ${escapeHtml(skill)}
       </span>
     `;
