@@ -397,11 +397,11 @@
       let matchBadgeHtml = '';
       if (typeof job.match_score === 'number') {
         if (job.match_score >= 78) {
-          matchBadgeHtml = `<span class="chip chip-match-high"><span class="live-pulse-sm"></span> ⚡ ${job.match_score}% Fit</span>`;
+          matchBadgeHtml = `<span class="chip chip-match-high"><span class="live-pulse-sm"></span> ${job.match_score}% Match</span>`;
         } else if (job.match_score >= 55) {
-          matchBadgeHtml = `<span class="chip chip-match-mid">⚡ ${job.match_score}% Fit</span>`;
+          matchBadgeHtml = `<span class="chip chip-match-mid"><span class="live-pulse-sm" style="background:#f59e0b; box-shadow:0 0 0 2px rgba(245,158,11,0.2);"></span> ${job.match_score}% Match</span>`;
         } else {
-          matchBadgeHtml = `<span class="chip chip-match-reach">${job.match_score}% Fit</span>`;
+          matchBadgeHtml = `<span class="chip chip-match-reach">${job.match_score}% Match</span>`;
         }
       }
 
