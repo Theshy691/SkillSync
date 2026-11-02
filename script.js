@@ -5856,6 +5856,10 @@ function initCommandPalette() {
         if (themeBtn) themeBtn.click();
         break;
       }
+      case 'audit_credibility': {
+        if (typeof openIntegrityModal === 'function') openIntegrityModal();
+        break;
+      }
       default:
         break;
     }
@@ -5916,7 +5920,63 @@ function initCommandPalette() {
 }
 
 /**
- * 22. Main Application Initialization
+ * 22. Resume Credibility & Anti-Hallucination Radar Modal
+ */
+function openIntegrityModal() {
+  const modal = document.getElementById('integrity-modal');
+  const container = document.getElementById('integrityReportContainer');
+  const resumeEl = document.getElementById('resumeText');
+
+  if (!modal) return;
+
+  const text = resumeEl ? resumeEl.value.trim() : '';
+  if (!text || text.length < 30) {
+    showToast('Please paste or upload your resume text first to audit credibility.', 'info', 3500);
+    return;
+  }
+
+  if (container && typeof SkillSyncAuthenticity !== 'undefined' && typeof SkillSyncAuthenticity.auditResumeIntegrity === 'function') {
+    const audit = SkillSyncAuthenticity.auditResumeIntegrity(text);
+    container.innerHTML = SkillSyncAuthenticity.renderIntegrityReportHtml(audit);
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function initIntegrityAuditor() {
+  const auditBtn = document.getElementById('auditCredibilityBtn');
+  const modal = document.getElementById('integrity-modal');
+  const closeBtn = document.getElementById('closeIntegrityModalBtn');
+  const closeBtnBottom = document.getElementById('closeIntegrityModalBottomBtn');
+  const reAuditBtn = document.getElementById('reAuditIntegrityBtn');
+
+  if (auditBtn) {
+    auditBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openIntegrityModal();
+    });
+  }
+
+  const closeModal = () => modal?.classList.add('hidden');
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (closeBtnBottom) closeBtnBottom.addEventListener('click', closeModal);
+
+  if (reAuditBtn) {
+    reAuditBtn.addEventListener('click', () => {
+      openIntegrityModal();
+      showToast('Credibility audit refreshed.', 'success', 2000);
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+}
+
+/**
+ * 23. Main Application Initialization
  */
 function initApp() {
   if (!checkCdn()) return;
@@ -5942,6 +6002,7 @@ function initApp() {
   initSpeedrunKit();
   initResumeHud();
   initCommandPalette();
+  initIntegrityAuditor();
 
   let speedrunHandled = false;
 
@@ -6138,6 +6199,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getCurrentSpeedrunKit: () => currentSpeedrunKit,
     performSignOut,
     initAuthForm,
+    openIntegrityModal,
+    initIntegrityAuditor,
     initApp
   };
 }
