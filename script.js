@@ -4518,7 +4518,13 @@ function updatePipelineJobStatus(jobId, newStatus) {
   job.status = newStatus;
   savePipelineToStorage();
   renderPipeline();
-  showToast(`Moved ${job.title} to ${newStatus.toUpperCase()}.`, 'success');
+
+  if (newStatus.toLowerCase() === 'offer' && typeof SkillSyncParticles !== 'undefined' && typeof SkillSyncParticles.burstConfetti === 'function') {
+    SkillSyncParticles.burstConfetti({ count: 95 });
+    showToast(`Congratulations! Moved ${job.title} to OFFER stage!`, 'success', 5000);
+  } else {
+    showToast(`Moved ${job.title} to ${newStatus.toUpperCase()}.`, 'success');
+  }
 }
 
 function deletePipelineJob(jobId) {
