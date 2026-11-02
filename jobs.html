@@ -329,6 +329,48 @@
       align-items: center;
       gap: 0.35rem;
     }
+    .chip-match-high {
+      background: rgba(16, 185, 129, 0.12);
+      color: #059669;
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .chip-match-mid {
+      background: rgba(245, 158, 11, 0.12);
+      color: #d97706;
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .chip-match-reach {
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+    }
+    .btn-card-speedrun {
+      background: var(--accent);
+      color: #ffffff !important;
+      border: 1px solid var(--accent);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .btn-card-speedrun:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
 
     /* Contextual External Platform Bar */
     .platform-banner {
@@ -861,6 +903,9 @@
           <button type="button" class="filter-pill" data-category="fullstack">Full-Stack</button>
           <button type="button" class="filter-pill" data-category="devops">Cloud &amp; DevOps</button>
           <button type="button" class="filter-pill" data-category="ai">AI / ML</button>
+          <span class="filter-pills-label" style="margin-left: 0.6rem;">Match Radar</span>
+          <button type="button" class="filter-pill" id="filterRadarHighBtn" data-category="radar-high" title="Filter roles with 80%+ ATS Compatibility">⚡ 80%+ Match</button>
+          <button type="button" class="filter-pill" id="sortRadarFitBtn" data-sort="match-fit" title="Sort roles with highest ATS match first">Sort: Highest Fit</button>
         </div>
       </div>
     </header>
@@ -968,6 +1013,7 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="assets/js/modules/speedrun.js"></script>
   <script src="assets/js/modules/discovery_engine.js"></script>
   <script src="assets/js/modules/platform_jobs.js"></script>
   <script src="assets/js/discovery.js"></script>

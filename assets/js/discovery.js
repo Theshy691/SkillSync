@@ -302,6 +302,19 @@
     }
   }
 
+  let activeSort = 'default';
+
+  function getCandidateResume() {
+    try {
+      return localStorage.getItem('skillsync_candidate_resume')
+        || localStorage.getItem('skillsync_saved_resume')
+        || localStorage.getItem('skillsync_demo_resume')
+        || '';
+    } catch (_) {
+      return '';
+    }
+  }
+
   function applyFilters(resetPage = true) {
     if (resetPage) currentPage = 1;
 
@@ -310,14 +323,27 @@
     const query = searchInput ? searchInput.value.trim() : '';
     const remoteOnly = remoteToggle ? remoteToggle.checked : false;
 
-    if (window.SkillSyncDiscoveryEngine) {
-      filteredJobs = window.SkillSyncDiscoveryEngine.filterJobs(rawJobs, {
+    // Enrich with Match Radar if Speedrun module is present
+    const candidateResume = getCandidateResume();
+    let pool = rawJobs;
+    if (window.SkillSyncSpeedrun && candidateResume) {
+      pool = window.SkillSyncSpeedrun.calculateMatchRadar(candidateResume, rawJobs);
+    }
+
+    if (activeCategory === 'radar-high') {
+      filteredJobs = pool.filter(j => (j.match_score || 0) >= 78);
+    } else if (window.SkillSyncDiscoveryEngine) {
+      filteredJobs = window.SkillSyncDiscoveryEngine.filterJobs(pool, {
         query,
         category: activeCategory,
         remoteOnly
       });
     } else {
-      filteredJobs = rawJobs;
+      filteredJobs = pool;
+    }
+
+    if (activeSort === 'match-fit') {
+      filteredJobs = [...filteredJobs].sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
     }
 
     renderCards();
@@ -368,12 +394,24 @@
         ? `<span class="chip" style="font-family: 'DM Mono', monospace; font-size: 0.73rem;">${escapeHtml(job.relative_time)}</span>`
         : '';
 
+      let matchBadgeHtml = '';
+      if (typeof job.match_score === 'number') {
+        if (job.match_score >= 78) {
+          matchBadgeHtml = `<span class="chip chip-match-high"><span class="live-pulse-sm"></span> ⚡ ${job.match_score}% Fit</span>`;
+        } else if (job.match_score >= 55) {
+          matchBadgeHtml = `<span class="chip chip-match-mid">⚡ ${job.match_score}% Fit</span>`;
+        } else {
+          matchBadgeHtml = `<span class="chip chip-match-reach">${job.match_score}% Fit</span>`;
+        }
+      }
+
       card.innerHTML = `
         <div>
           <div class="card-header">
             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
               <span class="company-title">${escapeHtml(job.company_name || 'Tech Co')}</span>
               ${newBadgeHtml}
+              ${matchBadgeHtml}
             </div>
             ${job.remote ? '<span class="chip chip-remote"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Remote</span>' : ''}
           </div>
@@ -399,6 +437,10 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             View Details
           </button>
+          <button type="button" class="btn-card btn-card-speedrun btn-speedrun-kit" data-job-id="${escapeHtml(job.id)}" title="1-Click Speedrun Application Pack">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <span>Speedrun Kit</span>
+          </button>
           <button type="button" class="btn-card btn-card-primary btn-scan-ats" data-job-id="${escapeHtml(job.id)}">
             <span>Scan Resume</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
@@ -415,6 +457,14 @@
         const id = btn.getAttribute('data-job-id');
         const job = rawJobs.find(j => String(j.id) === String(id));
         if (job) openJobModal(job);
+      });
+    });
+
+    grid.querySelectorAll('.btn-speedrun-kit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-job-id');
+        const job = rawJobs.find(j => String(j.id) === String(id));
+        if (job) transferJobToSpeedrun(job);
       });
     });
 
@@ -510,6 +560,23 @@
     window.location.href = 'app.html?auto_scan=1';
   }
 
+  function transferJobToSpeedrun(job) {
+    if (!job) return;
+    try {
+      localStorage.setItem('skillsync_pending_job_scan', JSON.stringify({
+        title: job.title,
+        company: job.company_name,
+        description: cleanJobDescription(job.description),
+        tags: job.tags || [],
+        salary: job.salary,
+        location: job.location,
+        speedrun: true
+      }));
+    } catch (_) {}
+
+    window.location.href = 'app.html?speedrun=1';
+  }
+
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str)
@@ -580,6 +647,15 @@
         applyFilters(true);
       });
     });
+
+    const sortRadarBtn = document.getElementById('sortRadarFitBtn');
+    if (sortRadarBtn) {
+      sortRadarBtn.addEventListener('click', () => {
+        activeSort = activeSort === 'match-fit' ? 'default' : 'match-fit';
+        sortRadarBtn.classList.toggle('active', activeSort === 'match-fit');
+        applyFilters(true);
+      });
+    }
 
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
@@ -690,6 +766,8 @@
       openJobModal,
       closeJobModal,
       transferJobToAts,
+      transferJobToSpeedrun,
+      getCandidateResume,
       initTheme,
       updatePlatformView,
       handlePlatformSwitch,
