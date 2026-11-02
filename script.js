@@ -349,6 +349,16 @@ function validateLocationName(location) {
   return { valid: true, error: null };
 }
 
+function validatePasswordConfirmation(password, confirmPassword) {
+  if (typeof confirmPassword !== 'string' || confirmPassword.length === 0) {
+    return { valid: false, error: 'Please confirm your password.' };
+  }
+  if (password !== confirmPassword) {
+    return { valid: false, error: 'Passwords do not match.' };
+  }
+  return { valid: true, error: null };
+}
+
 function getScoreColorClasses(score) {
   if (score >= 75) {
     return {
@@ -496,6 +506,7 @@ async function performSignOut() {
 }
 
 function initAuthForm() {
+  isSignUpMode = false;
   const authForm = document.getElementById('authForm');
   const authTitle = document.getElementById('authTitle');
   const authSubtitle = document.getElementById('authSubtitle');
@@ -515,6 +526,11 @@ function initAuthForm() {
   const authTogglePasswordBtn = document.getElementById('authTogglePasswordBtn');
   const authEyeIcon = document.getElementById('authEyeIcon');
   const authPassword = document.getElementById('authPassword');
+  const authConfirmPasswordContainer = document.getElementById('authConfirmPasswordContainer');
+  const authConfirmPassword = document.getElementById('authConfirmPassword');
+  const authConfirmPasswordError = document.getElementById('authConfirmPasswordError');
+  const authToggleConfirmPasswordBtn = document.getElementById('authToggleConfirmPasswordBtn');
+  const authEyeIconConfirm = document.getElementById('authEyeIconConfirm');
 
   // Password visibility toggle
   if (authTogglePasswordBtn && authPassword) {
@@ -526,6 +542,48 @@ function initAuthForm() {
           ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>'
           : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
       }
+    });
+  }
+
+  // Confirm password visibility toggle
+  if (authToggleConfirmPasswordBtn && authConfirmPassword) {
+    authToggleConfirmPasswordBtn.addEventListener('click', () => {
+      const isPass = authConfirmPassword.type === 'password';
+      authConfirmPassword.type = isPass ? 'text' : 'password';
+      if (authEyeIconConfirm) {
+        authEyeIconConfirm.innerHTML = isPass
+          ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>'
+          : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+      }
+    });
+  }
+
+  // Real-time password confirmation match validation
+  if (authConfirmPassword && authPassword) {
+    const validatePasswordMatch = () => {
+      if (!isSignUpMode) return;
+      const pass = authPassword.value;
+      const confirmPass = authConfirmPassword.value;
+      if (!confirmPass) {
+        if (authConfirmPasswordError) authConfirmPasswordError.classList.add('hidden');
+        authConfirmPassword.classList.remove('border-rose-500');
+        return;
+      }
+      if (pass !== confirmPass) {
+        if (authConfirmPasswordError) {
+          authConfirmPasswordError.textContent = 'Passwords do not match.';
+          authConfirmPasswordError.classList.remove('hidden');
+        }
+        authConfirmPassword.classList.add('border-rose-500');
+      } else {
+        if (authConfirmPasswordError) authConfirmPasswordError.classList.add('hidden');
+        authConfirmPassword.classList.remove('border-rose-500');
+      }
+    };
+
+    authConfirmPassword.addEventListener('input', validatePasswordMatch);
+    authPassword.addEventListener('input', () => {
+      if (authConfirmPassword.value) validatePasswordMatch();
     });
   }
 
@@ -610,6 +668,20 @@ function initAuthForm() {
           authNameContainer.classList.add('hidden');
         }
       }
+      if (authConfirmPasswordContainer) {
+        if (isSignUpMode) {
+          authConfirmPasswordContainer.classList.remove('hidden');
+        } else {
+          authConfirmPasswordContainer.classList.add('hidden');
+          if (authConfirmPassword) {
+            authConfirmPassword.value = '';
+            authConfirmPassword.classList.remove('border-rose-500');
+          }
+          if (authConfirmPasswordError) {
+            authConfirmPasswordError.classList.add('hidden');
+          }
+        }
+      }
       if (isSignUpMode) {
         authTitle.textContent = 'Create an Account';
         authSubtitle.textContent = 'Sign up to track and evaluate resume matches';
@@ -645,6 +717,20 @@ function initAuthForm() {
           }
           authFullName.classList.add('border-rose-500');
           showToast(nameCheck.error, 'error');
+          return;
+        }
+      }
+
+      if (isSignUpMode && authConfirmPassword) {
+        const confirmVal = authConfirmPassword.value;
+        const confirmCheck = validatePasswordConfirmation(password, confirmVal);
+        if (!confirmCheck.valid) {
+          if (authConfirmPasswordError) {
+            authConfirmPasswordError.textContent = confirmCheck.error;
+            authConfirmPasswordError.classList.remove('hidden');
+          }
+          authConfirmPassword.classList.add('border-rose-500');
+          showToast(confirmCheck.error, 'error');
           return;
         }
       }
@@ -1187,7 +1273,7 @@ function initPdfUpload() {
   document.addEventListener('paste', (e) => {
     const activeEl = document.activeElement;
     // Don't intercept paste inside other inputs
-    if (activeEl && (activeEl.id === 'jobText' || activeEl.id === 'jobUrlInput' || activeEl.id === 'authEmail' || activeEl.id === 'authPassword')) {
+    if (activeEl && (activeEl.id === 'jobText' || activeEl.id === 'jobUrlInput' || activeEl.id === 'authEmail' || activeEl.id === 'authPassword' || activeEl.id === 'authConfirmPassword')) {
       return;
     }
     const clipboardData = e.clipboardData;
@@ -6280,6 +6366,7 @@ if (typeof module !== 'undefined' && module.exports) {
     validatePersonName,
     validateVersionName,
     validateLocationName,
+    validatePasswordConfirmation,
     updateExternalSearchLinks,
     compileSpeedrunKit,
     openSpeedrunModal,

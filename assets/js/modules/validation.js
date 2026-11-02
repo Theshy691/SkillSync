@@ -60,11 +60,22 @@ function validateLocationName(location) {
   return { valid: true, error: null };
 }
 
+function validatePasswordConfirmation(password, confirmPassword) {
+  if (typeof confirmPassword !== 'string' || confirmPassword.length === 0) {
+    return { valid: false, error: 'Please confirm your password.' };
+  }
+  if (password !== confirmPassword) {
+    return { valid: false, error: 'Passwords do not match.' };
+  }
+  return { valid: true, error: null };
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     validatePersonName,
     validateVersionName,
-    validateLocationName
+    validateLocationName,
+    validatePasswordConfirmation
   };
 }
 
@@ -72,6 +83,7 @@ if (typeof window !== 'undefined') {
   window.SkillSyncValidation = {
     validatePersonName,
     validateVersionName,
-    validateLocationName
+    validateLocationName,
+    validatePasswordConfirmation
   };
 }

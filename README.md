@@ -28,7 +28,8 @@ SkillSync is an enterprise-grade, full-stack ATS (Applicant Tracking System) sim
 - **Single-Click PDF Export (`html2pdf.js`)**: Exports formatted analysis reports directly to downloadable A4 PDF documents.
 - **Clipboard Summary Copy**: Formats and copies key match highlights and recommendations directly to the clipboard.
 - **Interactive History Dashboard**: Real-time Supabase history with dynamic sorting (Newest, Oldest, Highest Score, Lowest Score), single-record deletion, and "Clear All History" controls.
-- **Hardened Security Architecture**:
+- **Hardened Security Architecture & User Authentication**:
+  - Secure account creation with confirm password validation, real-time mismatch indicators, and toggleable password masking.
   - Supabase Row Level Security (RLS) policies enforcing multi-tenant isolation across all tables.
   - Per-user backend sliding-window rate limiting (max 5 requests/minute).
   - Server-Side Request Forgery (SSRF) protection blocking internal/metadata IP ranges.
