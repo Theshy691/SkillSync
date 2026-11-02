@@ -44,7 +44,21 @@ CREATE TABLE IF NOT EXISTS user_vault_profiles (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 5. Database Indexes for High-Performance Queries
+-- 5. Resume Credibility & Anti-Hallucination Audits Table
+-- Stores candidate credibility audit reports, anachronisms, and honesty verdicts
+CREATE TABLE IF NOT EXISTS resume_credibility_audits (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    resume_title TEXT NOT NULL DEFAULT 'Candidate Resume',
+    credibility_score INTEGER NOT NULL CHECK (credibility_score >= 0 AND credibility_score <= 100),
+    verdict TEXT NOT NULL,
+    flagged_issues JSONB NOT NULL DEFAULT '[]'::jsonb,
+    substantiated_skills JSONB NOT NULL DEFAULT '[]'::jsonb,
+    unsubstantiated_skills JSONB NOT NULL DEFAULT '[]'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 6. Database Indexes for High-Performance Queries
 -- Index on user_id for rapid user history lookups
 CREATE INDEX IF NOT EXISTS idx_scan_history_user_id ON scan_history(user_id);
 
@@ -57,11 +71,18 @@ CREATE INDEX IF NOT EXISTS idx_scraped_jobs_cache_created_at ON scraped_jobs_cac
 -- Index on vault documents user_id
 CREATE INDEX IF NOT EXISTS idx_user_vault_documents_user_id ON user_vault_documents(user_id);
 
--- 6. Enable Row Level Security (RLS)
+-- Index on credibility audits user_id
+CREATE INDEX IF NOT EXISTS idx_resume_credibility_audits_user_id ON resume_credibility_audits(user_id);
+
+-- Index on credibility audits created_at
+CREATE INDEX IF NOT EXISTS idx_resume_credibility_audits_created_at ON resume_credibility_audits(created_at DESC);
+
+-- 7. Enable Row Level Security (RLS)
 ALTER TABLE scan_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scraped_jobs_cache ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_vault_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_vault_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE resume_credibility_audits ENABLE ROW LEVEL SECURITY;
 
 -- 7. Row Level Security Policies for scan_history
 -- Policy: Users can only view their own scan records
@@ -118,6 +139,15 @@ CREATE POLICY "Users can manage own vault documents"
 DROP POLICY IF EXISTS "Users can manage own vault profile" ON user_vault_profiles;
 CREATE POLICY "Users can manage own vault profile"
     ON user_vault_profiles
+    FOR ALL
+    TO authenticated
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- 11. Row Level Security Policies for resume_credibility_audits
+DROP POLICY IF EXISTS "Users can manage own credibility audits" ON resume_credibility_audits;
+CREATE POLICY "Users can manage own credibility audits"
+    ON resume_credibility_audits
     FOR ALL
     TO authenticated
     USING (auth.uid() = user_id)
