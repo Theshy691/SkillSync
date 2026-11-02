@@ -97,7 +97,8 @@
       outline: none;
     }
     .btn-action-primary {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0.04) 100%), var(--sage);
+      background-color: var(--sage);
+      background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0.04) 100%);
       color: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: var(--radius);
@@ -107,12 +108,14 @@
     }
     [data-theme="dark"] .btn-action-primary,
     .dark .btn-action-primary {
+      background-color: var(--sage) !important;
       color: #07090d !important;
       border-color: rgba(0, 0, 0, 0.2);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
     }
     [data-theme="dark"] .btn-primary-nav,
     .dark .btn-primary-nav {
+      background-color: var(--sage) !important;
       color: #07090d !important;
     }
     .btn-action-primary:hover {
@@ -125,13 +128,20 @@
       filter: brightness(0.96);
     }
     .btn-action-sky {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0.04) 100%), var(--sky);
+      background-color: var(--sky);
+      background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0.04) 100%);
       color: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: var(--radius);
       font-weight: 600;
       transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    [data-theme="dark"] .btn-action-sky,
+    .dark .btn-action-sky {
+      background-color: var(--sky) !important;
+      color: #07090d !important;
+      border-color: rgba(0, 0, 0, 0.2);
     }
     .btn-action-sky:hover {
       transform: translateY(-1px);
@@ -1263,7 +1273,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
               </span>
               <span>Launch Instant Demo Mode</span>
-              <span class="text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold text-emerald-600 bg-emerald-500/10 ml-auto">1-Click</span>
+              <span class="text-xs font-mono px-2 py-0.5 rounded font-semibold text-emerald-600 bg-emerald-500/10 ml-auto">1-Click</span>
             </button>
           </div>
         </div>
@@ -1291,7 +1301,7 @@
             <span class="w-2 h-2 rounded-full animate-ping mr-0.5" style="background: var(--sage);"></span>
             <span class="w-2 h-2 rounded-full -ml-3" style="background: var(--sage);"></span>
             <span>ATS Telemetry v2.3</span>
-            <span class="text-[9px] opacity-40">/</span>
+            <span class="text-xs opacity-40">/</span>
             <span style="color: var(--sage);">Verified Candidate Fit</span>
           </div>
 

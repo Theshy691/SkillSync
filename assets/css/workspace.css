@@ -180,7 +180,8 @@ body {
   font-size: 14px;
   font-weight: 700;
   color: #07090d;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(0, 0, 0, 0.04) 100%), var(--sage);
+  background-color: var(--sage);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(0, 0, 0, 0.04) 100%);
   border: 1px solid rgba(0, 0, 0, 0.16);
   border-radius: var(--ws-radius-lg);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 8px 20px -4px rgba(124, 181, 133, 0.35);
