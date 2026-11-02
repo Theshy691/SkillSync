@@ -1599,11 +1599,35 @@ function renderResults(result) {
   const colors = getScoreColorClasses(result.match_score);
 
   if (scoreBadge) {
-    scoreBadge.className = `w-20 h-20 rounded-2xl flex flex-col items-center justify-center font-black text-2xl shadow-lg ${colors.badge}`;
+    scoreBadge.className = `score-radial-container w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl flex flex-col items-center justify-center font-black text-xl sm:text-2xl shadow-lg relative ${colors.badge}`;
   }
   if (scoreNumber) {
     scoreNumber.textContent = `${result.match_score}%`;
+    if (typeof SkillSyncOdometer !== 'undefined' && typeof SkillSyncOdometer.animateScoreCounter === 'function' && typeof requestAnimationFrame === 'function') {
+      SkillSyncOdometer.animateScoreCounter({
+        target: result.match_score,
+        start: 0,
+        duration: 850,
+        element: scoreNumber,
+        suffix: '%',
+        onComplete: (finalScore) => {
+          if (finalScore >= 85 && typeof SkillSyncParticles !== 'undefined' && typeof SkillSyncParticles.burstConfetti === 'function') {
+            SkillSyncParticles.burstConfetti({ count: 70 });
+          }
+        }
+      });
+    }
   }
+
+  // Sync SVG radial progress ring if present
+  const scoreRadialCircle = document.getElementById('scoreRadialCircle');
+  if (scoreRadialCircle && typeof SkillSyncOdometer !== 'undefined') {
+    const radialMetrics = SkillSyncOdometer.calculateRadialMetrics(result.match_score, 38);
+    scoreRadialCircle.style.strokeDasharray = `${radialMetrics.circumference}`;
+    scoreRadialCircle.style.strokeDashoffset = `${radialMetrics.offset}`;
+    scoreRadialCircle.style.stroke = radialMetrics.color;
+  }
+
   if (scoreFeedback) {
     scoreFeedback.textContent = `${colors.label} • Evaluation against requirements`;
   }
@@ -1640,6 +1664,25 @@ function renderResults(result) {
   if (domainVal && domainBar) {
     domainVal.textContent = `${breakdown.domain_fit}%`;
     domainBar.style.width = `${breakdown.domain_fit}%`;
+  }
+
+  // Update Competency Spider Radar (Multi-Dimensional Topology)
+  const radarContainer = document.getElementById('radarChartContainer');
+  if (radarContainer && typeof SkillSyncRadarChart !== 'undefined') {
+    const resumeVal = document.getElementById('resumeText')?.value || '';
+    const jobVal = document.getElementById('jobText')?.value || '';
+    const radarScores = SkillSyncRadarChart.calculateRadarScores({
+      overallScore: result.match_score,
+      breakdown: {
+        keyword_match: breakdown.core_tech,
+        skills_alignment: breakdown.devops_cloud,
+        relevance: breakdown.experience_depth,
+        completeness: breakdown.domain_fit
+      },
+      resume: resumeVal,
+      job: jobVal
+    });
+    radarContainer.innerHTML = SkillSyncRadarChart.renderRadarSvg(radarScores, 280);
   }
 
   if (skillsContainer) {
@@ -5680,7 +5723,185 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * 20. Main Application Initialization
+ * 20. Live Resume Health HUD
+ */
+function updateResumeHealthHud() {
+  const resumeEl = document.getElementById('resumeText');
+  const hudEl = document.getElementById('resumeHealthHud');
+  if (!resumeEl || !hudEl) return;
+  const text = resumeEl.value.trim();
+  if (text.length < 50) {
+    hudEl.classList.add('hidden');
+    return;
+  }
+  hudEl.classList.remove('hidden');
+  if (typeof SkillSyncResumeHud !== 'undefined' && typeof SkillSyncResumeHud.analyzeResumeHealth === 'function') {
+    const analysis = SkillSyncResumeHud.analyzeResumeHealth(text);
+    hudEl.innerHTML = SkillSyncResumeHud.renderResumeHudHtml(analysis);
+  }
+}
+
+function initResumeHud() {
+  const resumeEl = document.getElementById('resumeText');
+  if (resumeEl) {
+    resumeEl.addEventListener('input', updateResumeHealthHud);
+    updateResumeHealthHud();
+  }
+}
+
+/**
+ * 21. Global Raycast-Grade Command Palette (Cmd + K)
+ */
+function initCommandPalette() {
+  const modal = document.getElementById('cmdPaletteModal');
+  const input = document.getElementById('cmdPaletteInput');
+  const list = document.getElementById('cmdPaletteList');
+  const triggerBtn = document.getElementById('cmdPaletteTriggerBtn');
+
+  if (!modal || !input || !list) return;
+
+  let filteredCommands = (typeof SkillSyncCommandPalette !== 'undefined' && SkillSyncCommandPalette.DEFAULT_COMMANDS)
+    ? SkillSyncCommandPalette.DEFAULT_COMMANDS
+    : [];
+  let selectedIndex = 0;
+
+  function renderList() {
+    if (typeof SkillSyncCommandPalette !== 'undefined') {
+      list.innerHTML = SkillSyncCommandPalette.renderCommandListHtml(filteredCommands, selectedIndex);
+
+      list.querySelectorAll('.cmd-palette-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const cmdId = item.dataset.commandId;
+          executePaletteCommand(cmdId);
+        });
+      });
+    }
+  }
+
+  function openPalette() {
+    modal.classList.remove('hidden');
+    input.value = '';
+    filteredCommands = typeof SkillSyncCommandPalette !== 'undefined'
+      ? SkillSyncCommandPalette.filterCommands('')
+      : [];
+    selectedIndex = 0;
+    renderList();
+    setTimeout(() => input.focus(), 40);
+  }
+
+  function closePalette() {
+    modal.classList.add('hidden');
+  }
+
+  function executePaletteCommand(cmdId) {
+    closePalette();
+    switch (cmdId) {
+      case 'run_scan': {
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        if (analyzeBtn) analyzeBtn.click();
+        break;
+      }
+      case 'speedrun_kit': {
+        if (typeof openSpeedrunModal === 'function') openSpeedrunModal();
+        break;
+      }
+      case 'mock_interview': {
+        const interviewTab = document.getElementById('practiceInterviewTabBtn') || document.querySelector('[data-workspace-tab="interview"]');
+        if (interviewTab) interviewTab.click();
+        break;
+      }
+      case 'import_url': {
+        const jobUrl = document.getElementById('jobUrlInput');
+        if (jobUrl) {
+          jobUrl.focus();
+          if (typeof jobUrl.scrollIntoView === 'function') {
+            jobUrl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+        break;
+      }
+      case 'salary_coach': {
+        if (typeof openSalaryModal === 'function') openSalaryModal();
+        break;
+      }
+      case 'skill_vault': {
+        if (typeof switchWorkspaceTab === 'function') switchWorkspaceTab('vault');
+        break;
+      }
+      case 'pipeline_board': {
+        if (typeof switchWorkspaceTab === 'function') switchWorkspaceTab('pipeline');
+        break;
+      }
+      case 'job_discovery': {
+        if (typeof switchWorkspaceTab === 'function') switchWorkspaceTab('jobs');
+        break;
+      }
+      case 'toggle_theme': {
+        const themeBtn = document.getElementById('themeToggle');
+        if (themeBtn) themeBtn.click();
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+      e.preventDefault();
+      if (modal.classList.contains('hidden')) {
+        openPalette();
+      } else {
+        closePalette();
+      }
+      return;
+    }
+
+    if (!modal.classList.contains('hidden')) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closePalette();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % Math.max(1, filteredCommands.length);
+        renderList();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + filteredCommands.length) % Math.max(1, filteredCommands.length);
+        renderList();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (filteredCommands[selectedIndex]) {
+          executePaletteCommand(filteredCommands[selectedIndex].id);
+        }
+      }
+    }
+  });
+
+  if (triggerBtn) {
+    triggerBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openPalette();
+    });
+  }
+
+  input.addEventListener('input', () => {
+    if (typeof SkillSyncCommandPalette !== 'undefined') {
+      filteredCommands = SkillSyncCommandPalette.filterCommands(input.value);
+      selectedIndex = 0;
+      renderList();
+    }
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closePalette();
+    }
+  });
+}
+
+/**
+ * 22. Main Application Initialization
  */
 function initApp() {
   if (!checkCdn()) return;
@@ -5704,6 +5925,8 @@ function initApp() {
   initCompanyDossier();
   initLinkedInOutreach();
   initSpeedrunKit();
+  initResumeHud();
+  initCommandPalette();
 
   let speedrunHandled = false;
 
