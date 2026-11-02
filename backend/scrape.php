@@ -163,19 +163,14 @@ if (mb_strlen($plainText) < 50) {
     ], 400);
 }
 
-// 7. Extract & Clean via Gemini AI
-if (empty($geminiApiKey)) {
-    error_log("[Scraper] Missing GEMINI_API_KEY.");
-    sendJsonResponse([
-        'error' => 'Configuration Error',
-        'message' => 'Gemini AI API key is not configured on the server.'
-    ], 500);
-}
+// 7. Extract & Clean via Gemini AI (with Resilient Plaintext Fallback)
+$extractedText = '';
 
-$geminiModel = getEnvVar('GEMINI_MODEL', 'gemini-2.5-flash');
-$geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiApiKey}";
+if (!empty($geminiApiKey)) {
+    $geminiModel = getEnvVar('GEMINI_MODEL', 'gemini-2.5-flash');
+    $geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiApiKey}";
 
-$prompt = <<<EOT
+    $prompt = <<<EOT
 You are an expert technical recruiter and job posting parser.
 Extract the core job details from the following scraped webpage content.
 Produce a clean, concise, high-value summary containing:
@@ -194,24 +189,20 @@ Raw Scraped Content:
 {$plainText}
 EOT;
 
-$geminiPayload = [
-    'contents' => [
-        [
-            'parts' => [
-                ['text' => $prompt]
+    $geminiPayload = [
+        'contents' => [
+            [
+                'parts' => [
+                    ['text' => $prompt]
+                ]
             ]
+        ],
+        'generationConfig' => [
+            'responseMimeType' => 'application/json',
+            'temperature' => 0.2
         ]
-    ],
-    'generationConfig' => [
-        'responseMimeType' => 'application/json',
-        'temperature' => 0.2
-    ]
-];
+    ];
 
-$extractedText = '';
-
-if (!empty($geminiApiKey)) {
-    $geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$geminiApiKey}";
     $geminiCurl = curl_init($geminiUrl);
     curl_setopt_array($geminiCurl, [
         CURLOPT_RETURNTRANSFER => true,
@@ -242,6 +233,8 @@ if (!empty($geminiApiKey)) {
     } else {
         error_log("[Scraper] Gemini API error: HTTP {$geminiHttpCode} - {$geminiErr}. Falling back to sanitized page content.");
     }
+} else {
+    error_log("[Scraper] GEMINI_API_KEY not configured. Falling back to sanitized page content.");
 }
 
 if (empty($extractedText)) {
@@ -276,8 +269,9 @@ if ($saveHttpCode >= 400) {
 }
 
 // 9. Return Response
+$source = (!empty($geminiApiKey) && $extractedText !== $plainText) ? 'ai_extracted' : 'sanitized_fallback';
 sendJsonResponse([
-    'source' => 'ai_extracted',
+    'source' => $source,
     'url' => $targetUrl,
     'cleaned_description' => $extractedText
 ], 200);
