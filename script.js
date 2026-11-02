@@ -1918,7 +1918,10 @@ async function fetchDashboard() {
     return;
   }
 
-  if (!supabaseClient || !currentSession || !currentSession.user) return;
+  if (!supabaseClient || !currentSession || !currentSession.user) {
+    renderDashboardGrid([]);
+    return;
+  }
 
   let orderColumn = 'created_at';
   let isAscending = false;
@@ -1961,16 +1964,25 @@ async function fetchDashboard() {
 function renderDashboardGrid(items) {
   const grid = document.getElementById('history-grid');
   const emptyState = document.getElementById('history-empty');
+  const clearAllBtn = document.getElementById('clearAllBtn');
 
   if (!grid) return;
   grid.innerHTML = '';
 
   if (!items || items.length === 0) {
     if (emptyState) emptyState.classList.remove('hidden');
+    if (clearAllBtn) {
+      clearAllBtn.disabled = true;
+      clearAllBtn.classList.add('opacity-40', 'cursor-not-allowed');
+    }
     return;
   }
 
   if (emptyState) emptyState.classList.add('hidden');
+  if (clearAllBtn) {
+    clearAllBtn.disabled = false;
+    clearAllBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+  }
 
   items.forEach(item => {
     const card = document.createElement('div');
