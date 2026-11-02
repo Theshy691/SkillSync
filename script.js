@@ -510,6 +510,56 @@ function initAuthForm() {
   const authNameContainer = document.getElementById('authNameContainer');
   const authFullName = document.getElementById('authFullName');
   const authNameError = document.getElementById('authNameError');
+  const authTabSignIn = document.getElementById('authTabSignIn');
+  const authTabSignUp = document.getElementById('authTabSignUp');
+  const authTogglePasswordBtn = document.getElementById('authTogglePasswordBtn');
+  const authEyeIcon = document.getElementById('authEyeIcon');
+  const authPassword = document.getElementById('authPassword');
+
+  // Password visibility toggle
+  if (authTogglePasswordBtn && authPassword) {
+    authTogglePasswordBtn.addEventListener('click', () => {
+      const isPass = authPassword.type === 'password';
+      authPassword.type = isPass ? 'text' : 'password';
+      if (authEyeIcon) {
+        authEyeIcon.innerHTML = isPass
+          ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>'
+          : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+      }
+    });
+  }
+
+  function updateAuthTabStyles(isSignUp) {
+    if (authTabSignIn && authTabSignUp) {
+      if (isSignUp) {
+        authTabSignUp.style.background = 'var(--surface)';
+        authTabSignUp.style.color = 'var(--ink)';
+        authTabSignUp.classList.add('shadow-sm');
+        authTabSignIn.style.background = 'transparent';
+        authTabSignIn.style.color = 'var(--ink-3)';
+        authTabSignIn.classList.remove('shadow-sm');
+      } else {
+        authTabSignIn.style.background = 'var(--surface)';
+        authTabSignIn.style.color = 'var(--ink)';
+        authTabSignIn.classList.add('shadow-sm');
+        authTabSignUp.style.background = 'transparent';
+        authTabSignUp.style.color = 'var(--ink-3)';
+        authTabSignUp.classList.remove('shadow-sm');
+      }
+    }
+  }
+
+  if (authTabSignIn) {
+    authTabSignIn.addEventListener('click', () => {
+      if (isSignUpMode && authSwitchBtn) authSwitchBtn.click();
+    });
+  }
+
+  if (authTabSignUp) {
+    authTabSignUp.addEventListener('click', () => {
+      if (!isSignUpMode && authSwitchBtn) authSwitchBtn.click();
+    });
+  }
 
   // Instant Quick Demo Login
   if (quickDemoBtn) {
@@ -573,6 +623,7 @@ function initAuthForm() {
         authSwitchPrompt.textContent = "Don't have an account?";
         authSwitchBtn.textContent = 'Create one now';
       }
+      updateAuthTabStyles(isSignUpMode);
     });
   }
 
