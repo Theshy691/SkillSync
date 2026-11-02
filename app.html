@@ -208,6 +208,12 @@
       <span class="hidden sm:inline">Job Explorer</span>
     </a>
 
+    <!-- Command Palette Trigger Button (Cmd + K) -->
+    <button id="cmdPaletteTriggerBtn" type="button" class="btn-tactile text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--ink-2)] hover:text-[var(--ink)] hover:border-[var(--border-2)] transition inline-flex items-center space-x-1.5 shadow-sm" title="Command Palette (Cmd + K)">
+      <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <span class="hidden md:inline font-mono text-[11px] opacity-75">⌘K</span>
+    </button>
+
     <!-- Theme Toggle Switch (Same as Landing Page) -->
     <button class="theme-toggle-nav" id="themeToggle" type="button" aria-label="Toggle theme">
       <span class="theme-toggle-track" aria-hidden="true">
@@ -1391,6 +1397,11 @@
           </span>
           <span id="resumeCount" class="font-mono font-medium">0 chars</span>
         </div>
+
+        <!-- Live Resume Health HUD (Action Verbs, Metrics & Density) -->
+        <div id="resumeHealthHud" class="resume-health-hud hidden">
+          <!-- Populated by SkillSyncResumeHud in real-time -->
+        </div>
       </div>
 
       <!-- Column 2: Job Description Input -->
@@ -1473,9 +1484,13 @@
         <!-- Results Top Bar -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-6" style="border-color: var(--border);">
           <div class="flex items-center space-x-4">
-            <div id="scoreBadge" class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl flex flex-col items-center justify-center font-black text-xl sm:text-2xl shadow-lg">
-              <span id="scoreNumber">--</span>
-              <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider opacity-85">Match</span>
+            <div id="scoreBadge" class="score-radial-container w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl flex flex-col items-center justify-center font-black text-xl sm:text-2xl shadow-lg relative">
+              <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 88 88">
+                <circle cx="44" cy="44" r="38" stroke="var(--border)" stroke-width="4" fill="none" class="opacity-40" />
+                <circle id="scoreRadialCircle" cx="44" cy="44" r="38" stroke="currentColor" stroke-width="4.5" fill="none" stroke-dasharray="238.76" stroke-dashoffset="238.76" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+              </svg>
+              <span id="scoreNumber" class="relative z-10 leading-none">--</span>
+              <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider opacity-85 relative z-10 mt-0.5">Match</span>
             </div>
             <div>
               <h3 class="text-lg sm:text-xl font-bold" style="color: var(--ink);">ATS Compatibility Score</h3>
@@ -1581,6 +1596,33 @@
                 <div id="breakdownDomainBar" class="h-full rounded-full transition-all duration-700" style="width: 0%; background: var(--ink-2);"></div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Interactive 5-Axis Match Radar (Spider Chart) -->
+        <div id="radarSection" class="p-5 rounded-2xl border flex flex-col md:flex-row items-center justify-between gap-6" style="background: var(--paper-2); border-color: var(--border);">
+          <div class="space-y-2 max-w-sm">
+            <div class="flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full" style="background: var(--sage);"></span>
+              <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Competency Spider Radar</h4>
+            </div>
+            <h5 class="font-bold text-base" style="color: var(--ink);">Multi-Axis Skill Topology</h5>
+            <p class="text-xs leading-relaxed" style="color: var(--ink-2);">
+              Visual comparison of candidate competency footprint (green) against employer target benchmark (blue dashed). Hover on vertices to inspect exact percentages.
+            </p>
+            <div class="flex items-center space-x-3 pt-2 text-[11px] font-semibold">
+              <span class="inline-flex items-center space-x-1.5 text-emerald-600 dark:text-emerald-400">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span>Candidate Profile</span>
+              </span>
+              <span class="inline-flex items-center space-x-1.5 text-blue-500">
+                <span class="w-2.5 h-2.5 rounded-full border border-blue-500 border-dashed"></span>
+                <span>Target Benchmark</span>
+              </span>
+            </div>
+          </div>
+          <div id="radarChartContainer" class="flex items-center justify-center w-full md:w-auto min-w-[280px] min-h-[260px]">
+            <!-- Rendered by SkillSyncRadarChart.renderRadarSvg -->
           </div>
         </div>
 
@@ -2101,6 +2143,33 @@
 <script src="assets/js/modules/toast.js"></script>
 <script src="assets/js/modules/roadmap.js"></script>
 <script src="assets/js/modules/speedrun.js"></script>
+<script src="assets/js/modules/odometer.js"></script>
+<script src="assets/js/modules/particles.js"></script>
+<script src="assets/js/modules/command_palette.js"></script>
+<script src="assets/js/modules/resume_hud.js"></script>
+<script src="assets/js/modules/radar_chart.js"></script>
+<script src="assets/js/modules/typewriter.js"></script>
+
+<!-- Global Command Palette Modal (Cmd + K) -->
+<div id="cmdPaletteModal" class="cmd-palette-backdrop hidden" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="cmd-palette-dialog">
+    <div class="relative">
+      <input type="text" id="cmdPaletteInput" class="cmd-palette-search-input" placeholder="Type a command or search actions... (e.g. speedrun, interview, scan)" autocomplete="off" spellcheck="false">
+      <span class="absolute right-4 top-4 text-xs font-mono opacity-50">Esc to close</span>
+    </div>
+    <div id="cmdPaletteList" class="max-h-[320px] overflow-y-auto py-2">
+      <!-- Dynamic Command Items -->
+    </div>
+    <div class="flex items-center justify-between px-4 py-2.5 border-t text-[11px] opacity-70" style="border-color: var(--border); background: var(--paper-2);">
+      <div class="flex items-center space-x-3 font-mono">
+        <span><kbd class="cmd-palette-kbd">&uarr;&darr;</kbd> Navigate</span>
+        <span><kbd class="cmd-palette-kbd">&crarr;</kbd> Select</span>
+        <span><kbd class="cmd-palette-kbd">Esc</kbd> Dismiss</span>
+      </div>
+      <span class="font-medium text-[10px]">SkillSync Pro Speedrun</span>
+    </div>
+  </div>
+</div>
 
 <!-- Client Scripts -->
 <script src="config.js"></script>
