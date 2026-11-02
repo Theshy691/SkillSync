@@ -127,3 +127,4 @@ The palette balances deep dark paper surfaces (`#0b0c10`, `#11141a`) with warm c
 - Never use undersized functional text below 11px.
 - Never leave buttons without explicit active/hover states.
 - Never block user workflow with unclosable modal backdrops.
+

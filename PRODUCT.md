@@ -42,3 +42,4 @@ SkillSync is an AI-powered job application acceleration suite and ATS (Applicant
 - **Motion & Audio**: Linear/Raycast-grade spring animations (`cubic-bezier(0.16, 1, 0.3, 1)`), rolling score odometer, SVG radar charts, and opt-in Web Audio API tactile feedback.
 - **Backend**: Containerized Apache/PHP 8.2+ API services with Gemini AI integration and rate-limiting guardrails.
 - **Database & Auth**: Supabase PostgreSQL with Row Level Security (RLS) policies and REST API integration.
+
