@@ -3655,12 +3655,13 @@ function renderInterviewQuestions(questions) {
           const colorClass = res.score >= 80 ? 'text-emerald-600 dark:text-emerald-400' : (res.score >= 60 ? 'text-amber-500' : 'text-rose-500');
 
           let langChip = '';
+          const globeSvg = `<svg class="w-3 h-3 inline-block mr-1 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>`;
           if (res.language_detected === 'Taglish') {
-            langChip = `<span class="px-2 py-0.5 rounded text-[10px] font-bold" style="background: var(--amber-light); color: var(--amber); border: 1px solid var(--border);">🇵🇭 Taglish Detected</span>`;
+            langChip = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold" style="background: var(--amber-light); color: var(--amber); border: 1px solid var(--border);">${globeSvg}Taglish (PH)</span>`;
           } else if (res.language_detected === 'Tagalog') {
-            langChip = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/15 text-blue-500 border border-blue-500/30">🇵🇭 Tagalog Detected</span>`;
+            langChip = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/15 text-blue-500 border border-blue-500/30">${globeSvg}Tagalog (PH)</span>`;
           } else {
-            langChip = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">🇺🇸 English Detected</span>`;
+            langChip = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">${globeSvg}English (US)</span>`;
           }
 
           // Build Better Answer Card
@@ -5363,7 +5364,7 @@ function compileSpeedrunKit(targetJobInfo) {
       <div class="p-2.5 rounded-lg border flex items-start justify-between gap-2" style="background: var(--paper-2); border-color: var(--border);">
         <div class="flex-1 space-y-0.5">
           <p class="text-xs leading-relaxed" style="color: var(--ink);"><span class="font-bold text-amber-500 font-mono">XYZ #${idx + 1}:</span> ${escapeHtml(text)}</p>
-          ${impact ? `<span class="inline-block text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold text-emerald-600 bg-emerald-500/10">📈 ${escapeHtml(impact)}</span>` : ''}
+          ${impact ? `<span class="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20"><svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>${escapeHtml(impact)}</span>` : ''}
         </div>
         <button type="button" class="speedrun-copy-single-bullet px-2 py-0.5 text-[10px] rounded hover:bg-slate-500/10 font-mono transition shrink-0 cursor-pointer" data-bullet="${escapeHtml(text)}" style="border: 1px solid var(--border); color: var(--ink-2);">Copy</button>
       </div>
