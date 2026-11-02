@@ -895,7 +895,8 @@
             <div class="importer-input-row">
               <input type="url" id="externalJobUrlInput" placeholder="https://www.linkedin.com/jobs/view/..." />
               <button type="button" id="importJobUrlBtn" class="btn-card btn-card-secondary" style="flex: 0 0 auto; white-space: nowrap;">
-                Import &amp; ATS Score &rarr;
+                <span>Import &amp; ATS Score</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
               </button>
             </div>
           </div>
@@ -950,9 +951,15 @@
 
       <!-- Pagination -->
       <div id="discoveryPagination" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 3rem;">
-        <button type="button" id="prevPageBtn" class="btn-card btn-card-secondary" style="max-width: 120px;" disabled>&larr; Previous</button>
-        <span id="pageIndicatorText" style="color: var(--text-secondary); font-size: 0.9rem;">Page 1 of 1</span>
-        <button type="button" id="nextPageBtn" class="btn-card btn-card-secondary" style="max-width: 120px;">Next &rarr;</button>
+        <button type="button" id="prevPageBtn" class="btn-card btn-card-secondary" style="max-width: 120px;" disabled>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Previous</span>
+        </button>
+        <span id="pageIndicatorText" style="color: var(--text-secondary); font-size: 0.9rem; font-family: 'DM Mono', monospace;">Page 1 of 1</span>
+        <button type="button" id="nextPageBtn" class="btn-card btn-card-secondary" style="max-width: 120px;">
+          <span>Next</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
       </div>
     </section>
   </main>
@@ -978,17 +985,18 @@
       </div>
 
       <div class="modal-body">
-        <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem; text-transform: uppercase; color: var(--text-secondary);">Required Technologies</h4>
+        <h4 style="margin-bottom: 0.6rem; font-size: 0.75rem; font-family: 'DM Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">Required Technologies</h4>
         <div class="tag-cloud" id="modalTags" style="margin-bottom: 1.5rem;"></div>
 
-        <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem; text-transform: uppercase; color: var(--text-secondary);">Job Overview</h4>
+        <h4 style="margin-bottom: 0.6rem; font-size: 0.75rem; font-family: 'DM Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">Job Overview</h4>
         <div id="modalDescription" style="white-space: pre-line;"></div>
       </div>
 
       <div class="modal-foot">
         <button type="button" class="btn-card btn-card-secondary" id="closeModalBtnBottom" style="max-width: 120px;">Close</button>
         <button type="button" class="btn-card btn-card-primary" id="modalScanResumeBtn">
-          Scan My Resume With ATS &rarr;
+          <span>Scan Resume With ATS</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </button>
       </div>
     </div>
