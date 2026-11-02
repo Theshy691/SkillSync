@@ -39,6 +39,7 @@ $body = json_decode($rawInput, true) ?: $_POST;
 
 $resume = trim($body['resume_text'] ?? ($body['resume'] ?? ''));
 $jobTitle = trim($body['job_title'] ?? ($body['title'] ?? 'Software Engineer'));
+$role = $jobTitle;
 $company = trim($body['company_name'] ?? ($body['company'] ?? 'Tech Company'));
 $jobDescription = trim($body['job_description'] ?? ($body['description'] ?? ''));
 $missingSkills = !empty($body['missing_skills']) && is_array($body['missing_skills'])
