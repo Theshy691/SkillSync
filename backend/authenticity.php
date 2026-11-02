@@ -265,3 +265,4 @@ if (!empty($supabaseUrl) && !empty($supabaseAnonKey) && !empty($user['id']) && $
 }
 
 sendJsonResponse($responsePayload, 200);
+

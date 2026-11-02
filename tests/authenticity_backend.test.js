@@ -163,3 +163,4 @@ describe('Authenticity Backend API Contract Tests', () => {
     expect(data.flagged_issues[0].type).toBe('anachronism');
   });
 });
+
