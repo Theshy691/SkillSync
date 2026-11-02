@@ -1095,8 +1095,15 @@ async function extractResumeFromImage(file) {
 async function extractResumeFromFile(file) {
   if (!file) return;
 
+  // Guard against oversized uploads (>15MB) to protect browser memory
+  if (file.size && file.size > 15 * 1024 * 1024) {
+    showToast('File size exceeds 15MB limit. Please upload a smaller document.', 'error', 4000);
+    return;
+  }
+
   const isPdf = file.type === 'application/pdf' || file.name?.toLowerCase().endsWith('.pdf');
   const isImage = file.type?.startsWith('image/') || /\.(png|jpe?g|webp|bmp|gif)$/i.test(file.name || '');
+  const isText = file.type === 'text/plain' || file.type === 'text/markdown' || /\.(txt|md)$/i.test(file.name || '');
 
   if (isPdf) {
     try {
@@ -1111,8 +1118,23 @@ async function extractResumeFromFile(file) {
     } catch (err) {
       // already toasted in extractResumeFromImage
     }
+  } else if (isText) {
+    try {
+      const text = await file.text();
+      const resumeText = document.getElementById('resumeText');
+      const resumeCount = document.getElementById('resumeCount');
+      if (resumeText) {
+        resumeText.value = text;
+        updateCharCounter(resumeText, resumeCount);
+      }
+      showToast(`Text resume loaded successfully! (${text.length.toLocaleString()} characters)`, 'success', 2500);
+      return text;
+    } catch (err) {
+      console.error('Text file reading error:', err);
+      showToast('Failed to read text file: ' + (err.message || 'Unknown error'), 'error');
+    }
   } else {
-    showToast('Please upload a PDF document or image file (PNG, JPG, WEBP).', 'error');
+    showToast('Please upload a PDF document or image file (PNG, JPG, WEBP), or plain text file (.txt, .md).', 'error');
   }
 }
 

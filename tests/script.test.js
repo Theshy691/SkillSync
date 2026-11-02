@@ -412,6 +412,36 @@ describe('SkillSync Frontend Test Suite', () => {
       const toast = document.querySelector('.toast-close')?.parentNode;
       expect(toast.textContent).toContain('Please upload a PDF document or image file');
     });
+
+    test('extractResumeFromFile rejects files exceeding 15MB size limit', async () => {
+      const mockHugeFile = {
+        name: 'huge_resume.pdf',
+        type: 'application/pdf',
+        size: 20 * 1024 * 1024
+      };
+
+      await extractResumeFromFile(mockHugeFile);
+
+      const toast = document.querySelector('.toast-close')?.parentNode;
+      expect(toast.textContent).toContain('exceeds 15MB limit');
+    });
+
+    test('extractResumeFromFile parses plain text resume files directly', async () => {
+      const mockTxtFile = {
+        name: 'resume.txt',
+        type: 'text/plain',
+        size: 1024,
+        text: jest.fn().mockResolvedValue('Alex Mercer\nStaff Distributed Systems Architect\nSkills: Go, Kubernetes, Kafka')
+      };
+
+      await extractResumeFromFile(mockTxtFile);
+
+      const resumeText = document.getElementById('resumeText');
+      expect(resumeText.value).toContain('Alex Mercer');
+      expect(resumeText.value).toContain('Staff Distributed Systems Architect');
+      const toast = document.querySelector('.toast-close')?.parentNode;
+      expect(toast.textContent).toContain('Text resume loaded successfully');
+    });
   });
 
   // 10. Console Workspace UI Slop Prevention
