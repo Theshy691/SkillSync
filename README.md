@@ -126,8 +126,10 @@ window.SKILLSYNC_CONFIG = {
 
 ### Step 3: Run Database Migrations
 1. Open your Supabase Dashboard -> **SQL Editor**.
-2. Open [`database/schema.sql`](database/schema.sql), paste the SQL commands, and click **Run**.
-3. (Optional) Run [`database/seed.sql`](database/seed.sql) to populate initial test scans.
+2. Open [`database/schema.sql`](database/schema.sql), paste the entire SQL script, and click **Run**.
+   > **Note**: Supabase will display `Success. No rows returned`. In PostgreSQL, table and policy creation commands (DDL) return zero rows upon successful execution.
+3. Verify table creation in Supabase -> **Table Editor** (`scan_history`, `scraped_jobs_cache`, `user_vault_documents`, `user_vault_profiles`, `resume_credibility_audits`).
+4. (Optional) Run [`database/seed.sql`](database/seed.sql) to populate initial test scans.
 
 ### Step 4: Start the Application with Docker Compose
 Spin up the Apache PHP web server:
