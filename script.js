@@ -5469,10 +5469,19 @@ function compileSpeedrunKit(targetJobInfo) {
     resumeTextarea.value = currentSpeedrunKit.tailored_resume || resumeText;
   }
 
-  // Cover Letter Textarea
+  // Cover Letter Textarea (with Copilot Typewriter Streaming)
   const clTextarea = document.getElementById('speedrunCoverLetterText');
   if (clTextarea) {
-    clTextarea.value = currentSpeedrunKit.cover_letter || '';
+    if (typeof SkillSyncTypewriter !== 'undefined' && typeof SkillSyncTypewriter.streamText === 'function') {
+      SkillSyncTypewriter.streamText({
+        text: currentSpeedrunKit.cover_letter || '',
+        element: clTextarea,
+        mode: 'word',
+        speedMs: 14
+      });
+    } else {
+      clTextarea.value = currentSpeedrunKit.cover_letter || '';
+    }
   }
 
   // Outreach DM Textarea & Counter
