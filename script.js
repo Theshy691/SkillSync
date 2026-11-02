@@ -5705,6 +5705,8 @@ function initApp() {
   initLinkedInOutreach();
   initSpeedrunKit();
 
+  let speedrunHandled = false;
+
   // Check for 1-click job transfer from Discovery explorer
   try {
     const pendingScan = localStorage.getItem('skillsync_pending_job_scan');
@@ -5721,9 +5723,10 @@ function initApp() {
           showToast(`Loaded ${jobData.title || 'target job'} into ATS workspace.`, 'success', 3500);
         }
         if (jobData.speedrun) {
+          speedrunHandled = true;
           setTimeout(() => {
             openSpeedrunModal(jobData);
-          }, 400);
+          }, 350);
         }
       }
     }
@@ -5733,10 +5736,29 @@ function initApp() {
   try {
     if (typeof window !== 'undefined' && window.location && window.location.search) {
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('speedrun') === '1') {
+      if (urlParams.get('speedrun') === '1' && !speedrunHandled) {
         setTimeout(() => {
           openSpeedrunModal();
         }, 500);
+      }
+
+      // Check for auto_scan query param (from Discovery Explorer 1-click scan)
+      if (urlParams.get('auto_scan') === '1') {
+        setTimeout(() => {
+          const resumeEl = document.getElementById('resumeText');
+          const jobEl = document.getElementById('jobText');
+          const analyzeBtn = document.getElementById('analyzeBtn');
+          if (resumeEl && jobEl && analyzeBtn) {
+            const hasResume = resumeEl.value.trim().length > 30;
+            const hasJob = jobEl.value.trim().length > 30;
+            if (hasResume && hasJob && typeof analyzeBtn.click === 'function') {
+              showToast('Auto-initiating AI match scan...', 'info', 2500);
+              analyzeBtn.click();
+            } else if (!hasResume) {
+              showToast('Target role loaded! Paste or upload your resume to run the match scan.', 'info', 4000);
+            }
+          }
+        }, 450);
       }
     }
   } catch (_) {}
