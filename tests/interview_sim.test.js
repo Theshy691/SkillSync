@@ -4,6 +4,7 @@
 
 const {
   evaluateInterviewAnswer,
+  createCustomInterviewQuestion,
   renderInterviewQuestions
 } = require('../script.js');
 
@@ -18,7 +19,11 @@ describe('Interactive Mock Interview Answer Simulator Test Suite', () => {
       'Probabilistic early expiration algorithm',
       'Distributed mutex locking with Redis',
       'Stale-while-revalidate background refresh'
-    ]
+    ],
+    better_answer: {
+      star_answer: 'In our production services, we combined Redis distributed mutex locking with probabilistic early expiration to prevent stampedes, cutting p99 latency by 45%.',
+      why_better: ['Concrete STAR structure', 'Quantifiable 45% latency drop']
+    }
   };
 
   describe('Answer Evaluation Algorithm', () => {
@@ -31,6 +36,18 @@ describe('Interactive Mock Interview Answer Simulator Test Suite', () => {
       expect(result.grade).toBe('Exceptional Delivery');
       expect(result.coveredPoints.length).toBeGreaterThanOrEqual(2);
       expect(result.critique).toContain('Excellent response');
+      expect(result.better_answer).toHaveProperty('star_answer');
+    });
+
+    test('evaluates Taglish code-switching answers fairly with Napakahusay na Sagot', () => {
+      const taglishAnswer = `Sa production namin, nag-implement kami ng distributed mutex locking gamit ang Redis at nag-setup ng early expiration. Dahil dito, bumaba ang latency ng 40% at na-optimize ang throughput kahit nag-spike ang traffic.`;
+
+      const result = evaluateInterviewAnswer(mockQuestion, taglishAnswer);
+
+      expect(result.score).toBeGreaterThanOrEqual(80);
+      expect(result.grade).toBe('Napakahusay na Sagot');
+      expect(result.language_detected).toBe('Taglish');
+      expect(result.better_answer.language).toBe('Taglish');
     });
 
     test('flags insufficient or brief answers as Needs Practice', () => {
@@ -51,7 +68,7 @@ describe('Interactive Mock Interview Answer Simulator Test Suite', () => {
     });
   });
 
-  describe('Interactive Practice Drawer UI', () => {
+  describe('Interactive Practice Drawer UI & Better Answer Card', () => {
     beforeEach(() => {
       document.body.innerHTML = `
         <div id="interviewQuestionsList"></div>
@@ -59,7 +76,7 @@ describe('Interactive Mock Interview Answer Simulator Test Suite', () => {
       `;
     });
 
-    test('renderInterviewQuestions renders practice drawer and evaluates answer interactively', () => {
+    test('renderInterviewQuestions renders practice drawer and evaluates answer interactively with Better Answer card', () => {
       renderInterviewQuestions([mockQuestion]);
 
       const list = document.getElementById('interviewQuestionsList');
@@ -85,7 +102,21 @@ describe('Interactive Mock Interview Answer Simulator Test Suite', () => {
       expect(feedback.classList.contains('hidden')).toBe(false);
       expect(feedback.innerHTML).toContain('% Match');
       expect(feedback.innerHTML).toContain('Points Covered');
+      expect(feedback.innerHTML).toContain('AI Coach\'s Better Answer');
+    });
+
+    test('renders Custom Question chip for user-created custom questions', () => {
+      const customQ = createCustomInterviewQuestion(
+        'Paano mo hina-handle ang database failover kapag nag-crash ang primary server?',
+        'High Availability & Disaster Recovery',
+        'Engineering Reliability'
+      );
+
+      renderInterviewQuestions([customQ]);
+
+      const list = document.getElementById('interviewQuestionsList');
+      expect(list.innerHTML).toContain('Custom Question');
+      expect(list.innerHTML).toContain('High Availability &amp; Disaster Recovery');
     });
   });
 });
-
