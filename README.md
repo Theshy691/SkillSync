@@ -14,22 +14,27 @@ SkillSync is an enterprise-grade, full-stack ATS (Applicant Tracking System) sim
 
 ## Key Features
 
+- **Candidate Skill Vault & Verified Taxonomy Matrix**: Centralized repository for candidate certificates, licenses, and transcripts. Synthesizes a verified technical skill matrix (Languages, Frameworks, Cloud & DevOps, Certifications) and syncs directly with the ATS scanner.
+- **Resume Credibility & Anti-Hallucination Audit Engine (`tests/authenticity.test.js`)**: Evaluates resumes for chronological anachronisms (e.g. claiming 10+ years in Docker before its release), unevidenced buzzword stuffing, statistically implausible metric spikes (+9000%), and title inflation.
+- **Quiet-Chrome Developer UI (Linear / Raycast Aesthetic)**: Precision-engineered interface utilizing flat surfaces, hairline borders (`var(--ws-border)`), DM Mono metadata typography, and high contrast compliant with WCAG AA standards. Audited and verified using the Impeccable UI suite.
 - **Free Public Job Discovery & Explorer (`jobs.html`)**: Freely search, browse, and filter active engineering roles across AI, Cloud/DevOps, Full-Stack, and Frontend without requiring authentication. Includes multi-facet category filtering, remote-only toggle, interactive job preview modals, and a 1-click ATS workspace bridge that transfers job details directly into the scanner.
+- **Interactive Mock Interview Simulator & STAR Answer Coach**: Practice technical questions with real-time feedback, STAR model answer comparisons, and trilingual support (English, Tagalog, and Taglish tech code-switching).
+- **Global Command Palette (`⌘K`)**: Instant workspace spotlight search with keyboard navigation (`↑`, `↓`, `Enter`, `Esc`), shortcut routing, and live filter queries.
+- **2-Week Skill Bridge Learning Roadmap**: Automatically converts detected missing skill gaps into an interactive 14-day study plan with progress tracking and YouTube deep-dive tutorials.
+- **Salary Benchmarking & AI Counter-Offer Coach**: Calculates 25th, 50th, 75th, and 90th percentile compensation benchmarks adjusted for seniority tiers and cost of living, providing automated counter-offer negotiation scripts.
 - **Gemini AI Resume Matcher Proxy (`api.php`)**: Evaluates resumes against job descriptions with ATS accuracy, returning an objective 0–100 match score and prioritized skill gap recommendations in strict JSON.
 - **AI-Powered Web Scraper with Cache (`scrape.php`)**: Fetches external job postings from URLs (LinkedIn, Indeed, Greenhouse, etc.), extracts core requirements via Gemini AI, and caches results in Supabase to eliminate redundant AI calls.
 - **Client-Side PDF Parsing (`pdf.js`)**: Fast, in-browser PDF resume extraction without transmitting unparsed binary documents.
 - **Single-Click PDF Export (`html2pdf.js`)**: Exports formatted analysis reports directly to downloadable A4 PDF documents.
 - **Clipboard Summary Copy**: Formats and copies key match highlights and recommendations directly to the clipboard.
 - **Interactive History Dashboard**: Real-time Supabase history with dynamic sorting (Newest, Oldest, Highest Score, Lowest Score), single-record deletion, and "Clear All History" controls.
-- **Clickable YouTube Learning Links**: Every missing skill automatically maps to free, high-yield YouTube search learning resources.
 - **Hardened Security Architecture**:
-  - Supabase Row Level Security (RLS) policies enforcing multi-tenant isolation.
+  - Supabase Row Level Security (RLS) policies enforcing multi-tenant isolation across all tables.
   - Per-user backend sliding-window rate limiting (max 5 requests/minute).
   - Server-Side Request Forgery (SSRF) protection blocking internal/metadata IP ranges.
   - Production error suppression with logging to a protected `secure_php_errors.log`.
   - Apache `.htaccess` rules denying direct HTTP access to `.env`, `.log`, `.sql`, and configuration files.
   - High-capacity input processing supporting comprehensive resumes and enterprise job postings (up to 100,000 characters).
-- **Minimalist Modern UI**: Responsive design with Tailwind CSS, animated skeletons, custom SVG spinners, dark/light mode toggle with persistence, custom Tailwind confirmation modals, session expiration handling, and an inline CDN fallback banner.
 
 ---
 
@@ -159,13 +164,16 @@ Comprehensive architectural, schema, and API documentation is maintained in the 
 
 ## Running Automated Tests
 
-SkillSync includes an automated test suite using **Jest** and **JSDOM** to verify UI behavior, character limit counters, theme switching, YouTube query encoding, score calculations, toast DOM manipulations, rate limiting handling, OCR image processing, and Supabase client mocks.
+SkillSync features a robust suite of **41 automated test suites** encompassing **299 tests** using **Jest** and **JSDOM** to ensure complete end-to-end reliability across all features:
+- **UI & DOM**: Command palette, keyboard shortcuts (`Cmd+Enter`, `⌘K`), responsive docks, modal dialogues, toast engine, and theme persistence.
+- **Algorithms**: Multi-dimensional ATS breakdown, timeline anachronism detection, buzzword stuffing audit, STAR interview scoring, and salary percentiles.
+- **Integrations**: Standalone modules (taxonomy, URL sanitizer, outreach generator, roadmap generator), backend security contracts (SSRF, rate limiting, RLS), and Supabase client mocks.
 
 ```bash
 # Install testing dependencies
 npm install
 
-# Run all test suites
+# Run all 41 test suites (299 tests)
 npm test
 
 # Run tests with coverage report
