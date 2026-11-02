@@ -2274,14 +2274,16 @@ function switchWorkspaceTab(tabName) {
 
   const resetBtn = (btn) => {
     if (!btn) return;
-    btn.className = 'tab-btn px-4 py-2 text-xs font-semibold rounded-xl transition flex items-center space-x-2';
+    btn.classList.remove('active');
+    btn.className = 'workspace-segment-tab tab-btn transition flex items-center space-x-1.5';
     btn.style.background = 'transparent';
     btn.style.color = 'var(--ink-3)';
   };
 
   const activateBtn = (btn) => {
     if (!btn) return;
-    btn.className = 'tab-btn px-4 py-2 text-xs font-bold rounded-xl transition flex items-center space-x-2 shadow-sm';
+    btn.classList.add('active');
+    btn.className = 'workspace-segment-tab tab-btn active font-bold transition flex items-center space-x-1.5 shadow-sm';
     btn.style.background = 'var(--surface)';
     btn.style.color = 'var(--ink)';
   };
