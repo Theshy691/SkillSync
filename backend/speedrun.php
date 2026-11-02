@@ -240,3 +240,4 @@ sendJsonResponse([
         'pipeline_record' => $pipelineRecord
     ]
 ], 200);
+
