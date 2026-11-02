@@ -2026,11 +2026,11 @@
     <section id="pipeline-view" class="hidden space-y-6">
 
       <!-- Pipeline Top Header -->
-      <div class="console-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="results-dock p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div class="flex items-center space-x-2 mb-1">
             <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
-            <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Application Pipeline</h3>
+            <h3 class="text-base sm:text-lg font-bold tracking-tight" style="color: var(--ink);">Application Pipeline</h3>
           </div>
           <p class="text-xs" style="color: var(--ink-3);">
             Track applications from initial discovery through active offers.
@@ -2038,11 +2038,11 @@
         </div>
 
         <div class="flex items-center space-x-2 w-full sm:w-auto">
-          <button type="button" id="togglePipelineAnalyticsBtn" class="w-full sm:w-auto px-3 py-2 text-xs font-semibold rounded-xl transition flex items-center justify-center space-x-1.5 hover:bg-slate-500/10" style="background: var(--paper-2); border: 1px solid var(--border); color: var(--ink);">
+          <button type="button" id="togglePipelineAnalyticsBtn" class="w-full sm:w-auto px-3.5 py-2 text-xs font-semibold rounded-xl transition flex items-center justify-center space-x-1.5 hover:bg-slate-500/10 border border-[var(--border)] bg-[var(--surface-2)] text-[var(--ink)] shadow-sm">
             <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             <span id="analyticsToggleText">Analytics</span>
           </button>
-          <button type="button" id="addPipelineJobBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white flex items-center justify-center space-x-2 shadow-sm rounded-xl">
+          <button type="button" id="addPipelineJobBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-[#07090d] flex items-center justify-center space-x-2 shadow-sm rounded-xl shrink-0 cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Add Role</span>
           </button>
@@ -2050,61 +2050,61 @@
       </div>
 
       <!-- Pipeline Analytics & Funnel Breakdown Panel (Collapsible) -->
-      <div id="pipelineAnalyticsPanel" class="console-card p-4 sm:p-5 space-y-4">
+      <div id="pipelineAnalyticsPanel" class="results-dock p-5 sm:p-6 space-y-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
             <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Application Velocity & Conversion Funnel</h4>
+            <h4 class="font-bold text-xs uppercase tracking-wider text-[var(--ink)]">Application Velocity &amp; Conversion Funnel</h4>
           </div>
-          <span class="text-[10px] font-mono opacity-70" style="color: var(--ink-3);">Real-time metrics</span>
+          <span class="text-[11px] font-mono opacity-70 text-[var(--ink-3)]">Real-time metrics</span>
         </div>
 
         <!-- 4 Metric Cards -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="p-3 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
-            <span class="text-[10px] opacity-70 block" style="color: var(--ink-3);">Total Opportunities</span>
-            <span id="metricTotalRoles" class="text-base font-black font-mono mt-0.5 block" style="color: var(--ink);">0</span>
+          <div class="pillar-metric-card p-3.5">
+            <span class="text-[11px] opacity-70 block text-[var(--ink-3)]">Total Opportunities</span>
+            <span id="metricTotalRoles" class="text-base font-black font-mono mt-0.5 block text-[var(--ink)]">0</span>
           </div>
-          <div class="p-3 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
-            <span class="text-[10px] opacity-70 block" style="color: var(--ink-3);">Active in Flight</span>
-            <span id="metricActiveInFlight" class="text-base font-black font-mono mt-0.5 block" style="color: var(--sky);">0</span>
+          <div class="pillar-metric-card p-3.5">
+            <span class="text-[11px] opacity-70 block text-[var(--ink-3)]">Active in Flight</span>
+            <span id="metricActiveInFlight" class="text-base font-black font-mono mt-0.5 block text-sky-500">0</span>
           </div>
-          <div class="p-3 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
-            <span class="text-[10px] opacity-70 block" style="color: var(--ink-3);">Interview Conversion</span>
-            <span id="metricInterviewRate" class="text-base font-black font-mono mt-0.5 block" style="color: var(--amber);">0%</span>
+          <div class="pillar-metric-card p-3.5">
+            <span class="text-[11px] opacity-70 block text-[var(--ink-3)]">Interview Conversion</span>
+            <span id="metricInterviewRate" class="text-base font-black font-mono mt-0.5 block text-amber-500">0%</span>
           </div>
-          <div class="p-3 rounded-xl border" style="background: var(--paper-2); border-color: var(--border);">
-            <span class="text-[10px] opacity-70 block" style="color: var(--ink-3);">Average Fit Score</span>
-            <span id="metricAvgFit" class="text-base font-black font-mono mt-0.5 block" style="color: var(--sage);">--%</span>
+          <div class="pillar-metric-card p-3.5">
+            <span class="text-[11px] opacity-70 block text-[var(--ink-3)]">Average Fit Score</span>
+            <span id="metricAvgFit" class="text-base font-black font-mono mt-0.5 block text-emerald-500">--%</span>
           </div>
         </div>
 
         <!-- Funnel Progression Bar -->
         <div class="space-y-1.5 pt-1">
-          <div class="flex items-center justify-between text-[11px] font-medium" style="color: var(--ink-3);">
-            <span class="inline-flex items-center space-x-1.5"><span>Funnel:</span> <span class="font-mono text-[10px]">Saved</span><span class="opacity-40">/</span><span class="font-mono text-[10px]">Applied</span><span class="opacity-40">/</span><span class="font-mono text-[10px]">Interviewing</span><span class="opacity-40">/</span><span class="font-mono text-[10px] text-emerald-500 font-bold">Offer</span></span>
-            <span id="metricOfferCount" class="font-bold font-mono" style="color: var(--sage);">0 Offers</span>
+          <div class="flex items-center justify-between text-[11px] font-medium text-[var(--ink-3)]">
+            <span class="inline-flex items-center space-x-1.5"><span>Funnel:</span> <span class="font-mono text-[11px]">Saved</span><span class="opacity-40">/</span><span class="font-mono text-[11px]">Applied</span><span class="opacity-40">/</span><span class="font-mono text-[11px]">Interviewing</span><span class="opacity-40">/</span><span class="font-mono text-[11px] text-emerald-500 font-bold">Offer</span></span>
+            <span id="metricOfferCount" class="font-bold font-mono text-emerald-500">0 Offers</span>
           </div>
-          <div class="w-full h-2.5 rounded-full overflow-hidden flex" style="background: var(--paper-3);">
-            <div id="funnelBarSaved" class="h-full transition-all duration-500" style="width: 25%; background: var(--border);" title="Saved"></div>
-            <div id="funnelBarApplied" class="h-full transition-all duration-500" style="width: 25%; background: var(--sky);" title="Applied"></div>
-            <div id="funnelBarInterview" class="h-full transition-all duration-500" style="width: 25%; background: var(--amber);" title="Interviewing"></div>
-            <div id="funnelBarOffer" class="h-full transition-all duration-500" style="width: 25%; background: var(--sage);" title="Offer"></div>
+          <div class="w-full h-2.5 rounded-full overflow-hidden flex bg-[var(--paper-3)]">
+            <div id="funnelBarSaved" class="h-full transition-all duration-500 bg-[var(--border)]" style="width: 25%;" title="Saved"></div>
+            <div id="funnelBarApplied" class="h-full transition-all duration-500 bg-sky-500" style="width: 25%;" title="Applied"></div>
+            <div id="funnelBarInterview" class="h-full transition-all duration-500 bg-amber-500" style="width: 25%;" title="Interviewing"></div>
+            <div id="funnelBarOffer" class="h-full transition-all duration-500 bg-emerald-500" style="width: 25%;" title="Offer"></div>
           </div>
         </div>
       </div>
 
       <!-- 4-Column Responsive Kanban Board -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         
         <!-- Column 1: Saved Roles -->
-        <div class="console-card p-4 space-y-3 flex flex-col">
-          <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border);">
+        <div class="kanban-lane space-y-3">
+          <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
             <div class="flex items-center space-x-2">
-              <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-              <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Saved</h4>
+              <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+              <h4 class="font-bold text-xs uppercase tracking-wider text-[var(--ink)]">Saved</h4>
             </div>
-            <span id="colCountSaved" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-85" style="background: var(--paper-3); color: var(--ink);">0</span>
+            <span id="colCountSaved" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-85 bg-[var(--paper-3)] text-[var(--ink)]">0</span>
           </div>
           <div id="colListSaved" class="space-y-3 flex-1 min-h-[140px]">
             <!-- Dynamic Kanban Cards -->
@@ -2112,13 +2112,13 @@
         </div>
 
         <!-- Column 2: Applied -->
-        <div class="console-card p-4 space-y-3 flex flex-col">
-          <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border);">
+        <div class="kanban-lane space-y-3">
+          <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
             <div class="flex items-center space-x-2">
-              <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-              <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Applied</h4>
+              <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+              <h4 class="font-bold text-xs uppercase tracking-wider text-[var(--ink)]">Applied</h4>
             </div>
-            <span id="colCountApplied" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-85" style="background: var(--sky-light); color: var(--sky);">0</span>
+            <span id="colCountApplied" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-90 bg-sky-500/15 text-sky-500 font-bold border border-sky-500/20">0</span>
           </div>
           <div id="colListApplied" class="space-y-3 flex-1 min-h-[140px]">
             <!-- Dynamic Kanban Cards -->
@@ -2126,13 +2126,13 @@
         </div>
 
         <!-- Column 3: Interviewing -->
-        <div class="console-card p-4 space-y-3 flex flex-col">
-          <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border);">
+        <div class="kanban-lane space-y-3">
+          <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
             <div class="flex items-center space-x-2">
-              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-              <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Interviewing</h4>
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <h4 class="font-bold text-xs uppercase tracking-wider text-[var(--ink)]">Interviewing</h4>
             </div>
-            <span id="colCountInterviewing" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-85" style="background: var(--amber-light); color: var(--amber);">0</span>
+            <span id="colCountInterviewing" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-90 bg-amber-500/15 text-amber-500 font-bold border border-amber-500/20">0</span>
           </div>
           <div id="colListInterviewing" class="space-y-3 flex-1 min-h-[140px]">
             <!-- Dynamic Kanban Cards -->
@@ -2140,13 +2140,13 @@
         </div>
 
         <!-- Column 4: Offer -->
-        <div class="console-card p-4 space-y-3 flex flex-col">
-          <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border);">
+        <div class="kanban-lane space-y-3">
+          <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
             <div class="flex items-center space-x-2">
-              <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <h4 class="font-bold text-xs uppercase tracking-wider" style="color: var(--ink);">Offer</h4>
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <h4 class="font-bold text-xs uppercase tracking-wider text-[var(--ink)]">Offer</h4>
             </div>
-            <span id="colCountOffer" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-85" style="background: var(--sage-light); color: var(--sage);">0</span>
+            <span id="colCountOffer" class="text-[11px] font-mono px-2 py-0.5 rounded-lg opacity-90 bg-emerald-500/15 text-emerald-500 font-bold border border-emerald-500/20">0</span>
           </div>
           <div id="colListOffer" class="space-y-3 flex-1 min-h-[140px]">
             <!-- Dynamic Kanban Cards -->

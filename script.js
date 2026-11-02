@@ -4637,14 +4637,12 @@ function renderPipeline() {
 
     jobs.forEach(j => {
       const card = document.createElement('div');
-      card.className = 'p-3.5 rounded-xl border space-y-2.5 transition hover:shadow-md';
-      card.style.background = 'var(--paper-2)';
-      card.style.borderColor = 'var(--border)';
+      card.className = 'kanban-card space-y-2.5 transition';
 
       const colors = getScoreColorClasses(j.score || 70);
       const followupCheck = checkFollowupDue(j);
       const followupBadgeHtml = followupCheck.due
-        ? `<button type="button" class="btn-pipe-followup px-2 py-0.5 rounded-md text-[10px] font-bold inline-flex items-center space-x-1 transition hover:opacity-90" style="background: var(--amber-light); color: var(--amber);">
+        ? `<button type="button" class="btn-pipe-followup px-2.5 py-0.5 rounded-md text-[11px] font-bold inline-flex items-center space-x-1 transition hover:opacity-90" style="background: var(--amber-light); color: var(--amber);">
              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
              <span>${followupCheck.label}</span>
            </button>`
@@ -4656,7 +4654,7 @@ function renderPipeline() {
             <h5 class="font-bold text-xs leading-snug" style="color: var(--ink);">${escapeHtml(j.title)}</h5>
             <p class="text-[11px] font-medium opacity-80" style="color: var(--ink-3);">${escapeHtml(j.company_name)} • ${escapeHtml(j.location)}</p>
           </div>
-          <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md shrink-0 ${colors.badge}">
+          <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md shrink-0 ${colors.badge}">
             ${j.score}%
           </span>
         </div>
@@ -4668,7 +4666,7 @@ function renderPipeline() {
         ${followupBadgeHtml ? `<div class="pt-0.5">${followupBadgeHtml}</div>` : ''}
 
         <div class="pt-2 border-t flex items-center justify-between gap-1" style="border-color: var(--border);">
-          <select class="pipe-status-select console-input text-[10px] px-2 py-1 rounded-lg cursor-pointer">
+          <select class="pipe-status-select console-input text-[11px] px-2 py-1 rounded-lg cursor-pointer">
             <option value="saved" ${j.status === 'saved' ? 'selected' : ''}>Saved</option>
             <option value="applied" ${j.status === 'applied' ? 'selected' : ''}>Applied</option>
             <option value="interviewing" ${j.status === 'interviewing' ? 'selected' : ''}>Interviewing</option>
