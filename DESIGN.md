@@ -19,6 +19,9 @@ colors:
   ink-4: "#756e67"
   border: "rgba(255, 239, 222, 0.07)"
   border-2: "rgba(255, 239, 222, 0.16)"
+  white: "#ffffff"
+  dark-ink: "#07090d"
+  muted: "#d1c6bb"
 typography:
   display:
     fontFamily: "DM Sans, sans-serif"
@@ -26,11 +29,21 @@ typography:
     fontWeight: 700
     lineHeight: 1.2
     letterSpacing: "-0.02em"
+  headline:
+    fontFamily: "DM Sans, sans-serif"
+    fontSize: "1.75rem"
+    fontWeight: 700
+    lineHeight: 1.25
   title:
     fontFamily: "DM Sans, sans-serif"
     fontSize: "1.25rem"
     fontWeight: 600
     lineHeight: 1.3
+  body-lg:
+    fontFamily: "DM Sans, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 400
+    lineHeight: 1.5
   body:
     fontFamily: "DM Sans, sans-serif"
     fontSize: "0.875rem"
@@ -41,10 +54,15 @@ typography:
     fontSize: "0.8125rem"
     fontWeight: 500
 rounded:
+  xs: "4px"
   sm: "8px"
   md: "14px"
+  card: "18px"
   lg: "20px"
-  xl: "26px"
+  xl: "24px"
+  "2xl": "26px"
+  surface: "28px"
+  panel: "30px"
   full: "9999px"
 spacing:
   xs: "4px"
