@@ -652,38 +652,43 @@ function initAuthForm() {
       if (authSpinner) authSpinner.classList.remove('hidden');
       if (authSubmitText) authSubmitText.textContent = isSignUpMode ? 'Creating Account...' : 'Signing In...';
 
-      if (isDemoMode()) {
-        setTimeout(() => {
-          const demoUser = {
-            user: { id: 'demo-' + Date.now(), email },
-            access_token: 'demo-token-' + Date.now()
-          };
-          localStorage.setItem('skillsync_demo_session', JSON.stringify(demoUser));
-          updateAuthState(demoUser);
+      // If live Supabase client is available, authenticate with cloud database
+      if (supabaseClient && !(typeof window !== 'undefined' && window.SKILLSYNC_CONFIG && window.SKILLSYNC_CONFIG.DEMO_MODE === true)) {
+        try {
+          // Clear any leftover demo session flag so we use real cloud database session
+          localStorage.removeItem('skillsync_demo_session');
+
+          if (isSignUpMode) {
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+            if (error) throw error;
+            showToast('Account created! Please check your email to confirm or sign in.', 'success', 6000);
+          } else {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            showToast('Signed in successfully!', 'success');
+          }
+        } catch (err) {
+          console.error('Auth error:', err);
+          showToast(err.message || 'Authentication failed.', 'error');
+        } finally {
           if (authSpinner) authSpinner.classList.add('hidden');
           if (authSubmitText) authSubmitText.textContent = isSignUpMode ? 'Sign Up' : 'Sign In';
-          showToast(isSignUpMode ? 'Account created successfully.' : 'Signed in successfully.', 'success');
-        }, 300);
+        }
         return;
       }
 
-      try {
-        if (isSignUpMode) {
-          const { data, error } = await supabaseClient.auth.signUp({ email, password });
-          if (error) throw error;
-          showToast('Account created! Please check your email to confirm or sign in.', 'success', 6000);
-        } else {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          showToast('Signed in successfully!', 'success');
-        }
-      } catch (err) {
-        console.error('Auth error:', err);
-        showToast(err.message || 'Authentication failed.', 'error');
-      } finally {
+      // Fallback for offline / mock testing / explicit Demo mode
+      setTimeout(() => {
+        const demoUser = {
+          user: { id: 'demo-' + Date.now(), email },
+          access_token: 'demo-token-' + Date.now()
+        };
+        localStorage.setItem('skillsync_demo_session', JSON.stringify(demoUser));
+        updateAuthState(demoUser);
         if (authSpinner) authSpinner.classList.add('hidden');
         if (authSubmitText) authSubmitText.textContent = isSignUpMode ? 'Sign Up' : 'Sign In';
-      }
+        showToast(isSignUpMode ? 'Account created successfully.' : 'Signed in successfully.', 'success');
+      }, 300);
     });
   }
 
@@ -1540,6 +1545,7 @@ function initAnalyzer() {
 
           if (insertError) {
             console.error('Failed to save scan to Supabase history:', insertError);
+            showToast('Scan evaluated, but cloud history sync failed: ' + (insertError.message || 'Check database permissions.'), 'warning', 6000);
           } else {
             fetchDashboard();
           }
