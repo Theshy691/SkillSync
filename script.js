@@ -3176,6 +3176,7 @@ async function openInterviewModal() {
   const modal = document.getElementById('interview-modal');
   const loading = document.getElementById('interviewLoading');
   const list = document.getElementById('interviewQuestionsList');
+  const countBadge = document.getElementById('interviewCountBadge');
   const resumeTextEl = document.getElementById('resumeText');
   const jobTextEl = document.getElementById('jobText');
 
@@ -3187,6 +3188,26 @@ async function openInterviewModal() {
   const missingSkills = (lastAnalysisResult && Array.isArray(lastAnalysisResult.missing_skills))
     ? lastAnalysisResult.missing_skills
     : [];
+
+  // Reset tabs to generated view
+  const tabGen = document.getElementById('tabGeneratedQuestionsBtn');
+  const tabCustom = document.getElementById('tabCustomQuestionBtn');
+  const panelCustom = document.getElementById('customQuestionPanel');
+  if (tabGen && tabCustom && panelCustom) {
+    panelCustom.classList.add('hidden');
+    list.classList.remove('hidden');
+    tabGen.style.background = 'var(--surface)';
+    tabGen.style.color = 'var(--ink)';
+    tabCustom.style.background = 'transparent';
+    tabCustom.style.color = 'var(--ink-3)';
+  }
+
+  // If questions are already loaded from this session, render them directly
+  if (lastInterviewQuestions && lastInterviewQuestions.length > 0) {
+    renderInterviewQuestions(lastInterviewQuestions);
+    if (countBadge) countBadge.textContent = `${lastInterviewQuestions.length} Questions`;
+    return;
+  }
 
   if (loading) loading.classList.remove('hidden');
   if (list) list.innerHTML = '';
@@ -3200,6 +3221,7 @@ async function openInterviewModal() {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
+        action: 'generate',
         resume,
         job_description: jobDesc,
         missing_skills: missingSkills
@@ -3211,15 +3233,24 @@ async function openInterviewModal() {
 
     lastInterviewQuestions = Array.isArray(data.questions) ? data.questions : [];
     renderInterviewQuestions(lastInterviewQuestions);
+    if (countBadge) countBadge.textContent = `${lastInterviewQuestions.length} Questions`;
   } catch (err) {
-    renderInterviewQuestions([
+    lastInterviewQuestions = [
       {
         id: 1,
         category: 'Skill Gap Deep-Dive',
         target_skill: missingSkills[0] || 'System Design',
         question: `How would you architect an idempotent distributed system utilizing ${missingSkills[0] || 'System Design'} under high concurrent load?`,
         interviewer_intent: 'Evaluates production troubleshooting depth and architectural patterns.',
-        talking_points: ['Discuss message broker decoupling', 'Explain idempotency keys', 'Outline observability metrics']
+        talking_points: ['Discuss message broker decoupling', 'Explain idempotency keys', 'Outline observability metrics'],
+        better_answer: {
+          star_answer: `In our production services, we decoupled ingestion using an asynchronous message broker to buffer high-concurrency spikes. We enforced idempotent processing using unique transaction idempotency keys validated against Redis before mutating downstream databases. This reduced p99 latency by 45% and guaranteed zero duplicate order charges across 25,000 requests per second.`,
+          why_better: [
+            'Applies the STAR model clearly (Problem -> Architecture -> Result)',
+            'Includes concrete metrics (45% p99 drop, 25,000 req/sec)',
+            'Demonstrates practical failure mitigation with idempotency keys'
+          ]
+        }
       },
       {
         id: 2,
@@ -3227,54 +3258,173 @@ async function openInterviewModal() {
         target_skill: 'CI/CD & Cloud',
         question: 'When an endpoint suddenly experiences a 10x latency spike in production, what is your step-by-step diagnostic process?',
         interviewer_intent: 'Evaluates production incident triage and systematic root-cause analysis.',
-        talking_points: ['Check distributed telemetry traces', 'Inspect database connection pools', 'Review recent deployment diffs']
+        talking_points: ['Check distributed telemetry traces', 'Inspect database connection pools', 'Review recent deployment diffs'],
+        better_answer: {
+          star_answer: `My triage process starts with APM distributed tracing to isolate the delay to either database contention, external API dependencies, or thread pool exhaustion. If database queries are blocked, I inspect PgBouncer connection pool saturation and active table locks. Concurrently, I verify recent deployment git diffs and canary traffic to decide if an immediate roll-back is required within our 5-minute SLA.`,
+          why_better: [
+            'Follows a structured diagnostic hierarchy instead of guesswork',
+            'Mentions production observability tools and connection pooling',
+            'Emphasizes customer protection via rapid rollback SLAs'
+          ]
+        }
       }
-    ]);
+    ];
+    renderInterviewQuestions(lastInterviewQuestions);
+    if (countBadge) countBadge.textContent = `${lastInterviewQuestions.length} Questions`;
   } finally {
     if (loading) loading.classList.add('hidden');
   }
 }
 
-function evaluateInterviewAnswer(questionObj = {}, userAnswer = '') {
-  const answer = String(userAnswer || '').trim();
-  const talkingPoints = Array.isArray(questionObj.talking_points) ? questionObj.talking_points : [];
-  
-  if (!answer || answer.length < 15) {
-    return {
-      score: 20,
-      grade: 'Needs Practice',
-      coveredPoints: [],
-      missingPoints: talkingPoints,
-      critique: 'Response is too brief. Provide technical specifics detailing Situation, Task, Action taken, and measurable Results.'
-    };
+function createCustomInterviewQuestion(question, targetSkill = 'Core Competency', category = 'Custom Practice', talkingPoints = []) {
+  if (typeof SkillSyncInterview !== 'undefined' && typeof SkillSyncInterview.createCustomInterviewQuestion === 'function') {
+    return SkillSyncInterview.createCustomInterviewQuestion(question, targetSkill, category, talkingPoints);
   }
 
-  const lowerAnswer = answer.toLowerCase();
-  const covered = [];
-  const missing = [];
+  const qText = String(question || '').trim();
+  const skill = String(targetSkill || 'Core Competency').trim();
+  const cat = String(category || 'Custom Practice').trim();
 
-  talkingPoints.forEach(pt => {
-    const words = pt.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 3);
-    const matches = words.filter(w => lowerAnswer.includes(w));
-    if (matches.length >= 1) {
-      covered.push(pt);
-    } else {
-      missing.push(pt);
+  let defaultPoints = Array.isArray(talkingPoints) && talkingPoints.length > 0 ? talkingPoints : [];
+  if (defaultPoints.length === 0) {
+    defaultPoints = [
+      `Clarify the core architectural requirements and scope for ${skill}`,
+      `Walk through step-by-step technical implementation and trade-offs`,
+      `Demonstrate measurable business outcomes and incident monitoring`
+    ];
+  }
+
+  return {
+    id: 'custom-' + Date.now(),
+    category: cat,
+    target_skill: skill,
+    question: qText,
+    interviewer_intent: `Assesses hands-on proficiency, problem-solving structure, and architectural communication around ${skill}.`,
+    talking_points: defaultPoints,
+    is_custom: true
+  };
+}
+
+function evaluateInterviewAnswer(questionObj = {}, userAnswer = '', options = {}) {
+  // Delegate to standalone UMD module if available
+  if (typeof SkillSyncInterview !== 'undefined' && typeof SkillSyncInterview.evaluateInterviewAnswer === 'function') {
+    return SkillSyncInterview.evaluateInterviewAnswer(questionObj, userAnswer, options);
+  }
+
+  const answer = String(userAnswer || '').trim();
+  const talkingPoints = Array.isArray(questionObj.talking_points) ? questionObj.talking_points : [];
+  const lowerAnswer = answer.toLowerCase();
+
+  // Language detection
+  const tlParticles = ['ang', 'ng', 'mga', 'sa', 'kami', 'namin', 'tayo', 'natin', 'ako', 'ko', 'tapos', 'yung', 'para', 'ito', 'dahil', 'noong', 'kaya', 'kung', 'at', 'ay'];
+  const enFunctionWords = ['the', 'is', 'are', 'was', 'were', 'in', 'on', 'at', 'to', 'for', 'with', 'from', 'by', 'about', 'as', 'into', 'we', 'our', 'i', 'my', 'and', 'but', 'or', 'so', 'can', 'will', 'have'];
+  const words = lowerAnswer.replace(/[^a-z0-9\-áéíóúñ\s]/gi, ' ').split(/\s+/).filter(Boolean);
+  let tlCount = 0;
+  let enCount = 0;
+  let hasAffix = false;
+
+  words.forEach(w => {
+    if (tlParticles.includes(w) || /^(nag|mag|pinag|pag|ipag)-[a-z]{3,}/i.test(w) || /\b(inayos|napabilis|bumaba|tumaas|solusyon|resulta)\b/i.test(w)) {
+      tlCount++;
+    }
+    if (/^(nag|mag|pinag|pag|ipag)-[a-z]{3,}/i.test(w)) {
+      hasAffix = true;
+    }
+    if (enFunctionWords.includes(w)) {
+      enCount++;
     }
   });
 
-  const impactKeywords = [
+  let detectedLang = 'English';
+  if (tlCount === 0 && !hasAffix) {
+    detectedLang = 'English';
+  } else if (tlCount >= 2 && enCount === 0) {
+    detectedLang = 'Tagalog';
+  } else if ((tlCount >= 1 || hasAffix) && enCount >= 1) {
+    detectedLang = 'Taglish';
+  } else if ((tlCount / (words.length || 1)) > 0.25 && enCount <= 1) {
+    detectedLang = 'Tagalog';
+  } else {
+    detectedLang = tlCount >= 1 ? 'Taglish' : 'English';
+  }
+
+  const targetLang = (options.preferredLanguage && options.preferredLanguage !== 'Auto')
+    ? options.preferredLanguage
+    : detectedLang;
+
+  const skill = questionObj.target_skill || 'System Architecture';
+  let betterAnswer = {};
+  if (targetLang === 'Taglish') {
+    betterAnswer = {
+      language: 'Taglish',
+      star_answer: `Sa previous production project namin, nagkaroon kami ng major bottleneck sa ${skill} noong nag-spike ang traffic by 3x. Para masolusyunan ito, nag-implement ako ng asynchronous queues at nag-setup ng distributed Redis caching layer with idempotent consumers. Dahil dito, bumaba ang p99 API latency by 45% (from 850ms down to 120ms) at 100% uptime ang na-maintain kahit umabot sa 20,000 req/sec.`,
+      situation_task: `Sa previous production project namin, nagkaroon kami ng major bottleneck sa ${skill} noong nag-spike ang traffic by 3x.`,
+      action: `Para masolusyunan ito, nag-implement ako ng asynchronous queues at nag-setup ng distributed Redis caching with idempotent consumers.`,
+      result: `Dahil dito, bumaba ang p99 API latency by 45% (from 850ms down to 120ms) at 100% uptime ang na-maintain kahit umabot sa 20,000 req/sec.`,
+      why_better: [
+        'Ginamit ang STAR method (Situation, Task, Action, Result) na malinaw ang role mo',
+        'May konkreto at quantified metrics (bumaba ang latency ng 45%, 120ms, 20k req/sec)',
+        'Malinaw ang technical ownership sa pag-implement ng architecture solutions'
+      ]
+    };
+  } else {
+    betterAnswer = {
+      language: 'English',
+      star_answer: `In our production environment, we experienced critical latency bottlenecks around ${skill} when traffic surged 3.5x during high-volume customer campaigns. I led the redesign by implementing event-driven message queues to decouple the ingestion pipeline, introduced distributed caching with idempotent key validation, and configured automated circuit breakers. As a direct result, we reduced p99 endpoint latency by 48% (from 650ms to 95ms) and sustained 25,000 concurrent requests without failure.`,
+      situation_task: `In our production environment, we experienced critical latency bottlenecks around ${skill} when traffic surged 3.5x during customer campaigns.`,
+      action: `I led the redesign by implementing event-driven message queues, distributed caching with idempotent keys, and automated circuit breakers.`,
+      result: `As a direct result, we reduced p99 endpoint latency by 48% (from 650ms to 95ms) and sustained 25,000 req/sec with zero failure.`,
+      why_better: [
+        'Structured precisely in STAR format (Situation, Task, Action, Result)',
+        'Includes hard quantifiable engineering metrics (48% latency drop, 95ms p99, 25k req/sec)',
+        'Demonstrates high-impact technical ownership and architectural trade-off awareness'
+      ]
+    };
+  }
+
+  if (!answer || answer.length < 15) {
+    return {
+      score: 20,
+      grade: targetLang === 'English' ? 'Needs Practice' : 'Kailangan ng Ensayo',
+      language_detected: detectedLang,
+      coveredPoints: [],
+      missingPoints: talkingPoints,
+      critique: targetLang === 'Taglish'
+        ? 'Masyadong maikli ang sagot. Gamitin ang STAR method: ipaliwanag ang Situation, Task, mga Actions na ginawa mo, at ang measurable Results.'
+        : 'Response is too brief. Provide technical specifics detailing Situation, Task, Action taken, and measurable Results.',
+      better_answer: betterAnswer
+    };
+  }
+
+  const covered = [];
+  const missing = [];
+  talkingPoints.forEach(pt => {
+    const ptWords = pt.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 3);
+    const matches = ptWords.filter(w => lowerAnswer.includes(w));
+    if (matches.length >= 1) covered.push(pt);
+    else missing.push(pt);
+  });
+
+  const enImpactKeywords = [
     'reduce', 'reduced', 'increase', 'increased', 'optimiz', 'scale', 'built',
     'architect', 'led', 'deliver', 'metric', 'latency', 'throughput', 'percent',
     '%', 'test', 'monitor', 'failover', 'refactor', 'cache', 'pipeline'
   ];
-  const impactMatches = impactKeywords.filter(k => lowerAnswer.includes(k));
-  const hasImpact = impactMatches.length >= 2;
+  const tlImpactKeywords = [
+    'nag-implement', 'nag-deploy', 'nag-scale', 'nag-optimize', 'nag-refactor',
+    'nag-lead', 'inayos', 'bumaba', 'tumaas', 'solusyon', 'resulta'
+  ];
+
+  const enMatches = enImpactKeywords.filter(k => lowerAnswer.includes(k));
+  const tlMatches = tlImpactKeywords.filter(k => lowerAnswer.includes(k));
+  const totalImpact = enMatches.length + tlMatches.length;
+  const hasNumeric = /\b\d+(?:\.\d+)?(?:\%|ms|s|x|k|mb|gb|req)?\b/i.test(lowerAnswer);
+  const hasImpact = totalImpact >= 2 || (totalImpact >= 1 && hasNumeric);
 
   const pointsRatio = talkingPoints.length > 0 ? (covered.length / talkingPoints.length) : 0.8;
-  const coverageScore = Math.round(pointsRatio * 60);
-  const impactScore = hasImpact ? 25 : (impactMatches.length > 0 ? 15 : 5);
-  const lengthScore = answer.length > 150 ? 15 : (answer.length > 60 ? 10 : 5);
+  const coverageScore = Math.round(pointsRatio * 55);
+  const impactScore = hasImpact ? 25 : (totalImpact > 0 ? 15 : 5);
+  const lengthScore = answer.length > 180 ? 20 : (answer.length > 80 ? 12 : 6);
 
   const score = Math.min(100, Math.max(30, coverageScore + impactScore + lengthScore));
 
@@ -3282,22 +3432,30 @@ function evaluateInterviewAnswer(questionObj = {}, userAnswer = '') {
   let critique = '';
 
   if (score >= 80) {
-    grade = 'Exceptional Delivery';
-    critique = `Excellent response covering ${covered.length} of ${talkingPoints.length} core talking points with quantifiable metrics and production impact.`;
+    grade = targetLang === 'English' ? 'Exceptional Delivery' : 'Napakahusay na Sagot';
+    critique = targetLang === 'Taglish'
+      ? `Napakahusay! Nasagot mo ang ${covered.length} sa ${talkingPoints.length} core talking points with quantifiable metrics at malinaw na impact.`
+      : `Excellent response covering ${covered.length} of ${talkingPoints.length} core talking points with quantifiable metrics and production impact.`;
   } else if (score >= 60) {
-    grade = 'Strong Answer';
-    critique = `Solid answer covering ${covered.length} key points. To achieve Staff/Lead level, incorporate concrete latency benchmarks or architectural trade-offs.`;
+    grade = targetLang === 'English' ? 'Strong Answer' : 'Matatag na Sagot';
+    critique = targetLang === 'Taglish'
+      ? `Magandang sagot! Naipaliwanag mo ang ${covered.length} key points. Para mas maging pang-Staff/Lead level, dagdagan pa ng konkreto na latency benchmarks o architecture trade-offs.`
+      : `Solid answer covering ${covered.length} key points. To achieve Staff/Lead level, incorporate concrete latency benchmarks or architectural trade-offs.`;
   } else {
-    grade = 'Needs Practice';
-    critique = `Addressed ${covered.length} of ${talkingPoints.length} concepts. Make sure to cover: ${missing.slice(0, 2).join(' and ')}.`;
+    grade = targetLang === 'English' ? 'Needs Practice' : 'Kailangan ng Ensayo';
+    critique = targetLang === 'Taglish'
+      ? `Nabanggit ang ${covered.length} sa ${talkingPoints.length} konsepto. Siguraduhing ma-highlight: ${missing.slice(0, 2).join(' at ') || 'konkretong solusyon'}.`
+      : `Addressed ${covered.length} of ${talkingPoints.length} concepts. Make sure to cover: ${missing.slice(0, 2).join(' and ')}.`;
   }
 
   return {
     score,
     grade,
+    language_detected: detectedLang,
     coveredPoints: covered,
     missingPoints: missing,
-    critique
+    critique,
+    better_answer: betterAnswer
   };
 }
 
@@ -3306,6 +3464,15 @@ function renderInterviewQuestions(questions) {
   if (!list) return;
 
   list.innerHTML = '';
+  if (!Array.isArray(questions) || questions.length === 0) {
+    list.innerHTML = `
+      <div class="py-8 text-center space-y-2" style="color: var(--ink-3);">
+        <p class="text-xs">No questions loaded. Click <strong>+ Custom Question</strong> above to add one, or scan a job description.</p>
+      </div>
+    `;
+    return;
+  }
+
   questions.forEach(q => {
     const card = document.createElement('div');
     card.className = 'p-4 rounded-xl border space-y-2.5 transition hover:border-amber-500/40';
@@ -3321,12 +3488,22 @@ function renderInterviewQuestions(questions) {
         `).join('')
       : '';
 
+    const customChipHtml = q.is_custom
+      ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center space-x-1" style="background: var(--amber-light); color: var(--amber);">
+          <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          <span>Custom Question</span>
+        </span>`
+      : '';
+
     card.innerHTML = `
-      <div class="flex items-center justify-between">
-        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-flex items-center space-x-1" style="background: var(--paper-3); color: var(--ink);">
-          <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-          <span>${escapeHtml(q.category || 'Technical')}</span>
-        </span>
+      <div class="flex items-center justify-between flex-wrap gap-1.5">
+        <div class="flex items-center space-x-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-flex items-center space-x-1" style="background: var(--paper-3); color: var(--ink);">
+            <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            <span>${escapeHtml(q.category || 'Technical')}</span>
+          </span>
+          ${customChipHtml}
+        </div>
         <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full inline-flex items-center space-x-1" style="background: var(--amber-light); color: var(--amber);">
           <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
           <span>${escapeHtml(q.target_skill || 'Core Competency')}</span>
@@ -3362,16 +3539,31 @@ function renderInterviewQuestions(questions) {
       </div>
 
       <!-- Practice Answer Drawer -->
-      <div class="practice-drawer hidden pt-2 space-y-2 border-t" style="border-color: var(--border);">
-        <textarea class="practice-input console-input w-full p-2.5 text-xs rounded-xl font-sans" rows="3" placeholder="Draft your answer using STAR (Situation, Task, Action, Result)..."></textarea>
+      <div class="practice-drawer hidden pt-2 space-y-2.5 border-t" style="border-color: var(--border);">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <span class="text-[10px] font-medium" style="color: var(--ink-3);">Answer in English, Tagalog, or Taglish:</span>
+          <div class="flex items-center space-x-1 text-[11px]">
+            <label class="text-[10px] opacity-70 mr-1" style="color: var(--ink-3);">Language:</label>
+            <select class="practice-lang-select console-input text-[11px] px-2 py-0.5 rounded-md">
+              <option value="Auto">Auto-Detect</option>
+              <option value="English">English</option>
+              <option value="Taglish">Taglish (PH Tech)</option>
+              <option value="Tagalog">Tagalog</option>
+            </select>
+          </div>
+        </div>
+
+        <textarea class="practice-input console-input w-full p-2.5 text-xs rounded-xl font-sans" rows="3" placeholder="Draft your answer using STAR (Situation, Task, Action, Result). Taglish is warmly welcomed! e.g. Nag-implement kami ng Redis cache tapos bumaba latency ng 40%..."></textarea>
+
         <div class="flex items-center justify-between">
-          <span class="text-[10px] opacity-70" style="color: var(--ink-4);">Instant AI coaching evaluation</span>
+          <span class="text-[10px] opacity-70" style="color: var(--ink-4);">Instant AI coaching evaluation & STAR Better Answer</span>
           <button type="button" class="btn-eval-answer px-3 py-1 text-xs font-bold btn-action-primary text-white rounded-lg inline-flex items-center space-x-1">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span>Evaluate Response</span>
           </button>
         </div>
-        <div class="practice-feedback hidden p-3 rounded-xl border text-xs space-y-2" style="background: var(--surface); border-color: var(--border);"></div>
+
+        <div class="practice-feedback hidden p-3 rounded-xl border text-xs space-y-3" style="background: var(--surface); border-color: var(--border);"></div>
       </div>
     `;
 
@@ -3397,22 +3589,126 @@ function renderInterviewQuestions(questions) {
 
     const evalBtn = card.querySelector('.btn-eval-answer');
     const practiceInput = card.querySelector('.practice-input');
+    const langSelect = card.querySelector('.practice-lang-select');
     const feedbackBox = card.querySelector('.practice-feedback');
+
     if (evalBtn && practiceInput && feedbackBox) {
       evalBtn.addEventListener('click', () => {
-        const result = evaluateInterviewAnswer(q, practiceInput.value);
+        const preferredLang = langSelect ? langSelect.value : 'Auto';
+
+        // Immediate synchronous evaluation (instant feedback & test-friendly)
+        const result = evaluateInterviewAnswer(q, practiceInput.value, { preferredLanguage: preferredLang });
         feedbackBox.classList.remove('hidden');
-        const colorClass = result.score >= 80 ? 'text-emerald-600 dark:text-emerald-400' : (result.score >= 60 ? 'text-amber-500' : 'text-rose-500');
-        feedbackBox.innerHTML = `
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="font-bold ${colorClass}">${escapeHtml(result.grade)}</span>
-              <span class="font-mono font-bold text-[11px] opacity-80" style="color: var(--ink);">${result.score}% Match</span>
+
+        const renderFeedbackUI = (res) => {
+          const colorClass = res.score >= 80 ? 'text-emerald-600 dark:text-emerald-400' : (res.score >= 60 ? 'text-amber-500' : 'text-rose-500');
+
+          let langChip = '';
+          if (res.language_detected === 'Taglish') {
+            langChip = `<span class="px-2 py-0.5 rounded text-[10px] font-bold" style="background: var(--amber-light); color: var(--amber); border: 1px solid var(--border);">🇵🇭 Taglish Detected</span>`;
+          } else if (res.language_detected === 'Tagalog') {
+            langChip = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/15 text-blue-500 border border-blue-500/30">🇵🇭 Tagalog Detected</span>`;
+          } else {
+            langChip = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">🇺🇸 English Detected</span>`;
+          }
+
+          // Build Better Answer Card
+          const better = res.better_answer || {};
+          const starText = better.star_answer || (better.situation_task ? `${better.situation_task} ${better.action} ${better.result}` : '');
+          const whyList = Array.isArray(better.why_better)
+            ? better.why_better.map(w => `<li class="flex items-start space-x-1.5"><span class="text-amber-500 font-bold">•</span><span>${escapeHtml(w)}</span></li>`).join('')
+            : '';
+
+          const betterCardHtml = starText ? `
+            <div class="mt-3 p-3.5 rounded-xl border space-y-2.5" style="background: var(--paper-3); border-color: var(--amber-light);">
+              <div class="flex items-center justify-between flex-wrap gap-1">
+                <div class="flex items-center space-x-1.5">
+                  <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                  <span class="text-xs font-bold" style="color: var(--ink);">AI Coach's Better Answer (STAR Exemplar)</span>
+                </div>
+                <button type="button" class="btn-copy-better-answer text-[10px] font-semibold px-2 py-0.5 rounded transition hover:bg-slate-500/10" style="color: var(--ink-2); border: 1px solid var(--border);">
+                  Copy Model Answer
+                </button>
+              </div>
+
+              <div class="p-2.5 rounded-lg border text-xs leading-relaxed" style="background: var(--surface); border-color: var(--border); color: var(--ink);">
+                "${escapeHtml(starText)}"
+              </div>
+
+              ${whyList ? `
+                <div class="text-[11px] space-y-1">
+                  <span class="font-bold opacity-80" style="color: var(--ink-2);">Why this is a better answer:</span>
+                  <ul class="space-y-1 pl-1" style="color: var(--ink-3);">
+                    ${whyList}
+                  </ul>
+                </div>
+              ` : ''}
             </div>
-            <span class="text-[10px] font-mono opacity-70" style="color: var(--ink-3);">${result.coveredPoints.length}/${(q.talking_points || []).length} Points Covered</span>
-          </div>
-          <p class="text-[11px] leading-relaxed" style="color: var(--ink-2);">${escapeHtml(result.critique)}</p>
-        `;
+          ` : '';
+
+          feedbackBox.innerHTML = `
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center space-x-2">
+                <span class="font-bold ${colorClass}">${escapeHtml(res.grade)}</span>
+                <span class="font-mono font-bold text-[11px] opacity-80" style="color: var(--ink);">${res.score}% Match</span>
+                ${langChip}
+              </div>
+              <span class="text-[10px] font-mono opacity-70" style="color: var(--ink-3);">${res.coveredPoints.length}/${(q.talking_points || []).length} Points Covered</span>
+            </div>
+            <p class="text-[11px] leading-relaxed" style="color: var(--ink-2);">${escapeHtml(res.critique)}</p>
+            ${betterCardHtml}
+          `;
+
+          // Wire copy model answer button
+          const copyBetterBtn = feedbackBox.querySelector('.btn-copy-better-answer');
+          if (copyBetterBtn) {
+            copyBetterBtn.addEventListener('click', async () => {
+              try {
+                await navigator.clipboard.writeText(starText);
+                showToast('Copied exemplary STAR answer to clipboard!', 'success');
+              } catch (_) {
+                showToast('Copied model answer.', 'success');
+              }
+            });
+          }
+        };
+
+        renderFeedbackUI(result);
+
+        // Asynchronous progressive enhancement via backend if authenticated
+        if (typeof getAuthBearerToken === 'function' && typeof fetch === 'function' && practiceInput.value.length >= 15) {
+          getAuthBearerToken().then(token => {
+            if (!token) return;
+            fetch('interview.php', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                action: 'evaluate',
+                question: q.question,
+                user_answer: practiceInput.value,
+                target_skill: q.target_skill,
+                talking_points: q.talking_points || [],
+                preferred_language: preferredLang
+              })
+            }).then(r => r.ok ? r.json() : null)
+              .then(apiRes => {
+                if (apiRes && apiRes.score !== undefined) {
+                  renderFeedbackUI({
+                    score: apiRes.score,
+                    grade: apiRes.grade,
+                    language_detected: apiRes.language_detected,
+                    coveredPoints: apiRes.covered_points || [],
+                    missingPoints: apiRes.missing_points || [],
+                    critique: apiRes.critique,
+                    better_answer: apiRes.better_answer || {}
+                  });
+                }
+              }).catch(() => {});
+          }).catch(() => {});
+        }
       });
     }
 
@@ -3792,6 +4088,67 @@ function initAiActionSuite() {
       } catch (_) {
         showToast('Copied questions.', 'success');
       }
+    });
+  }
+
+  // Interview Modal Tabs & Custom Question Creator
+  const tabGenBtn = document.getElementById('tabGeneratedQuestionsBtn');
+  const tabCustomBtn = document.getElementById('tabCustomQuestionBtn');
+  const customPanel = document.getElementById('customQuestionPanel');
+  const interviewList = document.getElementById('interviewQuestionsList');
+  const addCustomBtn = document.getElementById('addCustomQuestionBtn');
+
+  if (tabGenBtn && tabCustomBtn && customPanel && interviewList) {
+    tabGenBtn.addEventListener('click', () => {
+      customPanel.classList.add('hidden');
+      interviewList.classList.remove('hidden');
+      tabGenBtn.style.background = 'var(--surface)';
+      tabGenBtn.style.color = 'var(--ink)';
+      tabCustomBtn.style.background = 'transparent';
+      tabCustomBtn.style.color = 'var(--ink-3)';
+    });
+
+    tabCustomBtn.addEventListener('click', () => {
+      customPanel.classList.remove('hidden');
+      interviewList.classList.add('hidden');
+      tabCustomBtn.style.background = 'var(--surface)';
+      tabCustomBtn.style.color = 'var(--ink)';
+      tabGenBtn.style.background = 'transparent';
+      tabGenBtn.style.color = 'var(--ink-3)';
+      document.getElementById('customQuestionInput')?.focus();
+    });
+  }
+
+  if (addCustomBtn) {
+    addCustomBtn.addEventListener('click', () => {
+      const qInput = document.getElementById('customQuestionInput');
+      const sInput = document.getElementById('customSkillInput');
+      const cInput = document.getElementById('customCategoryInput');
+      const countBadge = document.getElementById('interviewCountBadge');
+
+      const qText = qInput ? qInput.value.trim() : '';
+      if (!qText) {
+        showToast('Please type an interview question to practice.', 'warning');
+        return;
+      }
+
+      const targetSkill = sInput && sInput.value.trim() ? sInput.value.trim() : 'Core Competency';
+      const category = cInput && cInput.value.trim() ? cInput.value.trim() : 'Custom Practice';
+
+      const newQ = createCustomInterviewQuestion(qText, targetSkill, category);
+      lastInterviewQuestions.unshift(newQ);
+
+      if (countBadge) {
+        countBadge.textContent = `${lastInterviewQuestions.length} Questions`;
+      }
+
+      if (qInput) qInput.value = '';
+      if (sInput) sInput.value = '';
+
+      // Switch back to questions view
+      tabGenBtn?.click();
+      renderInterviewQuestions(lastInterviewQuestions);
+      showToast('Added custom question to your interview session!', 'success');
     });
   }
 
@@ -4993,6 +5350,7 @@ if (typeof module !== 'undefined' && module.exports) {
     initRoadmap,
     getCurrentRoadmapData: () => currentRoadmapData,
     evaluateInterviewAnswer,
+    createCustomInterviewQuestion,
     generateCompanyDossier,
     renderCompanyDossier,
     openDossierModal,
