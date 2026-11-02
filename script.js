@@ -5938,6 +5938,28 @@ function openIntegrityModal() {
   if (container && typeof SkillSyncAuthenticity !== 'undefined' && typeof SkillSyncAuthenticity.auditResumeIntegrity === 'function') {
     const audit = SkillSyncAuthenticity.auditResumeIntegrity(text);
     container.innerHTML = SkillSyncAuthenticity.renderIntegrityReportHtml(audit);
+
+    if (supabaseClient && currentSession && currentSession.user && !isDemoMode()) {
+      try {
+        supabaseClient.from('resume_credibility_audits').insert([
+          {
+            user_id: currentSession.user.id,
+            resume_title: 'Resume Credibility Check',
+            credibility_score: audit.credibilityScore,
+            verdict: audit.verdict,
+            flagged_issues: audit.flaggedIssues,
+            substantiated_skills: audit.substantiatedSkills,
+            unsubstantiated_skills: audit.unsubstantiatedSkills
+          }
+        ]).then(({ error }) => {
+          if (!error) {
+            console.log('[Audit] Synced credibility report to Supabase cloud.');
+          }
+        });
+      } catch (err) {
+        console.warn('[Audit] Cloud sync skipped:', err);
+      }
+    }
   }
 
   modal.classList.remove('hidden');
