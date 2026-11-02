@@ -148,7 +148,7 @@ switch ($action) {
             'id' => 'doc-vault-' . time(),
             'doc_type' => in_array($docType, ['resume', 'certification', 'portfolio', 'project']) ? $docType : 'certification',
             'doc_name' => htmlspecialchars($docName, ENT_QUOTES, 'UTF-8'),
-            'content_snippet' => mb_substr($content, 0, 160) . '...',
+            'content_snippet' => (mb_strlen($content) > 160) ? (mb_substr($content, 0, 157) . '...') : $content,
             'extracted_skills' => array_values(array_unique($flatSkills)),
             'created_at' => date('Y-m-d')
         ];
