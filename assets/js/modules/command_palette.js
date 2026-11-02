@@ -23,6 +23,13 @@
       keywords: ['scan', 'evaluate', 'ats', 'match', 'score', 'audit']
     },
     {
+      id: 'audit_credibility',
+      title: 'Audit Resume Credibility & Anti-Hallucination',
+      category: 'Audit',
+      shortcut: '⌘ A',
+      keywords: ['audit', 'fake', 'credibility', 'integrity', 'fact-check', 'anachronism']
+    },
+    {
       id: 'speedrun_kit',
       title: '1-Click Speedrun Application Kit',
       category: 'Accelerator',
