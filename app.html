@@ -1092,87 +1092,8 @@
   <section id="auth-section" class="max-w-5xl mx-auto my-6 sm:my-10 overflow-hidden rounded-3xl border shadow-2xl transition-all" style="background: var(--surface); border-color: var(--border);">
     <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
       
-      <!-- Left Pane: Editorial Value Engine & Real Telemetry Preview -->
-      <div class="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r relative overflow-hidden" style="background: var(--paper-2); border-color: var(--border);">
-        <!-- Ambient Radial Glows -->
-        <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full blur-3xl opacity-25 pointer-events-none" style="background: var(--sage);"></div>
-        <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-20 pointer-events-none" style="background: var(--sky);"></div>
-
-        <!-- Header & Brand Tagline -->
-        <div class="relative z-10 space-y-4">
-          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-mono font-bold tracking-wider uppercase border shadow-sm" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
-            <span class="w-2 h-2 rounded-full animate-ping mr-0.5" style="background: var(--sage);"></span>
-            <span class="w-2 h-2 rounded-full -ml-3" style="background: var(--sage);"></span>
-            <span>ATS Telemetry v2.3</span>
-            <span class="text-[9px] opacity-40">/</span>
-            <span style="color: var(--sage);">Verified Candidate Fit</span>
-          </div>
-
-          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight" style="color: var(--ink);">
-            Turn applicant tracking systems into your <span class="font-serif italic font-normal" style="color: var(--sage);">unfair advantage</span>.
-          </h1>
-
-          <p class="text-xs sm:text-sm leading-relaxed" style="color: var(--ink-2);">
-            Engineered for high-performing candidates who refuse generic mass-applying. Score 80%+ compatibility before you submit.
-          </p>
-        </div>
-
-        <!-- Live Mock Telemetry Card -->
-        <div class="my-6 p-4 rounded-2xl border space-y-3 relative z-10 shadow-md backdrop-blur-md" style="background: var(--surface); border-color: var(--border);">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2.5">
-              <span class="p-2 rounded-xl text-emerald-500 bg-emerald-500/10">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </span>
-              <div>
-                <div class="text-xs font-bold" style="color: var(--ink);">Senior Platform Systems Engineer</div>
-                <div class="text-[10px] font-mono" style="color: var(--ink-3);">Nexus Robotics · High Concurrency Core</div>
-              </div>
-            </div>
-            <span class="px-2.5 py-1 text-xs font-black font-mono rounded-lg shadow-sm" style="background: var(--sage-light); color: var(--sage);">94% Fit</span>
-          </div>
-
-          <!-- Google XYZ Formula Quantified Bullet -->
-          <div class="p-2.5 rounded-xl border text-[11px] leading-relaxed font-mono" style="background: var(--paper-2); border-color: var(--border); color: var(--ink-2);">
-            <span class="font-bold text-amber-500">Google XYZ:</span> Architected distributed event pipelines, cutting p99 API latency by <span class="font-bold text-emerald-500">42%</span> across 18k req/sec.
-          </div>
-
-          <!-- Pillar Compatibility Checkpoints -->
-          <div class="grid grid-cols-3 gap-2 pt-1 text-[10px] font-mono text-center">
-            <div class="p-1.5 rounded-lg border" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
-              <div class="font-bold text-emerald-600 dark:text-emerald-400">100%</div>
-              <div class="opacity-75">Cloud Arch</div>
-            </div>
-            <div class="p-1.5 rounded-lg border" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
-              <div class="font-bold text-emerald-600 dark:text-emerald-400">92%</div>
-              <div class="opacity-75">Kubernetes</div>
-            </div>
-            <div class="p-1.5 rounded-lg border" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
-              <div class="font-bold text-emerald-600 dark:text-emerald-400">90%</div>
-              <div class="opacity-75">Go/Python</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Senior Proof Pillars -->
-        <div class="relative z-10 space-y-2 text-xs" style="color: var(--ink-2);">
-          <div class="flex items-center space-x-2.5">
-            <svg class="w-4 h-4 shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-            <span><strong>Auto-Match Radar:</strong> Instant batch pre-scoring across live openings.</span>
-          </div>
-          <div class="flex items-center space-x-2.5">
-            <svg class="w-4 h-4 shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-            <span><strong>1-Click Speedrun Kit:</strong> XYZ Bullets, Cover Letter &amp; DM in 30 seconds.</span>
-          </div>
-          <div class="flex items-center space-x-2.5">
-            <svg class="w-4 h-4 shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-            <span><strong>Private &amp; Secure:</strong> Zero data harvesting. End-to-end Supabase encryption.</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Pane: FortiFocus Precision Console Terminal -->
-      <div class="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between">
+      <!-- Left Pane: FortiFocus Precision Console Terminal -->
+      <div class="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r" style="border-color: var(--border);">
         <div>
           <!-- Mode Switcher Pill Segment -->
           <div class="flex items-center p-1 rounded-xl border mb-6 self-start max-w-fit shadow-sm" style="background: var(--paper-2); border-color: var(--border);">
@@ -1271,6 +1192,85 @@
           </span>
           <span>Supabase Auth</span>
           <span>Zero Data Resale</span>
+        </div>
+      </div>
+
+      <!-- Right Pane: Editorial Value Engine & Real Telemetry Preview -->
+      <div class="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between relative overflow-hidden" style="background: var(--paper-2);">
+        <!-- Ambient Radial Glows -->
+        <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-25 pointer-events-none" style="background: var(--sage);"></div>
+        <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full blur-3xl opacity-20 pointer-events-none" style="background: var(--sky);"></div>
+
+        <!-- Header & Brand Tagline -->
+        <div class="relative z-10 space-y-4">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-mono font-bold tracking-wider uppercase border shadow-sm" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
+            <span class="w-2 h-2 rounded-full animate-ping mr-0.5" style="background: var(--sage);"></span>
+            <span class="w-2 h-2 rounded-full -ml-3" style="background: var(--sage);"></span>
+            <span>ATS Telemetry v2.3</span>
+            <span class="text-[9px] opacity-40">/</span>
+            <span style="color: var(--sage);">Verified Candidate Fit</span>
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight" style="color: var(--ink);">
+            Turn applicant tracking systems into your <span class="font-serif italic font-normal" style="color: var(--sage);">unfair advantage</span>.
+          </h1>
+
+          <p class="text-xs sm:text-sm leading-relaxed" style="color: var(--ink-2);">
+            Engineered for high-performing candidates who refuse generic mass-applying. Score 80%+ compatibility before you submit.
+          </p>
+        </div>
+
+        <!-- Live Mock Telemetry Card -->
+        <div class="my-6 p-4 rounded-2xl border space-y-3 relative z-10 shadow-md backdrop-blur-md" style="background: var(--surface); border-color: var(--border);">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+              <span class="p-2 rounded-xl text-emerald-500 bg-emerald-500/10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </span>
+              <div>
+                <div class="text-xs font-bold" style="color: var(--ink);">Senior Platform Systems Engineer</div>
+                <div class="text-[10px] font-mono" style="color: var(--ink-3);">Nexus Robotics · High Concurrency Core</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-black font-mono rounded-lg shadow-sm" style="background: var(--sage-light); color: var(--sage);">94% Fit</span>
+          </div>
+
+          <!-- Google XYZ Formula Quantified Bullet -->
+          <div class="p-2.5 rounded-xl border text-[11px] leading-relaxed font-mono" style="background: var(--paper-2); border-color: var(--border); color: var(--ink-2);">
+            <span class="font-bold text-amber-500">Google XYZ:</span> Architected distributed event pipelines, cutting p99 API latency by <span class="font-bold text-emerald-500">42%</span> across 18k req/sec.
+          </div>
+
+          <!-- Pillar Compatibility Checkpoints -->
+          <div class="grid grid-cols-3 gap-2 pt-1 text-[10px] font-mono text-center">
+            <div class="p-1.5 rounded-lg border" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
+              <div class="font-bold text-emerald-600 dark:text-emerald-400">100%</div>
+              <div class="opacity-75">Cloud Arch</div>
+            </div>
+            <div class="p-1.5 rounded-lg border" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
+              <div class="font-bold text-emerald-600 dark:text-emerald-400">92%</div>
+              <div class="opacity-75">Kubernetes</div>
+            </div>
+            <div class="p-1.5 rounded-lg border" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
+              <div class="font-bold text-emerald-600 dark:text-emerald-400">90%</div>
+              <div class="opacity-75">Go/Python</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Senior Proof Pillars -->
+        <div class="relative z-10 space-y-2 text-xs" style="color: var(--ink-2);">
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-4 h-4 shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            <span><strong>Auto-Match Radar:</strong> Instant batch pre-scoring across live openings.</span>
+          </div>
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-4 h-4 shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            <span><strong>1-Click Speedrun Kit:</strong> XYZ Bullets, Cover Letter &amp; DM in 30 seconds.</span>
+          </div>
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-4 h-4 shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            <span><strong>Private &amp; Secure:</strong> Zero data harvesting. End-to-end Supabase encryption.</span>
+          </div>
         </div>
       </div>
     </div>
