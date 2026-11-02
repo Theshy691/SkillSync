@@ -1396,112 +1396,115 @@
     <!-- View 1: ATS Matcher View -->
     <div id="ats-view" class="space-y-8">
 
-    <!-- 2-Column Responsive Workspace Grid -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 workspace-grid">
+    <!-- 2-Column Responsive Workspace Grid (Studio Pane) -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-5 workspace-grid">
 
-      <!-- Column 1: Resume / CV Input -->
-      <div id="resumeDropZone" class="console-card p-5 sm:p-6 flex flex-col justify-between transition border-2 border-transparent">
-        <div>
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div class="flex items-center space-x-2">
-              <svg class="w-4 h-4" style="color: var(--sage);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              <h3 class="font-bold text-base" style="color: var(--ink);">Resume</h3>
-            </div>
-
-            <!-- PDF / Image Upload & Fact-Check Radar Buttons -->
-            <div class="flex items-center space-x-2">
-              <input type="file" id="resumeFileInput" accept=".pdf, image/*, .png, .jpg, .jpeg, .webp, .txt, .md" class="hidden">
-              <button type="button" id="uploadPdfBtn" class="btn-tactile inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition" style="background: var(--sage-light); color: var(--sage); border: 1px solid var(--border);">
-                <svg id="uploadIconDefault" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                <svg id="uploadIconSpinner" class="hidden animate-spin w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                <span id="uploadBtnText">Upload</span>
-              </button>
-              <button type="button" id="auditCredibilityBtn" class="btn-tactile inline-flex items-center space-x-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl transition hover:border-amber-500/40" style="background: var(--surface-2); color: var(--amber, #f59e0b); border: 1px solid var(--border);" title="Audit Resume Credibility & Fact-Check Claims">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                <span class="hidden sm:inline">Fact-Check</span>
-              </button>
-            </div>
+      <!-- Column 1: Candidate Resume Studio Pane -->
+      <div id="resumeDropZone" class="studio-pane transition">
+        <!-- Studio Header -->
+        <div class="studio-pane-header flex-wrap gap-2">
+          <div class="flex items-center space-x-2">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span class="studio-pane-title">Candidate Resume</span>
           </div>
 
-          <!-- Resume Version Manager Bar -->
-          <div class="flex items-center space-x-1.5 mb-2.5">
-            <span class="text-[10px] font-bold uppercase tracking-wider opacity-65 shrink-0" style="color: var(--ink-2);">Version:</span>
-            <select id="resumeVersionSelect" class="console-input flex-1 px-2 py-1 text-xs cursor-pointer font-medium">
-              <option value="default">Default Profile</option>
-            </select>
-            <button type="button" id="saveResumeVersionBtn" class="px-2 py-1 text-xs font-semibold rounded-lg hover:bg-slate-500/10 transition inline-flex items-center space-x-1" title="Save Active Resume as Version" style="border: 1px solid var(--border); color: var(--ink);">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-              <span class="hidden sm:inline">Save</span>
+          <!-- Integrated Toolbar (Version, Upload, Audit) -->
+          <div class="flex items-center space-x-1.5 flex-wrap">
+            <div class="flex items-center space-x-1 bg-[var(--paper-3)] px-2 py-0.5 rounded-lg border border-[var(--border)]">
+              <span class="text-[10px] font-mono uppercase opacity-60">Ver:</span>
+              <select id="resumeVersionSelect" class="bg-transparent border-0 text-xs font-semibold cursor-pointer outline-none text-[var(--ink)]">
+                <option value="default">Default Profile</option>
+              </select>
+              <button type="button" id="saveResumeVersionBtn" class="p-1 hover:text-emerald-500 transition" title="Save current text as a version">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+              </button>
+              <button type="button" id="deleteResumeVersionBtn" class="p-1 text-rose-500 hover:text-rose-400 transition" title="Delete selected version">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+
+            <input type="file" id="resumeFileInput" accept=".pdf, image/*, .png, .jpg, .jpeg, .webp, .txt, .md" class="hidden">
+            <button type="button" id="uploadPdfBtn" class="btn-tactile px-2.5 py-1 text-xs font-semibold rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] hover:border-emerald-500/50 transition inline-flex items-center space-x-1" title="Upload PDF or scan image OCR">
+              <svg id="uploadIconDefault" class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              <svg id="uploadIconSpinner" class="hidden animate-spin w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+              <span id="uploadBtnText">Upload</span>
             </button>
-            <button type="button" id="deleteResumeVersionBtn" class="p-1 text-rose-500 hover:bg-rose-500/10 rounded-lg transition" title="Delete Selected Version">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+
+            <button type="button" id="auditCredibilityBtn" class="btn-tactile px-2.5 py-1 text-xs font-semibold rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 transition inline-flex items-center space-x-1" title="Audit Credibility & Anti-Hallucination">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <span>Fact-Check</span>
             </button>
           </div>
-
-          <!-- Resume Textarea -->
-          <label for="resumeText" class="sr-only">Resume Text</label>
-          <textarea id="resumeText" rows="7" placeholder="Paste resume text or drop PDF/image..." class="console-input w-full p-3.5 text-sm resize-y font-sans min-h-[160px] sm:min-h-[220px]"></textarea>
         </div>
 
-        <!-- Character Counter & Input Hint -->
-        <div class="flex items-center justify-between mt-2 pt-2 text-xs" style="color: var(--ink-4);">
-          <span id="resumeSourceBadge" class="flex items-center space-x-1 opacity-70">
-            <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-            <span>PDF, PNG, JPG, Text</span>
-          </span>
-          <span id="resumeCount" class="font-mono font-medium">0 chars</span>
-        </div>
+        <!-- Editor Area -->
+        <label for="resumeText" class="sr-only">Resume Text</label>
+        <textarea id="resumeText" rows="9" placeholder="Paste your resume markdown/text, or drag & drop a PDF/PNG document here..." class="studio-pane-editor"></textarea>
 
         <!-- Live Resume Health HUD (Action Verbs, Metrics & Density) -->
-        <div id="resumeHealthHud" class="resume-health-hud hidden">
+        <div id="resumeHealthHud" class="resume-health-hud hidden px-4 py-2 border-t border-[var(--border)] bg-[var(--paper-2)]">
           <!-- Populated by SkillSyncResumeHud in real-time -->
+        </div>
+
+        <!-- Studio Footer -->
+        <div class="studio-pane-footer">
+          <span id="resumeSourceBadge" class="flex items-center space-x-1.5 opacity-75">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>PDF · DOC · OCR · Text</span>
+          </span>
+          <div class="flex items-center space-x-2">
+            <span id="resumeCount" class="font-mono font-medium">0 chars</span>
+          </div>
         </div>
       </div>
 
-      <!-- Column 2: Job Description Input -->
-      <div class="console-card p-5 sm:p-6 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-2">
-              <svg class="w-4 h-4" style="color: var(--sky);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-              <h3 class="font-bold text-base" style="color: var(--ink);">Job Description</h3>
-            </div>
+      <!-- Column 2: Job Description Studio Pane -->
+      <div class="studio-pane transition">
+        <!-- Studio Header -->
+        <div class="studio-pane-header flex-wrap gap-2">
+          <div class="flex items-center space-x-2">
+            <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span class="studio-pane-title">Target Job Description</span>
           </div>
 
-          <!-- Web Scraper URL Bar -->
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-3">
-            <input type="url" id="jobUrlInput" placeholder="Job posting URL..." class="console-input flex-1 px-3 py-2 text-xs">
-            <button type="button" id="scrapeBtn" class="btn-action-sky inline-flex items-center justify-center space-x-1.5 px-3 py-2 text-xs font-semibold whitespace-nowrap">
+          <!-- Integrated Scraper Bar -->
+          <div class="flex items-center space-x-1.5 flex-1 max-w-xs sm:max-w-sm justify-end">
+            <input type="url" id="jobUrlInput" placeholder="Job posting URL..." class="bg-[var(--paper-3)] border border-[var(--border)] px-2.5 py-1 text-xs rounded-lg flex-1 outline-none focus:border-sky-500 transition text-[var(--ink)]">
+            <button type="button" id="scrapeBtn" class="btn-action-sky px-2.5 py-1 text-xs font-semibold rounded-lg inline-flex items-center space-x-1 shrink-0">
               <span id="scrapeBtnText">Import</span>
-              <svg id="scrapeSpinner" class="hidden animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+              <svg id="scrapeSpinner" class="hidden animate-spin w-3 h-3 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
             </button>
           </div>
-
-          <!-- Job Description Textarea -->
-          <label for="jobText" class="sr-only">Job Description Text</label>
-          <textarea id="jobText" rows="7" placeholder="Paste target qualifications and requirements..." class="console-input w-full p-3.5 text-sm resize-y font-sans min-h-[160px] sm:min-h-[220px]"></textarea>
         </div>
 
-        <!-- Character Counter -->
-        <div class="flex items-center justify-between mt-2 pt-2 text-xs" style="color: var(--ink-4);">
-          <span id="scrapeStatusBadge" class="flex items-center space-x-1 opacity-70">
-            <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-            <span>Direct or URL</span>
+        <!-- Editor Area -->
+        <label for="jobText" class="sr-only">Job Description Text</label>
+        <textarea id="jobText" rows="9" placeholder="Paste target qualifications, responsibilities, and required tech competencies..." class="studio-pane-editor"></textarea>
+
+        <!-- Studio Footer -->
+        <div class="studio-pane-footer">
+          <span id="scrapeStatusBadge" class="flex items-center space-x-1.5 opacity-75">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+            <span>Direct or URL Scraper</span>
           </span>
-          <span id="jobCount" class="font-mono font-medium">0 chars</span>
+          <div class="flex items-center space-x-2">
+            <span id="jobCount" class="font-mono font-medium">0 chars</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Central Action: Analyze & Speedrun Buttons -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <button type="button" id="analyzeBtn" class="w-full sm:w-auto min-w-[240px] px-8 py-3.5 btn-action-primary text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2.5 text-base cursor-pointer">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    <!-- Central Action Command Bar -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+      <button type="button" id="analyzeBtn" class="btn-command-primary w-full sm:w-auto">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         <span id="analyzeBtnText">Run Match Analysis</span>
-        <svg id="analyzeSpinner" class="hidden animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+        <kbd class="shortcut-badge ml-1 hidden sm:inline-flex">⌘↵</kbd>
+        <svg id="analyzeSpinner" class="hidden animate-spin w-4 h-4 text-[#07090d]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
       </button>
-      <button type="button" id="quickSpeedrunBtn" onclick="typeof openSpeedrunModal === 'function' ? openSpeedrunModal() : (window.openSpeedrunModal && window.openSpeedrunModal())" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl border font-bold transition-all flex items-center justify-center space-x-2 text-sm shadow-sm hover:border-amber-500/50 hover:-translate-y-0.5 cursor-pointer" style="background: var(--paper-2); border-color: var(--border); color: var(--ink);">
-        <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+
+      <button type="button" id="quickSpeedrunBtn" onclick="typeof openSpeedrunModal === 'function' ? openSpeedrunModal() : (window.openSpeedrunModal && window.openSpeedrunModal())" class="btn-tactile w-full sm:w-auto px-5 py-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] font-semibold text-xs hover:border-amber-500/50 transition inline-flex items-center justify-center space-x-2 shadow-sm">
+        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         <span>1-Click Speedrun Kit</span>
       </button>
     </div>

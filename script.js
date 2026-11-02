@@ -1428,6 +1428,18 @@ function initAnalyzer() {
   const resultsSkeleton = document.getElementById('results-skeleton');
   const resultsContainer = document.getElementById('results-container');
 
+  const handleKeyShortcut = (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (analyzeBtn && !analyzeBtn.disabled) {
+        analyzeBtn.click();
+      }
+    }
+  };
+
+  if (resumeText) resumeText.addEventListener('keydown', handleKeyShortcut);
+  if (jobText) jobText.addEventListener('keydown', handleKeyShortcut);
+
   if (analyzeBtn) {
     analyzeBtn.addEventListener('click', async () => {
       if (!currentSession || !currentSession.access_token) {
@@ -6279,6 +6291,7 @@ if (typeof module !== 'undefined' && module.exports) {
     getCurrentSpeedrunKit: () => currentSpeedrunKit,
     performSignOut,
     initAuthForm,
+    initAnalyzer,
     openIntegrityModal,
     initIntegrityAuditor,
     initAudioFeedbackController,
