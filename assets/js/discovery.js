@@ -719,7 +719,7 @@
       if (e.key === 'Escape' && activeJobModalData) {
         closeJobModal();
       }
-      if (e.key === '/' && document.activeElement !== searchInput && (!document.activeElement || (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'))) {
+      if ((e.key === '/' || ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K'))) && document.activeElement !== searchInput && (!document.activeElement || (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'))) {
         e.preventDefault();
         if (searchInput) {
           searchInput.focus();
@@ -769,6 +769,7 @@
       transferJobToSpeedrun,
       getCandidateResume,
       initTheme,
+      initListeners,
       updatePlatformView,
       handlePlatformSwitch,
       handleExternalJobImport

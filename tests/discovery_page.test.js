@@ -18,6 +18,7 @@ const {
   closeJobModal,
   transferJobToAts,
   initTheme,
+  initListeners,
   updatePlatformView,
   handlePlatformSwitch,
   handleExternalJobImport
@@ -221,6 +222,19 @@ describe('Public Job Explorer Page Test Suite', () => {
       expect(saved.title).toBe(sampleJob.title);
       expect(saved.company).toBe(sampleJob.company_name);
       expect(window.location.href).toBe('app.html?auto_scan=1');
+    });
+
+    test('Cmd+K shortcut focuses and selects discovery search input', () => {
+      initListeners();
+      const searchInput = document.getElementById('discoverySearchInput');
+      searchInput.focus = jest.fn();
+      searchInput.select = jest.fn();
+
+      const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
+      document.dispatchEvent(event);
+
+      expect(searchInput.focus).toHaveBeenCalled();
+      expect(searchInput.select).toHaveBeenCalled();
     });
   });
 });
