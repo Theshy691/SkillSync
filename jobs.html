@@ -34,8 +34,8 @@
 
     [data-theme="dark"] {
       --text-primary: var(--ink);
-      --text-secondary: var(--ink-3);
-      --text-muted: var(--ink-4);
+      --text-secondary: var(--ink-2);
+      --text-muted: var(--ink-3);
       --bg-card: #13161f;
       --bg-surface: #191e2b;
       --border-color: rgba(255, 239, 222, 0.08);
@@ -74,7 +74,6 @@
       height: 6px;
       border-radius: 50%;
       background: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-light);
     }
     .discovery-title {
       font-family: 'Fraunces', serif;
@@ -86,9 +85,9 @@
       letter-spacing: -0.025em;
     }
     .discovery-title em {
-      font-style: italic;
+      font-style: normal;
       color: var(--accent);
-      font-weight: 400;
+      font-weight: 500;
     }
     .discovery-subtitle {
       font-size: 1.05rem;
@@ -200,7 +199,7 @@
     .search-input-box input:focus {
       border-color: var(--accent);
       background: var(--bg-card);
-      box-shadow: 0 0 0 3px var(--accent-light);
+      outline: none;
     }
     .search-icon {
       position: absolute;
@@ -314,7 +313,6 @@
       height: 6px;
       border-radius: 50%;
       background: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-light);
     }
     .sync-time-badge {
       font-size: 0.75rem;
@@ -660,10 +658,17 @@
       font-family: 'DM Sans', sans-serif;
     }
     .btn-card-primary {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0.04) 100%), var(--accent);
+      background-color: var(--accent);
+      background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0.04) 100%);
       color: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.2);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    [data-theme="dark"] .btn-card-primary,
+    .dark .btn-card-primary {
+      background-color: var(--accent) !important;
+      color: #07090d !important;
+      border-color: rgba(0, 0, 0, 0.2);
     }
     .btn-card-primary:hover {
       background: var(--accent-hover);
@@ -883,7 +888,7 @@
           <div class="platform-banner-content">
             <div class="platform-banner-header">
               <span class="platform-tag" id="platformBannerTag">Platform</span>
-              <h3 id="platformBannerTitle">Search on LinkedIn</h3>
+              <h2 id="platformBannerTitle">Search on LinkedIn</h2>
               <p id="platformBannerDesc">Corporate, tech, and high-growth startup roles.</p>
             </div>
             <div class="platform-banner-actions">
@@ -993,10 +998,10 @@
       </div>
 
       <div class="modal-body">
-        <h4 style="margin-bottom: 0.6rem; font-size: 0.75rem; font-family: 'DM Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">Required Technologies</h4>
+        <h3 style="margin-bottom: 0.6rem; font-size: 0.75rem; font-family: 'DM Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">Required Technologies</h3>
         <div class="tag-cloud" id="modalTags" style="margin-bottom: 1.5rem;"></div>
 
-        <h4 style="margin-bottom: 0.6rem; font-size: 0.75rem; font-family: 'DM Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">Job Overview</h4>
+        <h3 style="margin-bottom: 0.6rem; font-size: 0.75rem; font-family: 'DM Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">Job Overview</h3>
         <div id="modalDescription" style="white-space: pre-line;"></div>
       </div>
 
