@@ -569,8 +569,8 @@
 </div>
 
 <!-- Modal 4: Salary Insights & Negotiation Coach -->
-<div id="salary-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="console-card max-w-2xl w-full p-6 shadow-2xl relative space-y-4 max-h-[92vh] flex flex-col">
+<div id="salary-modal" class="hidden fixed inset-0 z-50 overflow-y-auto workspace-modal-backdrop flex items-center justify-center p-4">
+  <div class="workspace-modal-card max-w-2xl w-full p-6 shadow-2xl relative space-y-4 max-h-[92vh] flex flex-col">
     <button type="button" id="closeSalaryModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
@@ -582,7 +582,7 @@
       <div>
         <div class="flex items-center space-x-2">
           <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Salary & Negotiation Coach</h3>
-          <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--sage-light); color: var(--sage);">Market Benchmarks</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--sage-light); color: var(--sage);">Market Benchmarks</span>
         </div>
       </div>
     </div>
@@ -601,7 +601,7 @@
         <label class="block text-[11px] font-semibold mb-1" style="color: var(--ink-2);">Current Offer (Optional)</label>
         <div class="flex items-center space-x-1.5">
           <input type="text" id="salaryOfferInput" placeholder="e.g. $140,000" class="console-input flex-1 px-3 py-1.5 text-xs">
-          <button type="button" id="recalculateSalaryBtn" class="px-3 py-1.5 text-xs font-semibold btn-action-primary text-white rounded-xl transition flex items-center justify-center shrink-0">
+          <button type="button" id="recalculateSalaryBtn" class="px-3 py-1.5 text-xs font-semibold btn-action-primary text-[#07090d] rounded-xl transition flex items-center justify-center shrink-0">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           </button>
         </div>
@@ -614,23 +614,23 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <div class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--ink-2);">Market Compensation Tiers</div>
-          <span id="salaryOfferStatusBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full" style="background: var(--paper-3); color: var(--ink-3);">Market Rate</span>
+          <span id="salaryOfferStatusBadge" class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full" style="background: var(--paper-3); color: var(--ink-3);">Market Rate</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <div class="p-3 rounded-xl border text-center" style="background: var(--paper-2); border-color: var(--border);">
-            <span class="text-[10px] opacity-65 block" style="color: var(--ink-3);">25th Percentile</span>
+            <span class="text-[11px] opacity-70 block" style="color: var(--ink-3);">25th Percentile</span>
             <span id="salaryBenchP25" class="text-sm font-bold font-mono mt-0.5 block" style="color: var(--ink);">$125,000</span>
           </div>
           <div class="p-3 rounded-xl border text-center ring-2 ring-emerald-500/30" style="background: var(--sage-light); border-color: var(--sage);">
-            <span class="text-[10px] font-bold block" style="color: var(--sage);">Market Median (50th)</span>
+            <span class="text-[11px] font-bold block" style="color: var(--sage);">Market Median (50th)</span>
             <span id="salaryBenchMedian" class="text-base font-black font-mono mt-0.5 block" style="color: var(--sage);">$145,000</span>
           </div>
           <div class="p-3 rounded-xl border text-center" style="background: var(--paper-2); border-color: var(--border);">
-            <span class="text-[10px] opacity-65 block" style="color: var(--ink-3);">75th Percentile</span>
+            <span class="text-[11px] opacity-70 block" style="color: var(--ink-3);">75th Percentile</span>
             <span id="salaryBenchP75" class="text-sm font-bold font-mono mt-0.5 block" style="color: var(--ink);">$165,000</span>
           </div>
           <div class="p-3 rounded-xl border text-center" style="background: var(--paper-2); border-color: var(--border);">
-            <span class="text-[10px] opacity-65 block" style="color: var(--ink-3);">90th (Top Tier)</span>
+            <span class="text-[11px] opacity-70 block" style="color: var(--ink-3);">90th (Top Tier)</span>
             <span id="salaryBenchP90" class="text-sm font-bold font-mono mt-0.5 block" style="color: var(--ink);">$185,000</span>
           </div>
         </div>
@@ -643,7 +643,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
           </div>
           <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider block opacity-70" style="color: var(--ink);">Strategic Counter Target</span>
+            <span class="text-[11px] font-bold uppercase tracking-wider block opacity-70" style="color: var(--ink);">Strategic Counter Target</span>
             <span class="text-xs" style="color: var(--ink-3);">Recommended anchor for maximum win-rate</span>
           </div>
         </div>
@@ -673,7 +673,7 @@
 
     <!-- Actions -->
     <div class="pt-3 border-t flex items-center justify-end" style="border-color: var(--border);">
-      <button type="button" id="closeSalaryBtnBottom" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5">
+      <button type="button" id="closeSalaryBtnBottom" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
         <span>Done</span>
       </button>
@@ -682,8 +682,8 @@
 </div>
 
 <!-- Modal 5: Add Role Manually to Application Pipeline -->
-<div id="add-pipeline-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="console-card max-w-md w-full p-6 shadow-2xl relative space-y-4">
+<div id="add-pipeline-modal" class="hidden fixed inset-0 z-50 overflow-y-auto workspace-modal-backdrop flex items-center justify-center p-4">
+  <div class="workspace-modal-card max-w-md w-full p-6 shadow-2xl relative space-y-4">
     <button type="button" id="closeAddPipelineModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
@@ -731,15 +731,15 @@
 
       <div class="pt-3 border-t flex items-center justify-end space-x-2" style="border-color: var(--border);">
         <button type="button" id="cancelAddPipelineBtn" class="px-3.5 py-2 text-xs font-semibold rounded-xl hover:bg-slate-500/10 transition inline-flex items-center space-x-1" style="color: var(--ink-2);"><svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg><span>Cancel</span></button>
-        <button type="submit" class="px-4 py-2 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center space-x-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg><span>Save to Pipeline</span></button>
+        <button type="submit" class="px-4 py-2 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center space-x-1.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg><span>Save to Pipeline</span></button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Modal 6: Smart Follow-Up Email Reminder -->
-<div id="followup-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="console-card max-w-xl w-full p-6 shadow-2xl relative space-y-4">
+<div id="followup-modal" class="hidden fixed inset-0 z-50 overflow-y-auto workspace-modal-backdrop flex items-center justify-center p-4">
+  <div class="workspace-modal-card max-w-xl w-full p-6 shadow-2xl relative space-y-4">
     <button type="button" id="closeFollowupModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
@@ -751,7 +751,7 @@
       <div>
         <div class="flex items-center space-x-2">
           <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Follow-Up Email Draft</h3>
-          <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--amber-light); color: var(--amber);">Smart Nudge</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--amber-light); color: var(--amber);">Smart Nudge</span>
         </div>
       </div>
     </div>
@@ -792,7 +792,7 @@
         <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
         <span>Copy Email</span>
       </button>
-      <button type="button" id="closeFollowupBtnBottom" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center space-x-1.5">
+      <button type="button" id="closeFollowupBtnBottom" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center space-x-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
         <span>Done</span>
       </button>
@@ -801,8 +801,8 @@
 </div>
 
 <!-- Modal 7: Save Resume Version -->
-<div id="save-version-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="console-card max-w-sm w-full p-6 shadow-2xl relative space-y-4">
+<div id="save-version-modal" class="hidden fixed inset-0 z-50 overflow-y-auto workspace-modal-backdrop flex items-center justify-center p-4">
+  <div class="workspace-modal-card max-w-sm w-full p-6 shadow-2xl relative space-y-4">
     <button type="button" id="closeSaveVersionModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
@@ -826,7 +826,7 @@
         <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         <span>Cancel</span>
       </button>
-      <button type="button" id="confirmSaveVersionBtn" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-white rounded-xl shadow-sm inline-flex items-center space-x-1.5">
+      <button type="button" id="confirmSaveVersionBtn" class="px-4 py-1.5 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center space-x-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
         <span>Save Version</span>
       </button>
