@@ -65,6 +65,7 @@ ALTER TABLE user_vault_profiles ENABLE ROW LEVEL SECURITY;
 
 -- 7. Row Level Security Policies for scan_history
 -- Policy: Users can only view their own scan records
+DROP POLICY IF EXISTS "Users can view own scan history" ON scan_history;
 CREATE POLICY "Users can view own scan history"
     ON scan_history
     FOR SELECT
@@ -72,6 +73,7 @@ CREATE POLICY "Users can view own scan history"
     USING (auth.uid() = user_id);
 
 -- Policy: Users can only insert their own scan records
+DROP POLICY IF EXISTS "Users can insert own scan history" ON scan_history;
 CREATE POLICY "Users can insert own scan history"
     ON scan_history
     FOR INSERT
@@ -79,14 +81,16 @@ CREATE POLICY "Users can insert own scan history"
     WITH CHECK (auth.uid() = user_id);
 
 -- Policy: Users can only delete their own scan records
+DROP POLICY IF EXISTS "Users can delete own scan history" ON scan_history;
 CREATE POLICY "Users can delete own scan history"
     ON scan_history
     FOR DELETE
     TO authenticated
     USING (auth.uid() = user_id);
 
--- 6. Row Level Security Policies for scraped_jobs_cache
+-- 8. Row Level Security Policies for scraped_jobs_cache
 -- Policy: All authenticated users can read from the shared cache
+DROP POLICY IF EXISTS "Authenticated users can read scraped jobs cache" ON scraped_jobs_cache;
 CREATE POLICY "Authenticated users can read scraped jobs cache"
     ON scraped_jobs_cache
     FOR SELECT
@@ -94,13 +98,15 @@ CREATE POLICY "Authenticated users can read scraped jobs cache"
     USING (auth.role() = 'authenticated');
 
 -- Policy: All authenticated users can write new entries into the shared cache
+DROP POLICY IF EXISTS "Authenticated users can insert into scraped jobs cache" ON scraped_jobs_cache;
 CREATE POLICY "Authenticated users can insert into scraped jobs cache"
     ON scraped_jobs_cache
     FOR INSERT
     TO authenticated
     WITH CHECK (auth.role() = 'authenticated');
 
--- 7. Row Level Security Policies for user_vault_documents
+-- 9. Row Level Security Policies for user_vault_documents
+DROP POLICY IF EXISTS "Users can manage own vault documents" ON user_vault_documents;
 CREATE POLICY "Users can manage own vault documents"
     ON user_vault_documents
     FOR ALL
@@ -108,7 +114,8 @@ CREATE POLICY "Users can manage own vault documents"
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
--- 8. Row Level Security Policies for user_vault_profiles
+-- 10. Row Level Security Policies for user_vault_profiles
+DROP POLICY IF EXISTS "Users can manage own vault profile" ON user_vault_profiles;
 CREATE POLICY "Users can manage own vault profile"
     ON user_vault_profiles
     FOR ALL
