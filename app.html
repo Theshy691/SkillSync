@@ -1308,15 +1308,10 @@
 
       <!-- Right Pane: Editorial Value Engine & Real Telemetry Preview -->
       <div class="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between relative overflow-hidden" style="background: var(--paper-2);">
-        <!-- Ambient Radial Glows -->
-        <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-25 pointer-events-none" style="background: var(--sage);"></div>
-        <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full blur-3xl opacity-20 pointer-events-none" style="background: var(--sky);"></div>
-
         <!-- Header & Brand Tagline -->
         <div class="relative z-10 space-y-4">
           <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-mono font-bold tracking-wider uppercase border shadow-sm" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
-            <span class="w-2 h-2 rounded-full animate-ping mr-0.5" style="background: var(--sage);"></span>
-            <span class="w-2 h-2 rounded-full -ml-3" style="background: var(--sage);"></span>
+            <span class="w-2 h-2 rounded-full shrink-0" style="background: var(--sage);"></span>
             <span>ATS Telemetry v2.3</span>
             <span class="text-xs opacity-40">/</span>
             <span style="color: var(--sage);">Verified Candidate Fit</span>
@@ -1332,7 +1327,7 @@
         </div>
 
         <!-- Live Mock Telemetry Card -->
-        <div class="my-6 p-4 rounded-2xl border space-y-3 relative z-10 shadow-md backdrop-blur-md" style="background: var(--surface); border-color: var(--border);">
+        <div class="my-6 p-4 rounded-2xl border space-y-3 relative z-10 shadow-sm" style="background: var(--surface); border-color: var(--border);">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2.5">
               <span class="p-2 rounded-xl text-emerald-500 bg-emerald-500/10">
@@ -1346,22 +1341,22 @@
             <span class="px-2.5 py-1 text-xs font-black font-mono rounded-lg shadow-sm" style="background: var(--sage-light); color: var(--sage);">94% Fit</span>
           </div>
 
-          <!-- Google XYZ Formula Quantified Bullet -->
-          <div class="p-2.5 rounded-xl border text-[11px] leading-relaxed font-mono" style="background: var(--paper-2); border-color: var(--border); color: var(--ink-2);">
+          <!-- Google XYZ Formula Quantified Bullet (Flat Divider) -->
+          <div class="pt-2 border-t text-[11px] leading-relaxed font-mono" style="border-color: var(--border); color: var(--ink-2);">
             <span class="font-bold text-amber-500">Google XYZ:</span> Architected distributed event pipelines, cutting p99 API latency by <span class="font-bold text-emerald-500">42%</span> across 18k req/sec.
           </div>
 
-          <!-- Pillar Compatibility Checkpoints -->
-          <div class="grid grid-cols-3 gap-2 pt-1 text-[10px] font-mono text-center">
-            <div class="p-1.5 rounded-lg border" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
+          <!-- Pillar Compatibility Checkpoints (Flat Divider Grid) -->
+          <div class="grid grid-cols-3 divide-x text-[10px] font-mono text-center pt-2 border-t" style="border-color: var(--border); divide-color: var(--border); color: var(--ink-2);">
+            <div class="px-2">
               <div class="font-bold text-emerald-600 dark:text-emerald-400">100%</div>
               <div class="opacity-75">Cloud Arch</div>
             </div>
-            <div class="p-1.5 rounded-lg border" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
+            <div class="px-2">
               <div class="font-bold text-emerald-600 dark:text-emerald-400">92%</div>
               <div class="opacity-75">Kubernetes</div>
             </div>
-            <div class="p-1.5 rounded-lg border" style="background: var(--paper-3); border-color: var(--border); color: var(--ink-2);">
+            <div class="px-2">
               <div class="font-bold text-emerald-600 dark:text-emerald-400">90%</div>
               <div class="opacity-75">Go/Python</div>
             </div>
@@ -1771,8 +1766,8 @@
           </div>
         </div>
 
-        <!-- Interactive 5-Axis Match Radar (Spider Chart) -->
-        <div id="radarSection" class="p-5 rounded-2xl border border-[var(--border)] bg-[var(--paper-2)] flex flex-col md:flex-row items-center justify-between gap-6">
+        <!-- Interactive 5-Axis Match Radar (Spider Chart - Flat Section) -->
+        <div id="radarSection" class="p-5 pt-6 border-t border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-6">
           <div class="space-y-2 max-w-sm">
             <div class="flex items-center space-x-2">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>

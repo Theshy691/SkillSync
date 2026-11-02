@@ -151,7 +151,7 @@ nav,
   height: 3px;
   z-index: 140;
   background: linear-gradient(90deg, var(--sage), var(--amber), var(--rose));
-  box-shadow: 0 0 20px rgba(83, 122, 87, 0.35);
+  box-shadow: none;
 }
 
 .site-nav {
