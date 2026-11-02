@@ -45,7 +45,7 @@ set_exception_handler(function (Throwable $e) {
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, apikey');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, apikey, X-Requested-With');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
@@ -260,8 +260,11 @@ function enforceRateLimit(string $userId, int $maxRequests = 5, int $windowSecon
         }
 
         if (count($timestamps) >= $maxRequests) {
+            $oldestInWindow = !empty($timestamps) ? $timestamps[0] : $cutoffTime;
+            $retryAfter = max(1, $oldestInWindow + $windowSeconds - $currentTime);
             flock($fp, LOCK_UN);
             fclose($fp);
+            header("Retry-After: {$retryAfter}");
             sendJsonResponse([
                 'error' => 'Too Many Requests',
                 'message' => "Rate limit exceeded. Maximum {$maxRequests} requests per minute allowed."

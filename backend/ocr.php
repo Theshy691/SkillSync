@@ -27,14 +27,7 @@ if (empty($token)) {
     ], 401);
 }
 
-$user = null;
-if (str_starts_with($token, 'demo-token-')) {
-    // Allow zero-setup local demo session
-    $user = ['id' => 'demo-user-local', 'email' => 'demo@skillsync.ai'];
-} else {
-    $user = verifySupabaseToken($token);
-}
-
+$user = verifySupabaseToken($token);
 if (!$user || empty($user['id'])) {
     sendJsonResponse([
         'error' => 'Unauthorized',
