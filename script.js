@@ -2471,7 +2471,7 @@ function recomputeAndRenderJobCards() {
 
   paginatedJobs.forEach(job => {
     const card = document.createElement('div');
-    card.className = 'console-card p-5 sm:p-6 flex flex-col justify-between transition hover:translate-y-[-2px]';
+    card.className = 'results-dock p-5 sm:p-6 flex flex-col justify-between transition duration-150 hover:translate-y-[-2px] hover:border-emerald-500/30';
     card.setAttribute('data-job-id', job.id);
 
     const companyInitial = job.company_name ? job.company_name.charAt(0).toUpperCase() : 'T';
@@ -2479,8 +2479,8 @@ function recomputeAndRenderJobCards() {
 
     const matchedBadges = comp.matchingSkills.length > 0
       ? comp.matchingSkills.map(s => `
-          <span class="inline-flex items-center space-x-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
-            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          <span class="inline-flex items-center space-x-1 text-xs font-semibold px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+            <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
             <span>${escapeHtml(s)}</span>
           </span>
         `).join(' ')
@@ -2488,7 +2488,7 @@ function recomputeAndRenderJobCards() {
 
     const missingBadges = comp.missingSkills.length > 0
       ? comp.missingSkills.slice(0, 3).map(s => `
-          <span class="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-lg opacity-70" style="background: var(--paper-3); color: var(--ink-3); border: 1px solid var(--border);">
+          <span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-lg opacity-80" style="background: var(--paper-3); color: var(--ink-3); border: 1px solid var(--ws-border, var(--border));">
             ${escapeHtml(s)}
           </span>
         `).join(' ')
@@ -2498,18 +2498,18 @@ function recomputeAndRenderJobCards() {
       <div>
         <div class="flex items-start justify-between gap-3 mb-3">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl font-black text-sm flex items-center justify-center shrink-0 shadow-sm" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--border);">
+            <div class="w-10 h-10 rounded-xl font-black text-sm flex items-center justify-center shrink-0 shadow-xs" style="background: var(--paper-3); color: var(--ink); border: 1px solid var(--ws-border, var(--border));">
               ${escapeHtml(companyInitial)}
             </div>
             <div>
               <div class="flex items-center space-x-2">
                 <h4 class="font-bold text-sm leading-tight" style="color: var(--ink);">${escapeHtml(job.company_name)}</h4>
-                ${job.is_new ? `<span class="px-1.5 py-0.5 rounded-md font-semibold text-[10px] bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> New</span>` : ''}
+                ${job.is_new ? `<span class="px-2 py-0.5 rounded-md font-semibold text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> New</span>` : ''}
               </div>
-              <div class="flex items-center space-x-2 text-[11px] mt-0.5" style="color: var(--ink-3);">
+              <div class="flex items-center space-x-2 text-xs mt-0.5" style="color: var(--ink-3);">
                 <span>${escapeHtml(job.location)}</span>
-                ${job.remote ? `<span class="px-1.5 py-0.2 rounded font-semibold text-[10px] bg-emerald-500/10 text-emerald-600">Remote</span>` : ''}
-                ${job.relative_time ? `<span class="font-mono text-[10px] opacity-70">${escapeHtml(job.relative_time)}</span>` : ''}
+                ${job.remote ? `<span class="px-2 py-0.5 rounded font-semibold text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Remote</span>` : ''}
+                ${job.relative_time ? `<span class="font-mono text-xs opacity-70">${escapeHtml(job.relative_time)}</span>` : ''}
               </div>
             </div>
           </div>
@@ -2517,7 +2517,7 @@ function recomputeAndRenderJobCards() {
           <div class="shrink-0 text-right">
             <span class="px-2.5 py-1 rounded-xl text-xs font-bold inline-flex items-center space-x-1 ${comp.badgeClass}">
               <span>${comp.score}%</span>
-              <span class="opacity-80 font-medium text-[10px]">Fit</span>
+              <span class="opacity-80 font-medium text-xs">Fit</span>
             </span>
           </div>
         </div>
@@ -2526,7 +2526,7 @@ function recomputeAndRenderJobCards() {
         <p class="text-xs line-clamp-2 mb-4 leading-relaxed" style="color: var(--ink-3);">${escapeHtml(job.description)}</p>
 
         <div class="space-y-1.5 mb-4">
-          <div class="text-[10px] uppercase font-bold tracking-wider opacity-60" style="color: var(--ink-4);">ATS Skills Alignment</div>
+          <div class="text-xs uppercase font-bold tracking-wider opacity-60" style="color: var(--ink-4);">ATS Skills Alignment</div>
           <div class="flex flex-wrap gap-1.5 items-center">
             ${matchedBadges}
             ${missingBadges}
@@ -2534,19 +2534,19 @@ function recomputeAndRenderJobCards() {
         </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3.5 border-t mt-2" style="border-color: var(--border);">
-        <span class="text-xs font-mono font-medium opacity-75" style="color: var(--ink-3);">${escapeHtml(job.salary || 'Competitive')}</span>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3.5 border-t mt-2" style="border-color: var(--ws-border, var(--border));">
+        <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg border" style="background: rgba(16, 185, 129, 0.08); color: var(--sage); border-color: rgba(16, 185, 129, 0.2);">${escapeHtml(job.salary || 'Competitive')}</span>
         
         <div class="flex items-center space-x-2 w-full sm:w-auto">
-          <button type="button" class="btn-track-job flex-1 sm:flex-initial text-center justify-center px-3 py-1.5 text-xs font-semibold rounded-xl transition inline-flex items-center space-x-1 hover:bg-slate-500/10" style="background: var(--paper-2); color: var(--sky); border: 1px solid var(--border);">
+          <button type="button" class="btn-track-job flex-1 sm:flex-initial text-center justify-center px-3 py-1.5 text-xs font-semibold rounded-xl transition inline-flex items-center space-x-1 hover:bg-slate-500/10 cursor-pointer" style="background: var(--paper-2); color: var(--sky); border: 1px solid var(--ws-border, var(--border));">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Track</span>
           </button>
-          <a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial text-center justify-center px-3 py-1.5 text-xs font-semibold rounded-xl transition inline-flex items-center space-x-1" style="background: var(--paper-2); color: var(--ink); border: 1px solid var(--border);">
+          <a href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial text-center justify-center px-3 py-1.5 text-xs font-semibold rounded-xl transition inline-flex items-center space-x-1 cursor-pointer" style="background: var(--paper-2); color: var(--ink); border: 1px solid var(--ws-border, var(--border));">
             <span>Apply</span>
             <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
           </a>
-          <button type="button" class="btn-load-job flex-1 sm:flex-initial justify-center px-3.5 py-1.5 text-xs font-bold text-white btn-action-primary inline-flex items-center space-x-1.5">
+          <button type="button" class="btn-load-job flex-1 sm:flex-initial justify-center px-3.5 py-1.5 text-xs font-bold text-white btn-action-primary inline-flex items-center space-x-1.5 cursor-pointer">
             <span>Analyze in Workspace</span>
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
