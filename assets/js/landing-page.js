@@ -1,6 +1,6 @@
 /**
  * SkillSync - Interactive Landing Page Logic
- * Pixel-accurate implementation matching FortiFocus design system
+ * Quiet Chrome Design System & Verifiable ATS Architecture
  */
 
 // 1. Theme Controller (Syncs data-theme with Tailwind dark mode class)
@@ -105,28 +105,36 @@ function animateCount(element, target, suffix = "", duration = 1800) {
 
 function initHeroStats(heroStats) {
   if (!heroStats) return;
-  let countersStarted = false;
+  let statsActivated = false;
 
   const heroObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      if (!entry.isIntersecting || countersStarted) return;
-      countersStarted = true;
+      if (!entry.isIntersecting || statsActivated) return;
+      statsActivated = true;
 
-      animateCount(document.getElementById("counterScans"), 14820, "+");
-      animateCount(document.getElementById("counterKeywords"), 450000, "+");
-      animateCount(document.getElementById("counterGaps"), 8200, "+");
+      // Smoothly animate the privacy metric to 100%
+      const scansEl = document.getElementById("counterScans");
+      if (scansEl) {
+        animateCount(scansEl, 100, "%", 1200);
+      }
 
-      const rateElement = document.getElementById("counterRate");
-      if (!rateElement) return;
+      // Ensure verified capability metrics are cleanly displayed
+      const kwEl = document.getElementById("counterKeywords");
+      if (kwEl && !kwEl.textContent.trim()) {
+        kwEl.textContent = "0–100%";
+      }
 
-      let rate = 0;
-      const intervalId = window.setInterval(() => {
-        rate = Math.min(rate + 1, 92);
-        rateElement.textContent = `${rate}%`;
-        if (rate >= 92) {
-          window.clearInterval(intervalId);
-        }
-      }, 16);
+      const gapsEl = document.getElementById("counterGaps");
+      if (gapsEl && !gapsEl.textContent.trim()) {
+        gapsEl.textContent = "< 3s";
+      }
+
+      const rateEl = document.getElementById("counterRate");
+      if (rateEl && !rateEl.textContent.trim()) {
+        rateEl.textContent = "4-Axis";
+      }
+
+      heroStats.classList.add("stats-revealed");
     });
   }, { threshold: 0.25 });
 
@@ -151,24 +159,7 @@ function cycleDurations() {
   });
 }
 
-// 6. Streak / Activity Grid
-const activeDays = [
-  0, 1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24,
-  25, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 39, 41
-];
-
-function buildStreakGrid() {
-  const container = document.querySelector(".streak-showcase");
-  if (!container || container.children.length > 0) return;
-
-  for (let index = 0; index < 42; index += 1) {
-    const day = document.createElement("div");
-    day.className = `s-day${activeDays.includes(index) ? " active" : ""}${index === 41 ? " today" : ""}`;
-    container.appendChild(day);
-  }
-}
-
-// 7. Interactive App Preview Modal
+// 6. Interactive App Preview Modal
 function initAppPreview() {
   const modal = document.getElementById("appPreviewModal");
   const modalBody = document.getElementById("appPreviewBody");
@@ -243,7 +234,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initHeroStats(heroStats);
   initHeroSimulator();
   cycleDurations();
-  buildStreakGrid();
   initAppPreview();
 });
 
@@ -315,5 +305,16 @@ function initHeroSimulator() {
     activeIndex = (activeIndex + 1) % pills.length;
     updateRole(pills[activeIndex]);
   }, 4200);
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    getPreferredTheme,
+    updateThemeButton,
+    applyThemeGlobal,
+    animateCount,
+    initHeroStats,
+    initAppPreview
+  };
 }
 
