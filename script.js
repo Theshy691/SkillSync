@@ -487,6 +487,24 @@ function showSessionExpiredModal() {
 let isSignUpMode = false;
 
 async function performSignOut() {
+  const resumeText = document.getElementById('resumeText');
+  const jobText = document.getElementById('jobText');
+  const resumeCount = document.getElementById('resumeCount');
+  const jobCount = document.getElementById('jobCount');
+  if (resumeText) {
+    resumeText.value = '';
+    updateCharCounter(resumeText, resumeCount);
+  }
+  if (jobText) {
+    jobText.value = '';
+    updateCharCounter(jobText, jobCount);
+  }
+  try {
+    localStorage.removeItem('skillsync_resume_versions');
+    localStorage.removeItem('skillsync_cached_profile');
+    localStorage.removeItem('skillsync_selected_role');
+  } catch (_) {}
+
   if (isDemoMode()) {
     localStorage.removeItem('skillsync_demo_session');
     updateAuthState(null);
@@ -878,6 +896,77 @@ function initCharCounters() {
   }
   if (jobText && jobCount) {
     jobText.addEventListener('input', () => updateCharCounter(jobText, jobCount));
+  }
+}
+
+/**
+ * 7a. Quick Studio Presets & Empty State Helpers
+ */
+function initStudioPresets() {
+  const sampleResumeSweBtn = document.getElementById('sampleResumeSweBtn');
+  const sampleResumeDevOpsBtn = document.getElementById('sampleResumeDevOpsBtn');
+  const clearResumeBtn = document.getElementById('clearResumeBtn');
+  const sampleJobSweBtn = document.getElementById('sampleJobSweBtn');
+  const sampleJobDevOpsBtn = document.getElementById('sampleJobDevOpsBtn');
+  const clearJobBtn = document.getElementById('clearJobBtn');
+
+  const resumeText = document.getElementById('resumeText');
+  const resumeCount = document.getElementById('resumeCount');
+  const jobText = document.getElementById('jobText');
+  const jobCount = document.getElementById('jobCount');
+
+  const sampleSweResume = 'Full-Stack Software Engineer with 6+ years experience architecting scalable React, Next.js, Node.js, and TypeScript applications. Built event-driven Kafka microservices, optimized PostgreSQL databases with 35% latency reduction, and led CI/CD Docker deployments on AWS.';
+  const sampleDevOpsResume = 'Senior Cloud & Platform Engineer experienced in Kubernetes, Docker, Terraform, AWS, and GCP infrastructure. Slashed build times by 50% via automated GitHub Actions pipelines and maintained 99.99% system availability across multi-region deployments.';
+
+  const sampleSweJob = 'We are seeking a Staff Full-Stack Software Engineer to scale global payments infrastructure. Required: 6+ years experience with React, TypeScript, Node.js, high-throughput PostgreSQL, and event-driven microservices. Deep knowledge of API resilience, Docker, and AWS.';
+  const sampleDevOpsJob = 'Looking for a Lead SRE / Cloud Platform Engineer to oversee our global telemetry clusters. Qualifications: 5+ years with Kubernetes, Terraform, Prometheus/Grafana, Go/Python, and AWS/GCP cloud orchestration. Experience with 99.99% SLAs and zero-downtime rollouts.';
+
+  if (sampleResumeSweBtn && resumeText) {
+    sampleResumeSweBtn.addEventListener('click', () => {
+      resumeText.value = sampleSweResume;
+      updateCharCounter(resumeText, resumeCount);
+      showToast('Loaded Full-Stack Lead sample resume.', 'info', 2000);
+    });
+  }
+
+  if (sampleResumeDevOpsBtn && resumeText) {
+    sampleResumeDevOpsBtn.addEventListener('click', () => {
+      resumeText.value = sampleDevOpsResume;
+      updateCharCounter(resumeText, resumeCount);
+      showToast('Loaded Cloud & DevOps sample resume.', 'info', 2000);
+    });
+  }
+
+  if (clearResumeBtn && resumeText) {
+    clearResumeBtn.addEventListener('click', () => {
+      resumeText.value = '';
+      updateCharCounter(resumeText, resumeCount);
+      showToast('Cleared resume input.', 'info', 1500);
+    });
+  }
+
+  if (sampleJobSweBtn && jobText) {
+    sampleJobSweBtn.addEventListener('click', () => {
+      jobText.value = sampleSweJob;
+      updateCharCounter(jobText, jobCount);
+      showToast('Loaded Stripe Staff SWE target job.', 'info', 2000);
+    });
+  }
+
+  if (sampleJobDevOpsBtn && jobText) {
+    sampleJobDevOpsBtn.addEventListener('click', () => {
+      jobText.value = sampleDevOpsJob;
+      updateCharCounter(jobText, jobCount);
+      showToast('Loaded Datadog Lead SRE target job.', 'info', 2000);
+    });
+  }
+
+  if (clearJobBtn && jobText) {
+    clearJobBtn.addEventListener('click', () => {
+      jobText.value = '';
+      updateCharCounter(jobText, jobCount);
+      showToast('Cleared target job input.', 'info', 1500);
+    });
   }
 }
 
@@ -6671,6 +6760,7 @@ function initApp() {
   initAuth();
   initAuthForm();
   initCharCounters();
+  initStudioPresets();
   initResumeVersionManager();
   initPdfUpload();
   initJobScraper();
@@ -6890,6 +6980,7 @@ if (typeof module !== 'undefined' && module.exports) {
     renderAgenticTab,
     getCurrentAgenticPayload: () => currentAgenticPayload,
     performSignOut,
+    initStudioPresets,
     initAuthForm,
     initAnalyzer,
     openIntegrityModal,
