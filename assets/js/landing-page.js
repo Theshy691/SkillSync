@@ -85,63 +85,7 @@ function initReveal(revealObserverTargets) {
   revealObserverTargets.forEach((element) => revealObserver.observe(element));
 }
 
-// 4. Hero Counter Animations
-function animateCount(element, target, suffix = "", duration = 1800) {
-  if (!element) return;
-  let startTime = 0;
-
-  function step(timestamp) {
-    if (!startTime) startTime = timestamp;
-    const progress = Math.min((timestamp - startTime) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    element.textContent = `${Math.floor(eased * target).toLocaleString()}${suffix}`;
-    if (progress < 1) {
-      requestAnimationFrame(step);
-    }
-  }
-
-  requestAnimationFrame(step);
-}
-
-function initHeroStats(heroStats) {
-  if (!heroStats) return;
-  let statsActivated = false;
-
-  const heroObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting || statsActivated) return;
-      statsActivated = true;
-
-      // Smoothly animate the privacy metric to 100%
-      const scansEl = document.getElementById("counterScans");
-      if (scansEl) {
-        animateCount(scansEl, 100, "%", 1200);
-      }
-
-      // Ensure verified capability metrics are cleanly displayed
-      const kwEl = document.getElementById("counterKeywords");
-      if (kwEl && !kwEl.textContent.trim()) {
-        kwEl.textContent = "0–100%";
-      }
-
-      const gapsEl = document.getElementById("counterGaps");
-      if (gapsEl && !gapsEl.textContent.trim()) {
-        gapsEl.textContent = "< 3s";
-      }
-
-      const rateEl = document.getElementById("counterRate");
-      if (rateEl && !rateEl.textContent.trim()) {
-        rateEl.textContent = "4-Axis";
-      }
-
-      heroStats.classList.add("stats-revealed");
-    });
-  }, { threshold: 0.25 });
-
-  heroObserver.observe(heroStats);
-}
-
-// 5. Interactive Cycle Durations
+// 4. Interactive Cycle Durations
 function cycleDurations() {
   const durationGroups = document.querySelectorAll(".dur-pills");
   durationGroups.forEach((group) => {
@@ -218,26 +162,42 @@ function initAppPreview() {
   });
 }
 
-// 8. Initialize Landing Page Components
+// 6. Initialize Landing Page Components
 document.addEventListener("DOMContentLoaded", () => {
   const root = document.documentElement;
   const themeBtn = document.getElementById("themeBtn");
   const themeBtnLabel = document.getElementById("themeBtnLabel");
   const siteNav = document.getElementById("siteNav");
   const pageProgress = document.getElementById("pageProgress");
-  const heroStats = document.querySelector(".hero-stats");
   const revealObserverTargets = document.querySelectorAll(".reveal, .animate-on-view");
 
   initLandingTheme({ root, themeBtn, themeBtnLabel });
   initScrollUI({ siteNav, pageProgress });
   initReveal(revealObserverTargets);
-  initHeroStats(heroStats);
   initHeroSimulator();
   cycleDurations();
   initAppPreview();
 });
 
-// 9. Interactive Hero Simulator Controller
+// Helper for interactive simulation counters
+function animateCount(element, target, suffix = "", duration = 700) {
+  if (!element) return;
+  let startTime = 0;
+
+  function step(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const progress = Math.min((timestamp - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    element.textContent = `${Math.floor(eased * target).toLocaleString()}${suffix}`;
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  }
+
+  requestAnimationFrame(step);
+}
+
+// 7. Interactive Hero Simulator Controller
 function initHeroSimulator() {
   const pills = document.querySelectorAll(".hero-role-pill");
   const scoreVal = document.getElementById("heroScoreVal");
@@ -313,7 +273,6 @@ if (typeof module !== "undefined" && module.exports) {
     updateThemeButton,
     applyThemeGlobal,
     animateCount,
-    initHeroStats,
     initAppPreview
   };
 }
