@@ -20,8 +20,9 @@
   --rose-light: rgba(180, 93, 112, 0.12);
   --sky: #3f6f91;
   --sky-light: rgba(63, 111, 145, 0.12);
-  --radius: 14px;
-  --radius-lg: 26px;
+  --radius: 4px;
+  --radius-lg: 4px;
+  --radius-sm: 2px;
   --shadow-sm: 0 12px 30px rgba(40, 28, 20, 0.06);
   --shadow: 0 18px 46px rgba(40, 28, 20, 0.09);
   --shadow-lg: 0 32px 70px rgba(40, 28, 20, 0.14);
@@ -3553,4 +3554,44 @@ section[id],
 .btn-hero-primary:hover::after,
 .btn-action-primary:hover::after {
   left: 130%;
+}
+
+/* ==============================================================================
+ * Sharp Engineering Precision (Zero AI Slop Rounded Boxes)
+ * ============================================================================== */
+.focus-board,
+.board-ring,
+.hero-scan-item,
+.hero-scan-icon,
+.feature-card,
+.feature-icon,
+.pricing-card,
+.setup-step,
+.setup-card,
+.preview-modal-dialog,
+.preview-stage,
+.preview-screen,
+.preview-hud,
+.preview-console-card,
+.trust-strip,
+.floating-badge,
+.section-shell,
+.hero-role-pill,
+.hero-sim-card,
+.hero-stats {
+  border-radius: 4px !important;
+}
+
+.btn-hero,
+.btn-hero-primary,
+.btn-hero-ghost,
+.btn-action-primary,
+.dur-pill,
+.board-chip,
+.board-pill,
+.stat-chip,
+.trust-items span,
+.preview-chip,
+.hero-action-pill {
+  border-radius: 3px !important;
 }
