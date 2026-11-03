@@ -89,7 +89,7 @@ components:
 
 ## Overview
 
-SkillSync's visual design language is grounded in **FortiFocus**: an editorial, high-contrast, tactile workspace aesthetic inspired by Linear, Raycast, and modern craft software. It replaces harsh generic blues and purple AI gradients with rich warm tones, sage accents, subtle atmospheric blur, and physics-driven spring micro-interactions.
+SkillSync's visual design language is grounded in **Quiet Chrome**: an editorial, high-contrast, tactile workspace aesthetic inspired by Linear, Raycast, and modern craft software. It replaces harsh generic blues and purple AI gradients with rich warm tones, sage accents, subtle atmospheric blur, and physics-driven spring micro-interactions.
 
 ## Colors
 
