@@ -54,16 +54,16 @@ typography:
     fontSize: "0.8125rem"
     fontWeight: 500
 rounded:
-  xs: "4px"
-  sm: "8px"
-  md: "14px"
-  card: "18px"
-  lg: "20px"
-  xl: "24px"
-  "2xl": "26px"
-  surface: "28px"
-  panel: "30px"
-  full: "9999px"
+  xs: "0px"
+  sm: "2px"
+  md: "3px"
+  card: "4px"
+  lg: "4px"
+  xl: "4px"
+  "2xl": "4px"
+  surface: "4px"
+  panel: "4px"
+  full: "4px"
 spacing:
   xs: "4px"
   sm: "8px"
@@ -121,9 +121,10 @@ The palette balances deep dark paper surfaces (`#0b0c10`, `#11141a`) with warm c
 
 ## Shapes
 
-- **Inputs & Buttons**: `14px` border-radius (`--radius`) for tactile touch targets and inputs.
-- **Modals & Cards**: `20px` to `26px` border-radius (`--radius-lg`) for large structural panels.
-- **Pills & Badges**: `9999px` capsule radius for status chips and tags.
+- **Inputs, Editors & Textareas**: `3px` or `2px` crisp rectangular geometry. No bloated bubble corners.
+- **Boxes, Modals & Cards**: `4px` or `2px` sharp precision engineering border-radius (`--radius-lg`, `--ws-radius-lg`).
+- **Badges, Chips & Pills**: `2px` or `3px` rectangular micro-chips (strictly avoid 9999px capsule blob slop).
+- **Buttons**: `4px` or `2px` sharp tactile bevels.
 
 ## Components
 
