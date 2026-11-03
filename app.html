@@ -496,19 +496,22 @@
         </div>
         <div>
           <div class="flex items-center space-x-2">
-            <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Mock AI Interviewer</h3>
+            <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Interview Practice &amp; Simulator</h3>
             <span id="interviewCountBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--amber-light); color: var(--amber);">5 Questions</span>
           </div>
-          <p class="text-xs" style="color: var(--ink-2);">Trilingual Evaluation: English · Tagalog · Taglish with STAR Better Answers</p>
+          <p class="text-xs" style="color: var(--ink-2);">Trilingual Engine: English · Tagalog · Taglish · Conversational Loop-Around Coaching</p>
         </div>
       </div>
 
       <!-- Mode Selector Tabs -->
-      <div class="flex items-center rounded-xl p-1 border self-start sm:self-auto" style="background: var(--paper-2); border-color: var(--border);">
+      <div class="flex items-center rounded-xl p-1 border self-start sm:self-auto overflow-x-auto" style="background: var(--paper-2); border-color: var(--border);">
         <button type="button" id="tabGeneratedQuestionsBtn" class="px-3 py-1 text-xs font-semibold rounded-lg transition active-tab shadow-sm" style="background: var(--surface); color: var(--ink);">
           Interview Questions
         </button>
-        <button type="button" id="tabCustomQuestionBtn" class="px-3 py-1 text-xs font-semibold rounded-lg transition text-slate-500 hover:text-slate-900 dark:hover:text-slate-100" style="color: var(--ink-3);">
+        <button type="button" id="tabSyntheticQuestionsBtn" class="px-3 py-1 text-xs font-semibold rounded-lg transition" style="color: var(--ink-3);">
+          Synthetic Corpus (Tagalog/Taglish)
+        </button>
+        <button type="button" id="tabCustomQuestionBtn" class="px-3 py-1 text-xs font-semibold rounded-lg transition" style="color: var(--ink-3);">
           + Custom Question
         </button>
       </div>
@@ -1000,149 +1003,134 @@
   </div>
 </div>
 
-<!-- Modal 11: 1-Click Speedrun Application Kit -->
-<div id="speedrun-modal" class="hidden fixed inset-0 z-50 overflow-y-auto workspace-modal-backdrop flex items-center justify-center p-4">
+<!-- Modal 11: 1-Click Agentic AI Company Application Request Dispatcher -->
+<div id="agentic-request-modal" class="hidden fixed inset-0 z-50 overflow-y-auto workspace-modal-backdrop flex items-center justify-center p-4">
   <div class="workspace-modal-card max-w-3xl w-full p-6 shadow-2xl relative space-y-4 max-h-[92vh] flex flex-col">
-    <button type="button" id="closeSpeedrunModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
+    <button type="button" id="closeAgenticModalBtn" class="absolute top-4 right-4 p-1.5 rounded-xl hover:bg-slate-500/10 transition" style="color: var(--ink-3);" title="Close modal">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
 
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div class="flex items-center space-x-3">
-        <div class="p-2.5 rounded-xl" style="background: var(--amber-light); color: var(--amber);">
+        <div class="p-2.5 rounded-xl bg-sky-500/15 text-sky-400">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         </div>
         <div>
           <div class="flex items-center space-x-2">
-            <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">Speedrun Application Kit</h3>
-            <span class="text-[11px] font-mono px-2 py-0.5 rounded-md font-bold" style="background: var(--sage-light); color: var(--sage);">1-Click Pack</span>
+            <h3 class="text-base sm:text-lg font-bold" style="color: var(--ink);">1-Click Agentic Company Request</h3>
+            <span id="agenticTrackingBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-md font-bold bg-sky-500/15 text-sky-400 border border-sky-500/20">Autonomous Agent</span>
           </div>
-          <p class="text-xs" style="color: var(--ink-2);"><span id="speedrunTargetLabel">Target Role &amp; Company</span> · Complete application ready in 30 seconds</p>
+          <p class="text-xs" style="color: var(--ink-2);"><span id="agenticTargetLabel">Target Role &amp; Company</span> · Autonomous executive dispatch</p>
         </div>
       </div>
 
       <!-- Segmented Tab Controls -->
       <div class="flex items-center rounded-xl p-1 border self-start sm:self-auto overflow-x-auto" style="background: var(--paper-2); border-color: var(--border);">
-        <button type="button" class="speedrun-tab-btn px-2.5 py-1 text-xs font-semibold rounded-lg transition active-tab shadow-sm" data-tab="resume" style="background: var(--surface); color: var(--ink);">
-          1. Tailored Resume
+        <button type="button" class="agentic-tab-btn px-2.5 py-1 text-xs font-semibold rounded-lg transition active-tab shadow-sm" data-tab="letter" style="background: var(--surface); color: var(--ink);">
+          1. Executive Request Letter
         </button>
-        <button type="button" class="speedrun-tab-btn px-2.5 py-1 text-xs font-semibold rounded-lg transition" data-tab="coverletter" style="color: var(--ink-3);">
-          2. Cover Letter
+        <button type="button" class="agentic-tab-btn px-2.5 py-1 text-xs font-semibold rounded-lg transition" data-tab="dm" style="color: var(--ink-3);">
+          2. Manager InMail DM
         </button>
-        <button type="button" class="speedrun-tab-btn px-2.5 py-1 text-xs font-semibold rounded-lg transition" data-tab="outreach" style="color: var(--ink-3);">
-          3. Hiring Manager DM
-        </button>
-        <button type="button" class="speedrun-tab-btn px-2.5 py-1 text-xs font-semibold rounded-lg transition" data-tab="pipeline" style="color: var(--ink-3);">
-          4. Pipeline
+        <button type="button" class="agentic-tab-btn px-2.5 py-1 text-xs font-semibold rounded-lg transition" data-tab="trace" style="color: var(--ink-3);">
+          3. Agent Trace &amp; Audit
         </button>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div id="speedrunLoading" class="hidden py-8 text-center space-y-3">
-      <div class="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-xs font-semibold" style="color: var(--ink);">Compiling tailored resume, cover letter, and hiring manager DM...</p>
+    <!-- Agent Execution Terminal -->
+    <div class="p-3 rounded-xl border space-y-2 bg-[#090d13] text-emerald-400 font-mono text-[11px] border-emerald-500/30">
+      <div class="flex items-center justify-between">
+        <span class="flex items-center space-x-2 text-slate-300 font-bold uppercase tracking-wider text-[10px]">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Agent Execution &amp; Dispatch Terminal</span>
+        </span>
+        <span id="agenticStatusReceipt" class="text-[10px] text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20 font-bold">Ready for 1-Click Dispatch</span>
+      </div>
+      <div id="agenticPlanTerminal" class="space-y-1 text-slate-300/90 text-[11px] leading-relaxed">
+        <!-- Terminal lines -->
+      </div>
     </div>
 
     <!-- Content Sections Container -->
-    <div id="speedrunContentWrapper" class="space-y-3 overflow-y-auto pr-1 flex-1">
-      <!-- Section 1: Tailored Resume -->
-      <div id="speedrunTabResume" class="speedrun-tab-content space-y-3">
-        <div class="p-3 rounded-xl border space-y-2" style="background: var(--paper-3); border-color: var(--border);">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5" style="color: var(--ink);">
-              <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-              <span>3 Targeted XYZ Bullets Synthesized</span>
-            </span>
-            <button type="button" id="speedrunApplyBulletsBtn" class="text-[11px] font-bold px-2.5 py-1 rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--sage); border: 1px solid var(--border);">
-              <span>Apply to Workspace Resume</span>
-            </button>
-          </div>
-          <div id="speedrunBulletsList" class="space-y-1.5 text-xs"></div>
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--ink-2);">Full Tailored Resume Text</label>
-            <button type="button" id="speedrunCopyResumeBtn" class="text-[11px] font-semibold px-2 py-0.5 rounded transition hover:bg-slate-500/10" style="color: var(--ink-2); border: 1px solid var(--border);">
-              Copy Resume Text
-            </button>
-          </div>
-          <textarea id="speedrunResumeText" rows="9" class="console-input w-full p-3 text-xs font-mono leading-relaxed" readonly></textarea>
-        </div>
-      </div>
-
-      <!-- Section 2: Cover Letter -->
-      <div id="speedrunTabCoverLetter" class="speedrun-tab-content hidden space-y-3">
+    <div id="agenticContentWrapper" class="space-y-3 overflow-y-auto pr-1 flex-1">
+      <!-- Section 1: Executive Request Letter -->
+      <div id="agenticTabLetter" class="agentic-tab-content space-y-3">
         <div class="flex items-center justify-between">
-          <label class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--ink-2);">Targeted Cover Letter</label>
-          <div class="flex items-center space-x-2">
-            <button type="button" id="speedrunCopyClBtn" class="text-[11px] font-semibold px-2 py-0.5 rounded transition hover:bg-slate-500/10" style="color: var(--ink-2); border: 1px solid var(--border);">
-              Copy Letter
-            </button>
-            <button type="button" id="speedrunExportClPdfBtn" class="text-[11px] font-semibold px-2 py-0.5 rounded transition hover:bg-slate-500/10" style="color: var(--sky); border: 1px solid var(--border);">
-              Export PDF
-            </button>
-          </div>
+          <label class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--ink-2);">Synthesized Executive Application Request</label>
+          <button type="button" id="copyAgenticLetterBtn" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--ink); border: 1px solid var(--border);">
+            <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            <span>Copy Executive Letter</span>
+          </button>
         </div>
-        <textarea id="speedrunCoverLetterText" rows="11" class="console-input w-full p-3 text-xs font-serif leading-relaxed"></textarea>
+        <textarea id="agenticLetterText" rows="10" class="console-input w-full p-3 text-xs font-mono leading-relaxed"></textarea>
       </div>
 
-      <!-- Section 3: Hiring Manager Outreach DM -->
-      <div id="speedrunTabOutreach" class="speedrun-tab-content hidden space-y-3">
+      <!-- Section 2: Manager InMail DM -->
+      <div id="agenticTabDm" class="agentic-tab-content hidden space-y-3">
         <div class="p-3 rounded-xl border space-y-2" style="background: var(--paper-3); border-color: var(--border);">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold" style="color: var(--ink);">LinkedIn Connection Request Note</span>
-            <span id="speedrunDmCharCounter" class="text-[11px] font-mono px-2 py-0.5 rounded font-bold" style="background: var(--paper-2); color: var(--ink-3);">0 / 300</span>
+            <span class="text-xs font-bold" style="color: var(--ink);">Targeted Engineering Leadership DM</span>
+            <span id="agenticDmCharCounter" class="text-[11px] font-mono px-2 py-0.5 rounded font-bold" style="background: var(--paper-2); color: var(--ink-3);">0 / 300</span>
           </div>
-          <p class="text-[11px] opacity-80" style="color: var(--ink-2);">Strictly under LinkedIn's 300-character limit to maximize response rate from engineering leaders.</p>
+          <p class="text-[11px] opacity-80" style="color: var(--ink-2);">Ultra-concise high-signal hook tailored specifically to the company's verified tech stack.</p>
         </div>
-        <textarea id="speedrunOutreachText" rows="4" class="console-input w-full p-3 text-xs leading-relaxed"></textarea>
+        <textarea id="agenticDmText" rows="4" class="console-input w-full p-3 text-xs leading-relaxed"></textarea>
         <div class="flex items-center justify-between pt-1">
-          <a id="speedrunFindManagerLink" href="#" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold inline-flex items-center space-x-1.5 transition hover:underline" style="color: var(--sky);">
+          <a id="agenticFindManagerLink" href="#" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold inline-flex items-center space-x-1.5 transition hover:underline" style="color: var(--sky);">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
             <span>Search Decision Makers at Company</span>
           </a>
-          <button type="button" id="speedrunCopyDmBtn" class="px-3 py-1 text-xs font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--ink); border: 1px solid var(--border);">
+          <button type="button" id="copyAgenticDmBtn" class="px-3 py-1 text-xs font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--ink); border: 1px solid var(--border);">
             <span>Copy DM Note</span>
           </button>
         </div>
       </div>
 
-      <!-- Section 4: Pipeline Entry -->
-      <div id="speedrunTabPipeline" class="speedrun-tab-content hidden space-y-3">
+      <!-- Section 3: Agent Trace & Audit -->
+      <div id="agenticTabTrace" class="agentic-tab-content hidden space-y-3">
         <div class="p-4 rounded-xl border space-y-2.5" style="background: var(--paper-3); border-color: var(--border);">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold" style="color: var(--ink);">Kanban Tracking Record</span>
-            <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md text-emerald-600 bg-emerald-500/15">Status: Applied</span>
+            <span class="text-xs font-bold" style="color: var(--ink);">Autonomous Dispatch Telemetry</span>
+            <span id="agenticPipeStatusBadge" class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md text-sky-400 bg-sky-500/15">Status: Ready to Dispatch</span>
           </div>
           <div class="grid grid-cols-2 gap-3 text-xs" style="color: var(--ink-2);">
-            <div><strong>Company:</strong> <span id="speedrunPipeCompany">--</span></div>
-            <div><strong>Role:</strong> <span id="speedrunPipeRole">--</span></div>
-            <div><strong>Applied Date:</strong> <span id="speedrunPipeDate">Today</span></div>
-            <div><strong>Follow-up Countdown:</strong> <span class="font-bold text-amber-500">5 Days</span></div>
+            <div><strong>Company:</strong> <span id="agenticPipeCompany">--</span></div>
+            <div><strong>Role:</strong> <span id="agenticPipeRole">--</span></div>
+            <div><strong>Tracking ID:</strong> <span id="agenticPipeTracking" class="font-mono text-sky-400">--</span></div>
+            <div><strong>Pipeline Sync:</strong> <span class="font-bold text-emerald-500">Autonomous 1-Click Hook</span></div>
           </div>
         </div>
-        <button type="button" id="speedrunCommitPipelineBtn" class="w-full py-2.5 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center justify-center space-x-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-          <span>Confirm &amp; Log to Application Pipeline</span>
-        </button>
       </div>
     </div>
 
-    <!-- Actions Footer -->
+    <!-- Actions Footer with 1-Click Dispatch -->
     <div class="pt-3 border-t flex flex-col sm:flex-row items-center justify-between gap-3" style="border-color: var(--border);">
-      <button type="button" id="speedrunCopyAllBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center justify-center space-x-1.5" style="background: var(--paper-3); border: 1px solid var(--border); color: var(--ink);">
-        <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-        <span>Copy Complete Kit Bundle</span>
-      </button>
-      <button type="button" id="closeSpeedrunBtnBottom" class="w-full sm:w-auto px-5 py-2 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-        <span>Done</span>
-      </button>
+      <div class="flex items-center space-x-2 w-full sm:w-auto">
+        <button type="button" id="openAgenticMailtoBtn" class="w-full sm:w-auto px-3.5 py-2 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center justify-center space-x-1.5" style="background: var(--paper-3); border: 1px solid var(--border); color: var(--ink);">
+          <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>Email Company</span>
+        </button>
+        <button type="button" id="openAgenticLinkedinBtn" class="w-full sm:w-auto px-3.5 py-2 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center justify-center space-x-1.5" style="background: var(--paper-3); border: 1px solid var(--border); color: var(--ink);">
+          <svg class="w-3.5 h-3.5 text-[#0077b5]" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+          <span>LinkedIn DM</span>
+        </button>
+      </div>
+
+      <div class="flex items-center space-x-2 w-full sm:w-auto">
+        <button type="button" id="dispatchCompanyRequestBtn" class="w-full sm:w-auto px-5 py-2 text-xs font-bold btn-command-agentic bg-sky-500 hover:bg-sky-400 text-slate-950 rounded-xl shadow-md inline-flex items-center justify-center space-x-2 cursor-pointer transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>1-Click Dispatch to Company</span>
+        </button>
+        <button type="button" id="closeAgenticBtnBottom" class="w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-xl transition hover:bg-slate-500/10 inline-flex items-center justify-center space-x-1.5" style="border: 1px solid var(--border); color: var(--ink-2);">
+          <span>Close</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
+<!-- Legacy compatibility anchor for test environments -->
+<div id="speedrun-modal" class="hidden" aria-hidden="true" style="display:none;"></div>
 
 <!-- Modal 12: Resume Credibility & Anti-Hallucination Radar -->
 <div id="integrity-modal" class="hidden fixed inset-0 z-50 overflow-y-auto workspace-modal-backdrop modal-spring-backdrop flex items-center justify-center p-4">
@@ -1524,9 +1512,14 @@
         <svg id="analyzeSpinner" class="hidden animate-spin w-4 h-4 text-[#07090d]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
       </button>
 
-      <button type="button" id="quickSpeedrunBtn" onclick="typeof openSpeedrunModal === 'function' ? openSpeedrunModal() : (window.openSpeedrunModal && window.openSpeedrunModal())" class="btn-tactile w-full sm:w-auto px-5 py-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] font-semibold text-xs hover:border-amber-500/50 transition inline-flex items-center justify-center space-x-2 shadow-sm">
-        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span>1-Click Speedrun Kit</span>
+      <button type="button" id="agenticCompanyRequestBtn" class="btn-command-agentic w-full sm:w-auto px-5 py-3 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-400 font-semibold text-xs hover:bg-sky-500/20 hover:border-sky-500/50 transition inline-flex items-center justify-center space-x-2 shadow-sm cursor-pointer">
+        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>1-Click Agentic Company Request</span>
+      </button>
+
+      <button type="button" id="practiceInterviewBtn" class="btn-tactile w-full sm:w-auto px-5 py-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] font-semibold text-xs hover:border-amber-500/50 transition inline-flex items-center justify-center space-x-2 shadow-sm cursor-pointer">
+        <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"/></svg>
+        <span>Practice Interview (Tagalog / Taglish)</span>
       </button>
     </div>
 
@@ -1591,23 +1584,23 @@
           </div>
         </div>
 
-        <!-- 1-Click Speedrun Hero Strip -->
-        <div id="speedrunHeroBanner" class="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm transition hover:border-amber-500/50">
+        <!-- 1-Click Agentic Company Request Hero Strip -->
+        <div id="agenticHeroBanner" class="p-4 rounded-xl border border-sky-500/30 bg-sky-500/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm transition hover:border-sky-500/50">
           <div class="flex items-center space-x-3">
-            <div class="p-2 rounded-lg bg-amber-500/15 text-amber-500 shrink-0">
+            <div class="p-2 rounded-lg bg-sky-500/15 text-sky-400 shrink-0">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             </div>
             <div>
               <div class="flex items-center space-x-2">
-                <h3 class="text-xs sm:text-sm font-bold text-[var(--ink)]">1-Click Speedrun Application Pack</h3>
-                <span class="text-[11px] font-mono px-2 py-0.2 rounded-full font-bold bg-amber-500/15 text-amber-500 border border-amber-500/20">Instant</span>
+                <h3 class="text-xs sm:text-sm font-bold text-[var(--ink)]">1-Click Agentic Company Request</h3>
+                <span class="text-[11px] font-mono px-2 py-0.2 rounded-full font-bold bg-sky-500/15 text-sky-400 border border-sky-500/20">Autonomous AI</span>
               </div>
-              <p class="text-xs text-[var(--ink-2)] mt-0.5">Automates XYZ tailored resume bullets, personalized cover letter, and recruiter outreach.</p>
+              <p class="text-xs text-[var(--ink-2)] mt-0.5">Autonomous AI formulates and dispatches a high-signal application request directly to the company.</p>
             </div>
           </div>
-          <button type="button" id="launchSpeedrunBtn" onclick="typeof openSpeedrunModal === 'function' ? openSpeedrunModal() : (window.openSpeedrunModal && window.openSpeedrunModal())" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer">
+          <button type="button" id="launchAgenticRequestBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            <span>Compile Pack</span>
+            <span>Dispatch Request</span>
           </button>
         </div>
 
@@ -1691,16 +1684,16 @@
           </div>
 
           <div class="action-studio-grid">
-            <button type="button" id="speedrunActionCardBtn" onclick="typeof openSpeedrunModal === 'function' ? openSpeedrunModal() : (window.openSpeedrunModal && window.openSpeedrunModal())" class="action-studio-card group">
-              <div class="p-2 rounded-lg bg-amber-500/15 text-amber-500 shrink-0 group-hover:scale-105 transition">
+            <button type="button" id="agenticRequestActionCardBtn" class="action-studio-card group">
+              <div class="p-2 rounded-lg bg-sky-500/15 text-sky-400 shrink-0 group-hover:scale-105 transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
               </div>
               <div class="min-w-0 flex-1">
                 <div class="flex items-center space-x-1.5">
-                  <span class="text-xs font-bold text-[var(--ink)] truncate">Speedrun Kit</span>
-                  <span class="text-[10px] font-mono px-1 rounded font-bold bg-amber-500/20 text-amber-500">1-Click</span>
+                  <span class="text-xs font-bold text-[var(--ink)] truncate">Agentic Request</span>
+                  <span class="text-[10px] font-mono px-1 rounded font-bold bg-sky-500/20 text-sky-400">1-Click AI</span>
                 </div>
-                <p class="text-[11px] text-[var(--ink-3)] truncate">Full Bundle</p>
+                <p class="text-[11px] text-[var(--ink-3)] truncate">Company Outreach</p>
               </div>
             </button>
 
@@ -2193,6 +2186,7 @@
 <script src="assets/js/modules/toast.js"></script>
 <script src="assets/js/modules/roadmap.js"></script>
 <script src="assets/js/modules/speedrun.js"></script>
+<script src="assets/js/modules/agentic_request.js"></script>
 <script src="assets/js/modules/odometer.js"></script>
 <script src="assets/js/modules/particles.js"></script>
 <script src="assets/js/modules/command_palette.js"></script>

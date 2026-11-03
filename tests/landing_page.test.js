@@ -53,3 +53,4 @@ describe('Landing Page Truthfulness & Zero Fake Reviews Integrity', () => {
     expect(appHtml).not.toContain('Verified Candidate Fit');
   });
 });
+
