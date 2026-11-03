@@ -33,14 +33,94 @@
     'solusyon', 'resulta', 'sistema', 'arkitektura', 'proyekto', 'porsyento',
     'subok', 'nag-monitor', 'nag-handle', 'nag-solve', 'matagumpay', 'nagbawas',
     'nadagdagan', 'mas mabilis', 'mas matipid', 'problema', 'nag-setup', 'nag-migrate',
-    'nag-integrate', 'sinolusyunan', 'binago', 'nag-test', 'nag-push'
+    'nag-integrate', 'sinolusyunan', 'binago', 'nag-test', 'nag-push', 'tinanggal',
+    'pina-scale', 'na-resolve', 'na-fix', 'na-encounter', 'walang downtime',
+    'nag-crash', 'bumagsak', 'nag-spike', 'na-deadlock', 'nag-rollback', 'na-mitigate',
+    'nag-cache', 'nag-benchmark', 'naglunsad', 'pinangunahan'
   ];
 
   // Common Tagalog function particles to identify language modality
   const TAGALOG_PARTICLES = [
     'ang', 'ng', 'mga', 'sa', 'kami', 'namin', 'tayo', 'natin', 'ako', 'ko',
     'tapos', 'yung', 'para', 'ito', 'dahil', 'noong', 'kaya', 'kung', 'lahat',
-    'at', 'ay', 'siya', 'nila', 'sila', 'nito', 'noon', 'bago', 'habang'
+    'at', 'ay', 'siya', 'nila', 'sila', 'nito', 'noon', 'bago', 'habang',
+    'kasi', 'so', 'din', 'rin', 'naman', 'paano', 'saka', 'pagkatapos'
+  ];
+
+  /**
+   * Rich synthetic training & exemplar corpus for real-world software engineering interviews
+   * Supports seamless English, Taglish (Filipino code-switching), and formal Tagalog.
+   */
+  const SYNTHETIC_INTERVIEW_CORPUS = [
+    {
+      id: 'syn-concurrency-01',
+      category: 'System Architecture & Concurrency',
+      target_skill: 'High Concurrency & Redis Caching',
+      question: 'How do you design an idempotent distributed system that handles sudden 10x traffic surges without database contention?',
+      question_taglish: 'Paano mo ididisenyo ang isang idempotent distributed system kapag nag-spike ang traffic ng 10x nang hindi nagko-cause ng database deadlocks?',
+      question_tagalog: 'Paano mo ididisenyo ang isang matatag na sistemang namamahagi upang mapangasiwaan ang 10x na pagdami ng trapiko nang walang pagbagal sa database?',
+      talking_points: [
+        'Decouple heavy writes with an asynchronous message queue (e.g., Kafka / SQS)',
+        'Implement distributed Redis caching with unique transaction idempotency keys',
+        'Protect downstream services using connection pooling, circuit breakers, and read replicas'
+      ],
+      synthetic_exemplars: {
+        taglish: 'Sa previous company namin, nagkaroon kami ng major bottleneck noong nag-spike ang traffic by 10x during a live campaign. Para ma-solve ito, nag-implement ako ng asynchronous queue gamit ang SQS at nag-setup ng distributed Redis caching layer with unique idempotency keys para ma-block ang duplicate writes. Nilagyan din namin ng PgBouncer connection pool at circuit breakers. Dahil dito, bumaba ang p99 API latency ng 45% (from 850ms down to 110ms) at na-maintain namin ang 100% uptime kahit umabot sa 22,000 req/sec.',
+        tagalog: 'Sa aming nakaraang proyekto, hinarap namin ang matinding pagbagal ng sistema nang tumaas nang 10x ang mga kahilingan. Bilang solusyon, pinangunahan ko ang paglalatag ng asynchronous queue upang ihiwalay ang proseso ng pagsulat, at nagpatupad ng mabisang Redis caching na may natatanging idempotency keys. Bunga nito, napabilis namin ang tugon ng sistema nang 45% at nanatiling matatag ang serbisyo nang walang anumang pagkabigo.',
+        english: 'In our production environment, we mitigated sudden 10x traffic surges by decoupling database ingestion using asynchronous message queues. We introduced distributed Redis caching with transaction idempotency keys to eliminate duplicate write mutations, while utilizing PgBouncer connection pooling and circuit breakers to protect downstream databases. This reduced p99 latency by 45% and sustained 22,000 requests per second with zero downtime.'
+      },
+      loop_around_prompts: {
+        taglish: 'Loop-Around Challenge: Maganda ang binanggit mong paggamit ng Redis at queues. Pero paano mo naman ima-manage ang cache stampede (kapag sabay-sabay nag-expire ang cache keys) at network partition sa Redis cluster? Paano mo sisiguruhin na hindi babagsak ang PostgreSQL database?',
+        tagalog: 'Pag-ikot ng Pagsasanay: Mahusay ang iyong paunang tugon. Ngunit paano mo naman mapangangasiwaan kung magkaroon ng pagkabigo sa Redis cluster upang hindi magdagsaan ang lahat ng kahilingan sa pangunahing database?',
+        english: 'Loop-Around Challenge: Strong explanation on queuing and caching. However, how would you specifically handle cache stampedes when hot keys expire, or mitigate network partitions across your distributed cache without overwhelming the primary database?'
+      }
+    },
+    {
+      id: 'syn-database-02',
+      category: 'Database & Reliability',
+      target_skill: 'PostgreSQL Deadlock Mitigation & Scaling',
+      question: 'When high-frequency transaction updates start causing PostgreSQL deadlocks and latency degradation, what is your diagnostic and resolution protocol?',
+      question_taglish: 'Kapag nagkakaroon ng PostgreSQL deadlocks at mabagal na queries dahil sa sabay-sabay na updates, ano ang step-by-step diagnostic at solusyon mo?',
+      question_tagalog: 'Kapag nagkakaroon ng mga deadlock at pagbagal sa PostgreSQL dulot ng magkakasabay na transaksyon, ano ang iyong paraan ng pagsusuri at lunas?',
+      talking_points: [
+        'Analyze lock graphs via pg_stat_activity and lock timeout telemetry',
+        'Enforce deterministic row locking order across application transactions',
+        'Split long-running queries, introduce index covering, and offload read workloads'
+      ],
+      synthetic_exemplars: {
+        taglish: 'Kapag may deadlock sa PostgreSQL, inuuna kong i-inspect ang pg_stat_activity at deadlock telemetry logs para makita kung aling transactions ang nag-aagawan ng row-level locks. Sa application code, inayos ko ang locking order para maging deterministic (halimbawa, pag-lock ng parent table bago ang child records gamit ang SELECT FOR UPDATE). Nag-refactor din kami ng long-running transactions at nag-add ng composite indexes. Na-eliminate nito ang deadlocks and bumaba ang transaction duration ng 60%.',
+        tagalog: 'Upang masuri ang mga deadlock sa database, sinusuri ko muna ang pg_stat_activity at mga log ng transaksyon. Pagkatapos ay isinaayos ko ang pagkakasunod-sunod ng pag-lock sa bawat transaksyon upang maging maayos at deterministic. Naglagay din kami ng mga tamang index upang mapabilis ang paghahanap ng datos.',
+        english: 'My diagnostic protocol begins by analyzing pg_stat_activity and lock contention graphs to identify the conflicting transactions and query statements. To resolve the root cause, I enforce strict deterministic row-locking ordering across application mutations, decrease transaction hold times, and introduce covering indexes. This eliminated 100% of production deadlocks and reduced average query latency by 60%.'
+      },
+      loop_around_prompts: {
+        taglish: 'Loop-Around Challenge: Malinaw ang deterministic locking order na sinabi mo. Pero paano mo iha-handle kapag kailangang mag-run ng heavy batch migrations o analytics queries sa parehong table nang hindi naapektuhan ang live user transactions?',
+        tagalog: 'Pag-ikot ng Pagsasanay: Maganda ang pagsasaayos ng locks. Subalit paano mo naman isasagawa ang malalaking data migration nang hindi nagdudulot ng table locks sa aktibong mga transaksyon ng mga gumagamit?',
+        english: 'Loop-Around Challenge: Excellent explanation of deterministic locking. How would you now execute a multi-million row table migration or backfill on that same table without locking out live production writes?'
+      }
+    },
+    {
+      id: 'syn-incident-03',
+      category: 'Incident Response & Production Triage',
+      target_skill: 'Incident Triage & Canary Rollbacks',
+      question: 'Your microservices cluster suddenly reports a 10x error rate spike immediately following a canary release. Walk me through your triage rhythm.',
+      question_taglish: 'Biglang tumaas ng 10x ang error rate ng microservices cluster pagkatapos mag-deploy ng canary release. Ano ang step-by-step triage rhythm mo?',
+      question_tagalog: 'Biglang tumaas nang 10x ang dami ng error sa inyong sistema matapos ang paglalabas ng bagong bersyon. Paano mo ito sisiyasatin at aayusin?',
+      talking_points: [
+        'Execute immediate automated or manual canary traffic rollback to protect users within SLA',
+        'Isolate telemetry traces, recent git diffs, and database schema migrations',
+        'Conduct blameless post-mortem with preventative canary health gates'
+      ],
+      synthetic_exemplars: {
+        taglish: 'Unang priority ko kapag nag-spike ang errors after a canary deployment ay customer protection: agad naming i-roll back ang canary traffic pabalik sa stable baseline version within our 2-minute SLA. Pagkatapos ma-stabilize ang production, i-inspeksyunin ko ang Datadog/APM traces at recent git commit diffs para ma-isolate ang exact stack trace. Pagkatapos, nagka-conduct kami ng blameless post-mortem at nag-implement ng automated health check gates bago mag-promote ng release.',
+        tagalog: 'Ang aking unang hakbang ay ang agarang pag-rollback sa nakaraang matatag na bersyon upang maprotektahan ang mga gumagamit. Matapos maging matatag ang sistema, sinisiyasat ko ang mga talaan ng error at kamakailang pagbabago sa code upang matukoy ang sanhi.',
+        english: 'My immediate priority during a canary error spike is rapid mitigation: I trigger an immediate rollback of the canary traffic to the stable production baseline within our 2-minute SLA. Once service stability is verified, I analyze APM distributed traces and commit diffs to isolate the failure, followed by conducting a blameless post-mortem and adding automated pre-promotion health gates.'
+      },
+      loop_around_prompts: {
+        taglish: 'Loop-Around Challenge: Mabilis ang rollback na sinabi mo, tama iyon. Pero paano kung ang deployment ay may kasamang backward-incompatible database schema migration? Paano mo iha-handle ang rollback nang hindi nasisira ang live database schema?',
+        tagalog: 'Pag-ikot ng Pagsasanay: Tama ang mabilis na rollback. Ngunit paano kung ang bagong bersyon ay nagbago na ng istruktura ng database? Paano mo ito maibabalik nang ligtas?',
+        english: 'Loop-Around Challenge: Prompt rollback is critical. However, what if the faulty release also executed an irreversible or backward-incompatible database migration? How do you ensure schema forward/backward compatibility?'
+      }
+    }
   ];
 
   // Common English function words used to determine code-switching modality
@@ -312,13 +392,125 @@
     };
   }
 
+  /**
+   * Finds a matched synthetic question from the corpus based on skill or keyword query
+   * @param {string} query - Target skill or question query
+   * @param {'English' | 'Tagalog' | 'Taglish'} language - Preferred language
+   * @returns {Object|null}
+   */
+  function findSyntheticQuestion(query = '', language = 'English') {
+    if (!query) return SYNTHETIC_INTERVIEW_CORPUS[0] || null;
+    const qLower = String(query).toLowerCase();
+
+    const matched = SYNTHETIC_INTERVIEW_CORPUS.find(item => {
+      const skillMatch = item.target_skill.toLowerCase().includes(qLower) || qLower.includes(item.target_skill.toLowerCase());
+      const catMatch = item.category.toLowerCase().includes(qLower);
+      const textMatch = item.question.toLowerCase().includes(qLower);
+      return skillMatch || catMatch || textMatch;
+    });
+
+    const item = matched || SYNTHETIC_INTERVIEW_CORPUS[0];
+    if (!item) return null;
+
+    let localizedQuestion = item.question;
+    if (language === 'Taglish' && item.question_taglish) localizedQuestion = item.question_taglish;
+    else if (language === 'Tagalog' && item.question_tagalog) localizedQuestion = item.question_tagalog;
+
+    return {
+      ...item,
+      question: localizedQuestion
+    };
+  }
+
+  /**
+   * Evaluates candidate answer with full Conversational Loop-Around coaching
+   * If candidate response misses key concepts or scores < 85, a loop-around follow-up drill is generated
+   * in their detected language (Tagalog / Taglish / English) so the candidate can answer again and achieve mastery.
+   *
+   * @param {Object} questionObj - Question data
+   * @param {string} userAnswer - Candidate response text
+   * @param {Object} options - { round: number, previousAnswers: string[], preferredLanguage: string }
+   * @returns {Object} Evaluation report with score, grade, loop_around status, follow-up prompt, and exemplar
+   */
+  function evaluateWithLoopAround(questionObj = {}, userAnswer = '', options = {}) {
+    const round = Number(options.round) || 1;
+    const baseEval = evaluateInterviewAnswer(questionObj, userAnswer, options);
+    const lang = baseEval.language_detected || 'English';
+
+    // Locate synthetic question entry if available
+    const synthEntry = SYNTHETIC_INTERVIEW_CORPUS.find(s => s.id === questionObj.id || s.target_skill === questionObj.target_skill);
+
+    let loopAroundPrompt = '';
+    if (synthEntry && synthEntry.loop_around_prompts) {
+      if (lang === 'Taglish') loopAroundPrompt = synthEntry.loop_around_prompts.taglish;
+      else if (lang === 'Tagalog') loopAroundPrompt = synthEntry.loop_around_prompts.tagalog;
+      else loopAroundPrompt = synthEntry.loop_around_prompts.english;
+    }
+
+    if (!loopAroundPrompt) {
+      const missingHint = baseEval.missingPoints && baseEval.missingPoints.length > 0
+        ? baseEval.missingPoints.slice(0, 2).join(' at ')
+        : 'production trade-offs';
+
+      if (lang === 'Taglish') {
+        loopAroundPrompt = `Loop-Around Challenge: Maganda ang simula mo! Pero paano mo naman maipapaliwanag nang mas detalyado ang ${missingHint}? Subukan mong sagutin ulit sa ibaba para ma-perfect ang score mo.`;
+      } else if (lang === 'Tagalog') {
+        loopAroundPrompt = `Pag-ikot ng Pagsasanay: Mahusay ang iyong paunang tugon. Upang higit na mapatatag ang iyong sagot, paano mo ipaliliwanag ang ${missingHint}?`;
+      } else {
+        loopAroundPrompt = `Loop-Around Challenge: Promising start! How would you specifically dive deeper into ${missingHint} with concrete production trade-offs and latency metrics? Try answering again below.`;
+      }
+    }
+
+    // Determine loop state
+    const needsLoop = baseEval.score < 85;
+    const isLoopCompleted = round > 1 && baseEval.score >= 70;
+
+    let coachingTip = '';
+    if (lang === 'Taglish') {
+      coachingTip = isLoopCompleted
+        ? 'Napakagaling! Matagumpay mong nasagot ang loop-around follow-up with concrete technical ownership.'
+        : 'Gamitin ang STAR method: Situation, Task, Action, Result. Lagyan ng concrete numbers (% latency, req/sec).';
+    } else if (lang === 'Tagalog') {
+      coachingTip = isLoopCompleted
+        ? 'Natatangi! Matagumpay mong naisara ang pagsasanay kalakip ang malinaw na datos ng tagumpay.'
+        : 'Tiyaking may malinaw na sukatan at teknikal na pagpapasya sa bawat hakbang.';
+    } else {
+      coachingTip = isLoopCompleted
+        ? 'Outstanding! You successfully navigated the loop-around drill with strong architectural depth.'
+        : 'Ensure your response quantifies the business or engineering impact (e.g. latency drop %, uptime, concurrency).';
+    }
+
+    // Adjust score if this is a successful loop turn
+    let finalScore = baseEval.score;
+    if (round > 1) {
+      finalScore = Math.min(100, Math.round(baseEval.score * 1.15));
+    }
+
+    return {
+      ...baseEval,
+      score: finalScore,
+      round,
+      loop_around: {
+        is_loop_active: needsLoop && !isLoopCompleted,
+        loop_completed: isLoopCompleted,
+        round,
+        missing_concepts: baseEval.missingPoints,
+        followup_question: loopAroundPrompt,
+        coaching_tip: coachingTip
+      }
+    };
+  }
+
   return {
     IMPACT_KEYWORDS,
     TAGALOG_IMPACT_KEYWORDS,
     TAGALOG_PARTICLES,
+    SYNTHETIC_INTERVIEW_CORPUS,
     detectAnswerLanguage,
     generateModelAnswer,
     evaluateInterviewAnswer,
-    createCustomInterviewQuestion
+    createCustomInterviewQuestion,
+    findSyntheticQuestion,
+    evaluateWithLoopAround
   };
 });

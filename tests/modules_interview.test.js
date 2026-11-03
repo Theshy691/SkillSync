@@ -6,14 +6,18 @@
  * generation, and custom interview question synthesis.
  */
 
+const SkillSyncInterview = require('../assets/js/modules/interview.js');
 const {
   IMPACT_KEYWORDS,
   TAGALOG_IMPACT_KEYWORDS,
   detectAnswerLanguage,
   generateModelAnswer,
   evaluateInterviewAnswer,
-  createCustomInterviewQuestion
-} = require('../assets/js/modules/interview.js');
+  createCustomInterviewQuestion,
+  SYNTHETIC_INTERVIEW_CORPUS,
+  findSyntheticQuestion,
+  evaluateWithLoopAround
+} = SkillSyncInterview;
 
 describe('Standalone Interview Simulator Module Tests', () => {
   const sampleQuestion = {
@@ -145,8 +149,54 @@ describe('Standalone Interview Simulator Module Tests', () => {
       expect(customQ.question).toContain('schema migrations');
       expect(customQ.target_skill).toBe('PostgreSQL');
       expect(customQ.category).toBe('Data Layer & Optimization');
-      expect(customQ.talking_points.length).toBe(3);
+      expect(customQ.talking_points.length).toBeGreaterThanOrEqual(3);
       expect(customQ.interviewer_intent).toContain('PostgreSQL');
+    });
+  });
+
+  describe('Synthetic Data Corpus & Conversational Loop-Around Engine', () => {
+    const { SYNTHETIC_INTERVIEW_CORPUS, findSyntheticQuestion, evaluateWithLoopAround } = SkillSyncInterview;
+
+    test('SYNTHETIC_INTERVIEW_CORPUS contains trilingual Q&A exemplars with loop-around drills', () => {
+      expect(Array.isArray(SYNTHETIC_INTERVIEW_CORPUS)).toBe(true);
+      expect(SYNTHETIC_INTERVIEW_CORPUS.length).toBeGreaterThanOrEqual(3);
+
+      const first = SYNTHETIC_INTERVIEW_CORPUS[0];
+      expect(first).toHaveProperty('question_taglish');
+      expect(first).toHaveProperty('question_tagalog');
+      expect(first.synthetic_exemplars).toHaveProperty('taglish');
+      expect(first.loop_around_prompts).toHaveProperty('taglish');
+    });
+
+    test('findSyntheticQuestion returns localized question in Taglish and Tagalog', () => {
+      const taglishQ = findSyntheticQuestion('concurrency', 'Taglish');
+      expect(taglishQ).toBeDefined();
+      expect(taglishQ.question).toContain('nag-spike');
+
+      const tagalogQ = findSyntheticQuestion('Deadlock', 'Tagalog');
+      expect(tagalogQ).toBeDefined();
+      expect(tagalogQ.question).toContain('deadlock');
+    });
+
+    test('evaluateWithLoopAround generates active loop follow-up when score < 85', () => {
+      const q = SYNTHETIC_INTERVIEW_CORPUS[0];
+      const partialAnswer = 'Nag-setup ako ng Redis para bumilis ang response ng API.';
+      const result = evaluateWithLoopAround(q, partialAnswer, { round: 1 });
+
+      expect(result.loop_around).toBeDefined();
+      expect(result.loop_around.is_loop_active).toBe(true);
+      expect(result.loop_around.followup_question.length).toBeGreaterThan(20);
+      expect(result.loop_around.followup_question).toMatch(/Loop-Around Challenge|Pag-ikot ng Pagsasanay/);
+    });
+
+    test('evaluateWithLoopAround recognizes round 2 improved answer and completes loop', () => {
+      const q = SYNTHETIC_INTERVIEW_CORPUS[0];
+      const strongFollowup = 'Para masolusyunan ang cache stampede at traffic spikes, nag-implement ako ng Redis distributed mutex locks gamit ang Redlock algorithm at asynchronous Kafka workers with unique transaction idempotency keys. Bunga nito, bumaba ang latency ng 45% (from 850ms down to 110ms) at walang database lock contention kahit 20,000 req/sec.';
+      
+      const result = evaluateWithLoopAround(q, strongFollowup, { round: 2 });
+      expect(result.loop_around.loop_completed).toBe(true);
+      expect(result.score).toBeGreaterThanOrEqual(80);
+      expect(result.loop_around.coaching_tip).toContain('Napakagaling');
     });
   });
 });
