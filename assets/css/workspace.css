@@ -34,6 +34,16 @@ body {
   background-color: var(--ws-bg);
   color: var(--ws-ink-primary);
   letter-spacing: -0.011em;
+  caret-color: var(--sage);
+}
+
+::selection {
+  background: rgba(124, 181, 133, 0.28);
+  color: var(--ws-ink-primary);
+}
+
+.tabular-nums, [data-metric-val], .font-mono {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Focus Rings */
