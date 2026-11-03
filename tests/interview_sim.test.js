@@ -2,6 +2,9 @@
  * @jest-environment jsdom
  */
 
+const SkillSyncInterview = require('../assets/js/modules/interview.js');
+global.SkillSyncInterview = SkillSyncInterview;
+
 const {
   evaluateInterviewAnswer,
   createCustomInterviewQuestion,
@@ -117,6 +120,62 @@ describe('Interactive Mock Interview Answer Simulator Test Suite', () => {
       const list = document.getElementById('interviewQuestionsList');
       expect(list.innerHTML).toContain('Custom Question');
       expect(list.innerHTML).toContain('High Availability &amp; Disaster Recovery');
+    });
+
+    test('openFirstDrawer option automatically unhides Question 1 practice drawer', () => {
+      renderInterviewQuestions([mockQuestion], { openFirstDrawer: true });
+
+      const list = document.getElementById('interviewQuestionsList');
+      const drawer = list.querySelector('.practice-drawer');
+      const toggleLabel = list.querySelector('.btn-toggle-label');
+
+      expect(drawer.classList.contains('hidden')).toBe(false);
+      expect(toggleLabel.textContent).toBe('Hide Practice Drawer');
+    });
+
+    test('evaluates synthetic question and renders interactive loop-around round 2 challenge', () => {
+      const syntheticQuestion = {
+        id: 1,
+        category: 'Concurrency & Distributed Systems',
+        target_skill: 'Distributed Locking & Redis',
+        question: 'Paano mo hina-handle ang race condition sa high-concurrency wallet transactions?',
+        question_tagalog: 'Paano mo pinamamahalaan ang race condition sa mataas na concurrency ng transaksyon sa wallet?',
+        interviewer_intent: 'Tinitingnan kung paano nagpapatupad ng distributed locks gamit ang Redis.',
+        talking_points: ['Distributed locking (Redlock)', 'Database transaction isolation', 'Idempotency key'],
+        loop_around_prompts: {
+          taglish: 'Paano mo masisiguro na hindi magkakaroon ng double-deduction kung sakaling mag-timeout ang Redis client sa kalagitnaan ng wallet transfer?'
+        },
+        is_synthetic: true
+      };
+
+      renderInterviewQuestions([syntheticQuestion], { openFirstDrawer: true });
+
+      const list = document.getElementById('interviewQuestionsList');
+      const input = list.querySelector('.practice-input');
+      const evalBtn = list.querySelector('.btn-eval-answer');
+      const feedback = list.querySelector('.practice-feedback');
+
+      // Provide partial answer to trigger active loop-around
+      input.value = 'Gumagamit kami ng distributed locks gamit ang Redis para walang sumabay na transaction.';
+      evalBtn.click();
+
+      expect(feedback.classList.contains('hidden')).toBe(false);
+      expect(feedback.innerHTML).toContain('Conversational Loop-Around Drill (Round 2)');
+      expect(feedback.innerHTML).toContain('Submit Loop-Around Response');
+
+      // Test Round 2 input submission
+      const r2Input = feedback.querySelector('.loop-round-input');
+      const r2Btn = feedback.querySelector('.btn-submit-loop-around');
+      expect(r2Input).toBeTruthy();
+      expect(r2Btn).toBeTruthy();
+
+      r2Input.value = 'Para maiwasan ang double-deduction kapag nag-timeout, naglagay kami ng unique idempotency key sa PostgreSQL na may SERIALIZABLE isolation at retry mechanism kaya naging 0 ang ledger discrepancies.';
+      r2Btn.click();
+
+      const r2Result = feedback.querySelector('.loop-round-result');
+      expect(r2Result.classList.contains('hidden')).toBe(false);
+      expect(r2Result.textContent).toContain('Loop Mastered!');
+      expect(r2Result.textContent).toContain('Round 2 Complete');
     });
   });
 });

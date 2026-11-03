@@ -3415,7 +3415,7 @@ async function fetchCoverLetter(tone = 'modern', company = '', resume = '', jobD
   }
 }
 
-async function openInterviewModal() {
+async function openInterviewModal(options = {}) {
   const modal = document.getElementById('interview-modal');
   const loading = document.getElementById('interviewLoading');
   const list = document.getElementById('interviewQuestionsList');
@@ -3432,22 +3432,77 @@ async function openInterviewModal() {
     ? lastAnalysisResult.missing_skills
     : [];
 
-  // Reset tabs to generated view
   const tabGen = document.getElementById('tabGeneratedQuestionsBtn');
+  const tabSynthetic = document.getElementById('tabSyntheticQuestionsBtn');
   const tabCustom = document.getElementById('tabCustomQuestionBtn');
   const panelCustom = document.getElementById('customQuestionPanel');
-  if (tabGen && tabCustom && panelCustom) {
-    panelCustom.classList.add('hidden');
-    list.classList.remove('hidden');
+
+  const wantSynthetic = Boolean((options && options.synthetic) || (!resume && !jobDesc));
+
+  if (panelCustom) panelCustom.classList.add('hidden');
+  if (list) list.classList.remove('hidden');
+
+  if (wantSynthetic) {
+    if (tabSynthetic) {
+      tabSynthetic.style.background = 'var(--surface)';
+      tabSynthetic.style.color = 'var(--ink)';
+      tabSynthetic.classList.add('active-tab', 'shadow-sm');
+    }
+    if (tabGen) {
+      tabGen.style.background = 'transparent';
+      tabGen.style.color = 'var(--ink-3)';
+      tabGen.classList.remove('active-tab', 'shadow-sm');
+    }
+    if (tabCustom) {
+      tabCustom.style.background = 'transparent';
+      tabCustom.style.color = 'var(--ink-3)';
+      tabCustom.classList.remove('active-tab', 'shadow-sm');
+    }
+    if (loading) loading.classList.add('hidden');
+
+    const corpus = (typeof SkillSyncInterview !== 'undefined' && Array.isArray(SkillSyncInterview.SYNTHETIC_INTERVIEW_CORPUS))
+      ? SkillSyncInterview.SYNTHETIC_INTERVIEW_CORPUS.map(item => ({
+          id: item.id,
+          category: item.category,
+          target_skill: item.target_skill,
+          question: item.question_taglish,
+          question_tagalog: item.question_tagalog,
+          interviewer_intent: item.interviewer_intent,
+          talking_points: item.talking_points,
+          better_answer: item.synthetic_exemplars ? item.synthetic_exemplars.taglish : null,
+          loop_around_prompts: item.loop_around_prompts,
+          is_synthetic: true
+        }))
+      : [];
+
+    if (corpus.length > 0) {
+      lastInterviewQuestions = corpus;
+      renderInterviewQuestions(corpus, { openFirstDrawer: true });
+      if (countBadge) countBadge.textContent = `${corpus.length} Questions (Tagalog/Taglish)`;
+      return;
+    }
+  }
+
+  // Generated job-specific questions view
+  if (tabGen) {
     tabGen.style.background = 'var(--surface)';
     tabGen.style.color = 'var(--ink)';
+    tabGen.classList.add('active-tab', 'shadow-sm');
+  }
+  if (tabSynthetic) {
+    tabSynthetic.style.background = 'transparent';
+    tabSynthetic.style.color = 'var(--ink-3)';
+    tabSynthetic.classList.remove('active-tab', 'shadow-sm');
+  }
+  if (tabCustom) {
     tabCustom.style.background = 'transparent';
     tabCustom.style.color = 'var(--ink-3)';
+    tabCustom.classList.remove('active-tab', 'shadow-sm');
   }
 
   // If questions are already loaded from this session, render them directly
   if (lastInterviewQuestions && lastInterviewQuestions.length > 0) {
-    renderInterviewQuestions(lastInterviewQuestions);
+    renderInterviewQuestions(lastInterviewQuestions, { openFirstDrawer: true });
     if (countBadge) countBadge.textContent = `${lastInterviewQuestions.length} Questions`;
     return;
   }
@@ -3475,10 +3530,25 @@ async function openInterviewModal() {
     if (!res.ok) throw new Error(data.message || 'Failed to generate interview prep.');
 
     lastInterviewQuestions = Array.isArray(data.questions) ? data.questions : [];
-    renderInterviewQuestions(lastInterviewQuestions);
+    renderInterviewQuestions(lastInterviewQuestions, { openFirstDrawer: true });
     if (countBadge) countBadge.textContent = `${lastInterviewQuestions.length} Questions`;
   } catch (err) {
-    lastInterviewQuestions = [
+    const syntheticFallback = (typeof SkillSyncInterview !== 'undefined' && Array.isArray(SkillSyncInterview.SYNTHETIC_INTERVIEW_CORPUS))
+      ? SkillSyncInterview.SYNTHETIC_INTERVIEW_CORPUS.map(item => ({
+          id: item.id,
+          category: item.category,
+          target_skill: item.target_skill,
+          question: item.question_taglish,
+          question_tagalog: item.question_tagalog,
+          interviewer_intent: item.interviewer_intent,
+          talking_points: item.talking_points,
+          better_answer: item.synthetic_exemplars ? item.synthetic_exemplars.taglish : null,
+          loop_around_prompts: item.loop_around_prompts,
+          is_synthetic: true
+        }))
+      : [];
+
+    lastInterviewQuestions = syntheticFallback.length > 0 ? syntheticFallback : [
       {
         id: 1,
         category: 'Skill Gap Deep-Dive',
@@ -3494,26 +3564,10 @@ async function openInterviewModal() {
             'Demonstrates practical failure mitigation with idempotency keys'
           ]
         }
-      },
-      {
-        id: 2,
-        category: 'Reliability & Scaling',
-        target_skill: 'CI/CD & Cloud',
-        question: 'When an endpoint suddenly experiences a 10x latency spike in production, what is your step-by-step diagnostic process?',
-        interviewer_intent: 'Evaluates production incident triage and systematic root-cause analysis.',
-        talking_points: ['Check distributed telemetry traces', 'Inspect database connection pools', 'Review recent deployment diffs'],
-        better_answer: {
-          star_answer: `My triage process starts with APM distributed tracing to isolate the delay to either database contention, external API dependencies, or thread pool exhaustion. If database queries are blocked, I inspect PgBouncer connection pool saturation and active table locks. Concurrently, I verify recent deployment git diffs and canary traffic to decide if an immediate roll-back is required within our 5-minute SLA.`,
-          why_better: [
-            'Follows a structured diagnostic hierarchy instead of guesswork',
-            'Mentions production observability tools and connection pooling',
-            'Emphasizes customer protection via rapid rollback SLAs'
-          ]
-        }
       }
     ];
-    renderInterviewQuestions(lastInterviewQuestions);
-    if (countBadge) countBadge.textContent = `${lastInterviewQuestions.length} Questions`;
+    renderInterviewQuestions(lastInterviewQuestions, { openFirstDrawer: true });
+    if (countBadge) countBadge.textContent = `${lastInterviewQuestions.length} Questions (Tagalog/Taglish)`;
   } finally {
     if (loading) loading.classList.add('hidden');
   }
@@ -3702,7 +3756,7 @@ function evaluateInterviewAnswer(questionObj = {}, userAnswer = '', options = {}
   };
 }
 
-function renderInterviewQuestions(questions) {
+function renderInterviewQuestions(questions, options = {}) {
   const list = document.getElementById('interviewQuestionsList');
   if (!list) return;
 
@@ -3716,11 +3770,13 @@ function renderInterviewQuestions(questions) {
     return;
   }
 
-  questions.forEach(q => {
+  questions.forEach((q, index) => {
     const card = document.createElement('div');
     card.className = 'p-4 rounded-xl border space-y-2.5 transition hover:border-amber-500/40';
     card.style.background = 'var(--paper-2)';
     card.style.borderColor = 'var(--border)';
+
+    const isFirstOpen = Boolean(options && options.openFirstDrawer && index === 0);
 
     const pointsHtml = Array.isArray(q.talking_points)
       ? q.talking_points.map(pt => `
@@ -3736,7 +3792,12 @@ function renderInterviewQuestions(questions) {
           <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
           <span>Custom Question</span>
         </span>`
-      : '';
+      : (q.is_synthetic
+        ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center space-x-1 bg-amber-500/15 text-amber-500 border border-amber-500/30">
+            <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <span>Synthetic Drill</span>
+          </span>`
+        : '');
 
     card.innerHTML = `
       <div class="flex items-center justify-between flex-wrap gap-1.5">
@@ -3773,7 +3834,7 @@ function renderInterviewQuestions(questions) {
       <div class="pt-2 border-t flex items-center justify-between" style="border-color: var(--border);">
         <button type="button" class="btn-practice-toggle px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--amber); border: 1px solid var(--border);">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-          <span>Practice Answer</span>
+          <span class="btn-toggle-label">${isFirstOpen ? 'Hide Practice Drawer' : 'Practice Answer'}</span>
         </button>
         <button type="button" class="btn-copy-single-q px-2.5 py-1 text-[11px] font-semibold rounded-lg transition hover:bg-slate-500/10 inline-flex items-center space-x-1" style="color: var(--ink-2); border: 1px solid var(--border);">
           <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
@@ -3782,21 +3843,21 @@ function renderInterviewQuestions(questions) {
       </div>
 
       <!-- Practice Answer Drawer -->
-      <div class="practice-drawer hidden pt-2 space-y-2.5 border-t" style="border-color: var(--border);">
+      <div class="practice-drawer ${isFirstOpen ? '' : 'hidden'} pt-2 space-y-2.5 border-t" style="border-color: var(--border);">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <span class="text-[10px] font-medium" style="color: var(--ink-3);">Answer in English, Tagalog, or Taglish:</span>
           <div class="flex items-center space-x-1 text-[11px]">
             <label class="text-[10px] opacity-70 mr-1" style="color: var(--ink-3);">Language:</label>
             <select class="practice-lang-select console-input text-[11px] px-2 py-0.5 rounded-md">
               <option value="Auto">Auto-Detect</option>
-              <option value="English">English</option>
-              <option value="Taglish">Taglish (PH Tech)</option>
+              <option value="Taglish" selected>Taglish (PH Tech)</option>
               <option value="Tagalog">Tagalog</option>
+              <option value="English">English</option>
             </select>
           </div>
         </div>
 
-        <textarea class="practice-input console-input w-full p-2.5 text-xs rounded-xl font-sans" rows="3" placeholder="Draft your answer using STAR (Situation, Task, Action, Result). Taglish is warmly welcomed! e.g. Nag-implement kami ng Redis cache tapos bumaba latency ng 40%..."></textarea>
+        <textarea class="practice-input console-input w-full p-2.5 text-xs rounded-xl font-sans" rows="3" placeholder="Draft your answer using STAR (Situation, Task, Action, Result). Taglish is warmly welcomed! e.g. Sa previous project namin, nag-implement ako ng Redis cache tapos bumaba ang latency ng 40%..."></textarea>
 
         <div class="flex items-center justify-between">
           <span class="text-[10px] opacity-70" style="color: var(--ink-4);">Instant AI coaching evaluation & STAR Better Answer</span>
@@ -3824,9 +3885,13 @@ function renderInterviewQuestions(questions) {
 
     const practiceToggleBtn = card.querySelector('.btn-practice-toggle');
     const practiceDrawer = card.querySelector('.practice-drawer');
+    const toggleLabel = card.querySelector('.btn-toggle-label');
     if (practiceToggleBtn && practiceDrawer) {
       practiceToggleBtn.addEventListener('click', () => {
         practiceDrawer.classList.toggle('hidden');
+        if (toggleLabel) {
+          toggleLabel.textContent = practiceDrawer.classList.contains('hidden') ? 'Practice Answer' : 'Hide Practice Drawer';
+        }
       });
     }
 
@@ -3988,10 +4053,10 @@ function renderInterviewQuestions(questions) {
 
         renderFeedbackUI(result);
 
-        // Asynchronous progressive enhancement via backend if authenticated
-        if (typeof getAuthBearerToken === 'function' && typeof fetch === 'function' && practiceInput.value.length >= 15) {
+        // Progressive enhancement via backend only for custom non-synthetic questions, preserving active loop-around
+        if (!q.is_synthetic && typeof getAuthBearerToken === 'function' && typeof fetch === 'function' && practiceInput.value.length >= 15) {
           getAuthBearerToken().then(token => {
-            if (!token) return;
+            if (!token || token === 'demo-token-123') return;
             fetch('interview.php', {
               method: 'POST',
               headers: {
@@ -4009,15 +4074,19 @@ function renderInterviewQuestions(questions) {
             }).then(r => r.ok ? r.json() : null)
               .then(apiRes => {
                 if (apiRes && apiRes.score !== undefined) {
-                  renderFeedbackUI({
-                    score: apiRes.score,
-                    grade: apiRes.grade,
-                    language_detected: apiRes.language_detected,
-                    coveredPoints: apiRes.covered_points || [],
-                    missingPoints: apiRes.missing_points || [],
-                    critique: apiRes.critique,
-                    better_answer: apiRes.better_answer || {}
-                  });
+                  const round2Active = feedbackBox.querySelector('.loop-round-result:not(.hidden)') || feedbackBox.querySelector('.loop-round-input:focus');
+                  if (!round2Active) {
+                    renderFeedbackUI({
+                      score: apiRes.score,
+                      grade: apiRes.grade,
+                      language_detected: apiRes.language_detected,
+                      coveredPoints: apiRes.covered_points || [],
+                      missingPoints: apiRes.missing_points || [],
+                      critique: apiRes.critique,
+                      better_answer: apiRes.better_answer || {},
+                      loop_around: result.loop_around
+                    });
+                  }
                 }
               }).catch(() => {});
           }).catch(() => {});
@@ -4452,14 +4521,16 @@ function initAiActionSuite() {
               interviewer_intent: item.interviewer_intent,
               talking_points: item.talking_points,
               better_answer: item.synthetic_exemplars ? item.synthetic_exemplars.taglish : null,
-              loop_around_prompts: item.loop_around_prompts
+              loop_around_prompts: item.loop_around_prompts,
+              is_synthetic: true
             }))
           : [];
 
         if (corpus.length > 0) {
-          renderInterviewQuestions(corpus);
+          lastInterviewQuestions = corpus;
+          renderInterviewQuestions(corpus, { openFirstDrawer: true });
           const countBadge = document.getElementById('interviewCountBadge');
-          if (countBadge) countBadge.textContent = `${corpus.length} Synthetic Drills`;
+          if (countBadge) countBadge.textContent = `${corpus.length} Synthetic Drills (Tagalog/Taglish)`;
           showToast('Loaded Synthetic Filipino Tech Interview Corpus (Tagalog/Taglish)!', 'info');
         }
       });
@@ -6161,7 +6232,7 @@ function initAgenticCompanyRequest() {
   if (practiceInterviewBtn) {
     practiceInterviewBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      openInterviewModal();
+      openInterviewModal({ synthetic: true });
     });
   }
 
@@ -6278,6 +6349,8 @@ if (typeof window !== 'undefined') {
   window.openSpeedrunModal = openAgenticRequestModal;
   window.compileSpeedrunKit = compileSpeedrunKit;
   window.initSpeedrunKit = initAgenticCompanyRequest;
+  window.openInterviewModal = openInterviewModal;
+  window.renderInterviewQuestions = renderInterviewQuestions;
 }
 
 /**

@@ -1512,12 +1512,12 @@
         <svg id="analyzeSpinner" class="hidden animate-spin w-4 h-4 text-[#07090d]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
       </button>
 
-      <button type="button" id="agenticCompanyRequestBtn" class="btn-command-agentic w-full sm:w-auto px-5 py-3 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-400 font-semibold text-xs hover:bg-sky-500/20 hover:border-sky-500/50 transition inline-flex items-center justify-center space-x-2 shadow-sm cursor-pointer">
+      <button type="button" id="agenticCompanyRequestBtn" onclick="typeof openAgenticRequestModal === 'function' ? openAgenticRequestModal() : (window.openAgenticRequestModal && window.openAgenticRequestModal())" class="btn-command-agentic w-full sm:w-auto px-5 py-3 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-400 font-semibold text-xs hover:bg-sky-500/20 hover:border-sky-500/50 transition inline-flex items-center justify-center space-x-2 shadow-sm cursor-pointer">
         <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         <span>1-Click Agentic Company Request</span>
       </button>
 
-      <button type="button" id="practiceInterviewBtn" class="btn-tactile w-full sm:w-auto px-5 py-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] font-semibold text-xs hover:border-amber-500/50 transition inline-flex items-center justify-center space-x-2 shadow-sm cursor-pointer">
+      <button type="button" id="practiceInterviewBtn" onclick="typeof openInterviewModal === 'function' ? openInterviewModal({ synthetic: true }) : (window.openInterviewModal && window.openInterviewModal({ synthetic: true }))" class="btn-tactile w-full sm:w-auto px-5 py-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--ink)] font-semibold text-xs hover:border-amber-500/50 transition inline-flex items-center justify-center space-x-2 shadow-sm cursor-pointer">
         <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"/></svg>
         <span>Practice Interview (Tagalog / Taglish)</span>
       </button>
@@ -1598,7 +1598,7 @@
               <p class="text-xs text-[var(--ink-2)] mt-0.5">Autonomous AI formulates and dispatches a high-signal application request directly to the company.</p>
             </div>
           </div>
-          <button type="button" id="launchAgenticRequestBtn" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer">
+          <button type="button" id="launchAgenticRequestBtn" onclick="typeof openAgenticRequestModal === 'function' ? openAgenticRequestModal() : (window.openAgenticRequestModal && window.openAgenticRequestModal())" class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-action-primary text-[#07090d] rounded-xl shadow-sm inline-flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             <span>Dispatch Request</span>
           </button>
@@ -1717,7 +1717,7 @@
               </div>
             </button>
 
-            <button type="button" id="interviewPrepBtn" class="action-studio-card group">
+            <button type="button" id="interviewPrepBtn" onclick="typeof openInterviewModal === 'function' ? openInterviewModal() : (window.openInterviewModal && window.openInterviewModal())" class="action-studio-card group">
               <div class="p-2 rounded-lg bg-purple-500/15 text-purple-400 shrink-0 group-hover:scale-105 transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               </div>
