@@ -94,7 +94,7 @@ body {
 }
 
 /* ==============================================================================
- * 3. Dual-Pane Input Studio
+ * 3. Dual-Pane Input Studio (Senior Engineering Workbench)
  * ============================================================================== */
 .studio-pane {
   background: var(--ws-surface);
@@ -103,48 +103,120 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 12px 28px -6px rgba(0, 0, 0, 0.08);
-  transition: var(--ws-transition-spring);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 14px 32px -8px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   height: 100%;
+  position: relative;
 }
 
-.studio-pane:hover {
-  border-color: rgba(124, 181, 133, 0.35);
+.studio-pane:focus-within {
+  border-color: rgba(124, 181, 133, 0.45);
+  box-shadow: 0 0 0 1px rgba(124, 181, 133, 0.2), 0 18px 36px -8px rgba(0, 0, 0, 0.18);
 }
 
 .studio-pane-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 12px 18px;
   background: var(--paper-2);
   border-bottom: 1px solid var(--ws-border);
-  min-height: 52px;
-  gap: 8px;
+  min-height: 56px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .studio-pane-title {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 10px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--ws-ink-primary);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+}
+
+.studio-pane-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.studio-preset-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  background: rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--ws-border);
+  font-size: 11px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .studio-preset-bar {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sample-preset-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid var(--ws-border);
+  background: var(--ws-surface);
+  color: var(--ws-ink-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.sample-preset-chip:hover {
+  background: var(--paper-3);
+  color: var(--ws-ink-primary);
+  border-color: rgba(124, 181, 133, 0.4);
+}
+
+.sample-preset-clear {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ws-ink-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sample-preset-clear:hover {
+  color: var(--rose);
+  background: rgba(218, 125, 143, 0.1);
 }
 
 .studio-pane-editor {
   width: 100%;
   flex: 1 1 auto;
   display: block;
-  padding: 16px 18px;
+  padding: 18px 20px;
   background: transparent;
   border: none;
   outline: none;
   font-size: 13.5px;
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--ws-ink-primary);
-  resize: none;
+  resize: vertical;
   min-height: 250px;
   font-family: inherit;
 }
@@ -155,19 +227,37 @@ body {
 
 .studio-pane-editor::placeholder {
   color: var(--ws-ink-muted);
-  opacity: 0.85;
+  opacity: 0.75;
+  font-size: 12.5px;
+  line-height: 1.6;
 }
 
 .studio-pane-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border-top: 1px solid var(--ws-border);
   background: var(--paper-2);
   font-size: 11px;
   color: var(--ws-ink-muted);
-  min-height: 40px;
+  min-height: 44px;
+  gap: 12px;
+}
+
+.match-bridge-rail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-radius: var(--ws-radius-lg);
+  background: var(--paper-2);
+  border: 1px solid var(--ws-border);
+  color: var(--ws-ink-muted);
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  margin-top: 6px;
 }
 
 /* ==============================================================================
