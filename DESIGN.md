@@ -50,7 +50,7 @@ typography:
     fontWeight: 400
     lineHeight: 1.5
   mono:
-    fontFamily: "JetBrains Mono, Menlo, monospace"
+    fontFamily: "DM Mono, JetBrains Mono, Menlo, monospace"
     fontSize: "0.8125rem"
     fontWeight: 500
 rounded:
