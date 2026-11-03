@@ -30,6 +30,13 @@
       keywords: ['audit', 'fake', 'credibility', 'integrity', 'fact-check', 'anachronism']
     },
     {
+      id: 'agentic_request',
+      title: '1-Click Agentic Company Request',
+      category: 'Autonomous AI',
+      shortcut: '⌘ S',
+      keywords: ['agentic', 'company', 'request', 'apply', 'dispatch', 'autonomous', '1-click', 'speedrun']
+    },
+    {
       id: 'speedrun_kit',
       title: '1-Click Speedrun Application Kit',
       category: 'Accelerator',
@@ -38,10 +45,10 @@
     },
     {
       id: 'mock_interview',
-      title: 'Multilingual Mock Interview Simulator',
+      title: 'Interview Simulator (Tagalog / Taglish / English & Loop-Around)',
       category: 'Practice',
       shortcut: '⌘ I',
-      keywords: ['interview', 'tagalog', 'taglish', 'questions', 'star', 'practice']
+      keywords: ['interview', 'tagalog', 'taglish', 'questions', 'star', 'practice', 'loop', 'synthetic']
     },
     {
       id: 'import_url',

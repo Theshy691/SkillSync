@@ -18,6 +18,10 @@ describe('Global Command Palette Engine Test Suite', () => {
     expect(scanCmd).toBeDefined();
     expect(scanCmd.shortcut).toContain('↵');
 
+    const agenticCmd = list.find(c => c.id === 'agentic_request');
+    expect(agenticCmd).toBeDefined();
+    expect(agenticCmd.category).toBe('Autonomous AI');
+
     const speedrunCmd = list.find(c => c.id === 'speedrun_kit');
     expect(speedrunCmd).toBeDefined();
   });
@@ -50,10 +54,11 @@ describe('Global Command Palette Engine Test Suite', () => {
   });
 
   test('renderCommandListHtml renders highlighted item and empty fallback', () => {
-    const commands = SkillSyncCommandPalette.DEFAULT_COMMANDS.slice(0, 3);
+    const commands = SkillSyncCommandPalette.DEFAULT_COMMANDS.slice(0, 4);
     const html = SkillSyncCommandPalette.renderCommandListHtml(commands, 1);
 
     expect(html).toContain('is-selected');
+    expect(html).toContain('data-command-id="agentic_request"');
     expect(html).toContain('data-command-id="speedrun_kit"');
 
     const emptyHtml = SkillSyncCommandPalette.renderCommandListHtml([]);
