@@ -20,10 +20,11 @@
   --ws-ink-secondary: var(--ink-2);
   --ws-ink-muted: var(--ink-3);
   --ws-ink-faint: var(--ink-4);
-  --ws-radius-sm: 8px;
-  --ws-radius-md: 12px;
-  --ws-radius-lg: 18px;
-  --ws-radius-xl: 24px;
+  --ws-radius-xs: 0px;
+  --ws-radius-sm: 2px;
+  --ws-radius-md: 3px;
+  --ws-radius-lg: 4px;
+  --ws-radius-xl: 4px;
   --ws-transition-spring: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -99,7 +100,7 @@ body {
 .studio-pane {
   background: var(--ws-surface);
   border: 1px solid var(--ws-border);
-  border-radius: var(--ws-radius-xl);
+  border-radius: var(--ws-radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -141,7 +142,7 @@ body {
   align-items: center;
   gap: 5px;
   padding: 2px 7px;
-  border-radius: 9999px;
+  border-radius: var(--ws-radius-sm);
   font-size: 10px;
   font-weight: 600;
   font-family: var(--font-mono, monospace);
@@ -171,7 +172,7 @@ body {
   padding: 3px 9px;
   font-size: 11px;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: var(--ws-radius-sm);
   border: 1px solid var(--ws-border);
   background: var(--ws-surface);
   color: var(--ws-ink-secondary);
@@ -192,7 +193,7 @@ body {
   padding: 3px 8px;
   font-size: 11px;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: var(--ws-radius-sm);
   border: 1px solid transparent;
   background: transparent;
   color: var(--ws-ink-muted);
@@ -251,7 +252,7 @@ body {
   justify-content: center;
   gap: 12px;
   padding: 10px 18px;
-  border-radius: var(--ws-radius-lg);
+  border-radius: var(--ws-radius-md);
   background: var(--paper-2);
   border: 1px solid var(--ws-border);
   color: var(--ws-ink-muted);
@@ -274,7 +275,7 @@ body {
   color: var(--ws-ink-muted);
   background: var(--paper-3);
   border: 1px solid var(--ws-border);
-  border-radius: 6px;
+  border-radius: var(--ws-radius-sm);
   line-height: 1.2;
 }
 
@@ -293,7 +294,7 @@ body {
   background-color: var(--sage);
   background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(0, 0, 0, 0.06) 100%);
   border: 1px solid rgba(0, 0, 0, 0.18);
-  border-radius: var(--ws-radius-lg);
+  border-radius: var(--ws-radius-md);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 8px 20px -4px rgba(0, 0, 0, 0.22);
   cursor: pointer;
   transition: var(--ws-transition-spring);
@@ -532,7 +533,7 @@ body {
   font-size: 11px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
   font-weight: 700;
-  border-radius: 999px;
+  border-radius: var(--ws-radius-xs);
   line-height: 1.3;
 }
 
@@ -571,7 +572,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--ws-border);
-  border-radius: 9999px;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -581,6 +582,52 @@ body {
 ::selection {
   background: var(--sage-light);
   color: var(--ws-ink-primary);
+}
+
+/* ==============================================================================
+ * 13. Sharp Technical Engineering Geometry (Zero AI-Slop Bubbly Radii)
+ * ============================================================================== */
+.studio-pane,
+.workspace-grid,
+.results-dock,
+.console-card,
+.ws-card,
+.modal-box,
+.workspace-modal-card,
+.benchmark-card,
+.kanban-lane,
+.kanban-card,
+.pro-job-card,
+.score-radial-container,
+#tailorAdviceBox,
+#customQuestionPanel,
+#auth-section {
+  border-radius: 4px !important;
+}
+
+button,
+.btn-command-primary,
+.btn-command-agentic,
+.btn-tactile,
+.btn-action-sky,
+.btn-action-primary,
+.action-studio-card,
+.shortcut-badge,
+.sample-preset-chip,
+.sample-preset-clear,
+.match-bridge-rail,
+.studio-pane-badge,
+.kanban-stage-badge,
+.score-badge {
+  border-radius: 3px !important;
+}
+
+input,
+textarea,
+select,
+.studio-pane-editor,
+.console-input {
+  border-radius: 3px !important;
 }
 
 ::-moz-selection {
