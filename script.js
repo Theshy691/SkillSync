@@ -6437,7 +6437,6 @@ if (typeof window !== 'undefined') {
   window.initAgenticCompanyRequest = initAgenticCompanyRequest;
   window.openSpeedrunModal = openAgenticRequestModal;
   window.compileSpeedrunKit = compileSpeedrunKit;
-  window.initSpeedrunKit = initAgenticCompanyRequest;
   window.openInterviewModal = openInterviewModal;
   window.renderInterviewQuestions = renderInterviewQuestions;
 }
