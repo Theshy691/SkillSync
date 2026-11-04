@@ -156,6 +156,8 @@ function showToast(message, type = 'info', duration = 4000) {
   if (!container) return null;
 
   const toast = document.createElement('div');
+  toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  toast.setAttribute('aria-atomic', 'true');
   toast.className = 'pointer-events-auto flex items-center space-x-3 p-3.5 rounded-2xl shadow-xl border text-sm font-medium transform transition-all duration-300 opacity-0 translate-y-2';
 
   let iconSvg = '';
@@ -189,6 +191,7 @@ function showToast(message, type = 'info', duration = 4000) {
     </button>
   `;
 
+  while (container.children.length >= 2) container.firstElementChild.remove();
   container.appendChild(toast);
 
   // Trigger enter animation
@@ -467,7 +470,8 @@ function updateAuthState(session) {
     if (loginTriggerBtn) loginTriggerBtn.classList.add('hidden');
     if (userEmailBadge) userEmailBadge.textContent = session.user.email || 'Demo User';
     initWorkspaceDrafts();
-
+    const mode = document.getElementById('workspaceMode');
+    if (mode) mode.textContent = isDemoMode() ? 'Demo workspace · local samples' : 'Application workspace';
     fetchDashboard();
   } else {
     if (authSection) authSection.classList.remove('hidden');
@@ -1752,12 +1756,24 @@ function initAnalyzer() {
       const resume = resumeText ? resumeText.value.trim() : '';
       const jobDescription = jobText ? jobText.value.trim() : '';
 
+      const analysisError = document.getElementById('analysisError');
+      if (analysisError) analysisError.classList.add('hidden');
+      [[resumeText, resume, 'resumeError', 'Paste or upload your resume before comparing.'],
+        [jobText, jobDescription, 'jobError', 'Add a target job description before comparing.']].forEach(([field, value, id, message]) => {
+        field?.setAttribute('aria-invalid', value ? 'false' : 'true');
+        const error = document.getElementById(id);
+        if (error) error.textContent = value ? '' : message;
+      });
       if (!resume || !jobDescription) {
         showToast('Please provide both your resume and a target job description.', 'warning');
+        (!resume ? resumeText : jobText)?.focus();
         return;
       }
 
       analyzeBtn.disabled = true;
+      analyzeBtn.setAttribute('aria-busy', 'true');
+      const indicator = document.getElementById('scoringEngineIndicator');
+      if (indicator) indicator.textContent = 'Comparing your resume…';
       if (analyzeSpinner) analyzeSpinner.classList.remove('hidden');
       if (analyzeBtnText) analyzeBtnText.textContent = 'Analyzing match...';
       if (resultsSkeleton) resultsSkeleton.classList.remove('hidden');
@@ -1790,6 +1806,8 @@ function initAnalyzer() {
           fetchDashboard();
 
           analyzeBtn.disabled = false;
+          analyzeBtn.setAttribute('aria-busy', 'false');
+          if (indicator) indicator.textContent = 'Demo comparison complete';
           if (analyzeSpinner) analyzeSpinner.classList.add('hidden');
           if (analyzeBtnText) analyzeBtnText.textContent = 'Run Match Analysis';
           if (resultsSkeleton) resultsSkeleton.classList.add('hidden');
@@ -1890,9 +1908,15 @@ function initAnalyzer() {
         showToast('Analysis completed successfully!', 'success');
       } catch (err) {
         console.error('Analysis error:', err);
-        showToast(err.message || 'Failed to complete resume analysis.', 'error');
+        if (analysisError) {
+          analysisError.textContent = 'The comparison could not finish. Your documents are still here. Check your connection and run the analysis again.';
+          analysisError.classList.remove('hidden');
+        }
+        showToast('Analysis could not finish. Your documents have been preserved.', 'error');
       } finally {
         analyzeBtn.disabled = false;
+        analyzeBtn.setAttribute('aria-busy', 'false');
+        if (indicator) indicator.textContent = analysisError && !analysisError.classList.contains('hidden') ? 'Comparison needs a retry' : 'Comparison complete';
         if (analyzeSpinner) analyzeSpinner.classList.add('hidden');
         if (analyzeBtnText) analyzeBtnText.textContent = 'Run Match Analysis';
         if (resultsSkeleton) resultsSkeleton.classList.add('hidden');
@@ -2579,9 +2603,23 @@ function switchWorkspaceTab(tabName) {
   }
 
   activeWorkspaceTab = tabName;
+  const headings = {
+    ats: ['Build a stronger application.', 'Compare your resume with a target role, then focus on the changes that matter.', 'Ready to compare'],
+    discovery: ['Find your next opportunity.', 'Explore roles and bring the requirements into your resume comparison.', 'Job discovery'],
+    vault: ['Keep your experience together.', 'Organize the documents and skills behind your applications.', 'Your saved documents'],
+    pipeline: ['Keep your applications moving.', 'Track each role from your first shortlist to the next conversation.', 'Application pipeline']
+  };
+  const heading = headings[tabName] || headings.ats;
+  const title = document.getElementById('workspaceTitle');
+  const description = document.getElementById('workspaceDescription');
+  const status = document.getElementById('scoringEngineIndicator');
+  if (title) title.textContent = heading[0];
+  if (description) description.textContent = heading[1];
+  if (status) status.textContent = heading[2];
 
   const resetBtn = (btn) => {
     if (!btn) return;
+    btn.setAttribute('aria-pressed', 'false');
     btn.classList.remove('active');
     btn.className = 'workspace-segment-tab tab-btn transition flex items-center space-x-1.5';
     btn.style.background = 'transparent';
@@ -2590,6 +2628,7 @@ function switchWorkspaceTab(tabName) {
 
   const activateBtn = (btn) => {
     if (!btn) return;
+    btn.setAttribute('aria-pressed', 'true');
     btn.classList.add('active');
     btn.className = 'workspace-segment-tab tab-btn active font-bold transition flex items-center space-x-1.5 shadow-sm';
     btn.style.background = 'var(--surface)';

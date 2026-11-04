@@ -59,6 +59,8 @@
   function createToastElement(message, type = 'info') {
     const theme = getToastTheme(type);
     const toast = document.createElement('div');
+    toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    toast.setAttribute('aria-atomic', 'true');
     toast.className = `pointer-events-auto flex items-center space-x-3 p-3.5 rounded-2xl shadow-xl border text-sm font-medium transform transition-all duration-300 opacity-0 translate-y-2 ${theme.colorClasses}`;
     toast.innerHTML = `
       ${theme.iconSvg}
