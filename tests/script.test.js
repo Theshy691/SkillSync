@@ -468,9 +468,9 @@ describe('SkillSync Frontend Test Suite', () => {
       const feedback = document.getElementById('scoreFeedback');
       const skillsContainer = document.getElementById('skillsBadgesContainer');
 
-      expect(feedback.textContent).toContain('Strong Match • Evaluation against requirements');
+      expect(feedback.textContent).toContain('92% of recognized job skills appear in the resume');
       expect(skillsContainer.textContent).not.toContain('🎉');
-      expect(skillsContainer.textContent).toContain('No critical skill gaps identified');
+      expect(skillsContainer.textContent).toContain('No missing skills were identified by this comparison');
     });
 
     test('renderDashboardGrid renders minimal cards without loud uppercase labels', () => {

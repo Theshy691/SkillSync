@@ -106,7 +106,7 @@ describe('Multi-Dimensional ATS Breakdown & AI Career Action Suite', () => {
       expect(document.getElementById('breakdownDomainVal').textContent).toBe('82%');
     });
 
-    test('calculates sensible fallback breakdown if backend omitted it', () => {
+    test('does not invent dimension scores when the backend omitted them', () => {
       const mockResult = {
         match_score: 75,
         missing_skills: ['AWS']
@@ -114,8 +114,9 @@ describe('Multi-Dimensional ATS Breakdown & AI Career Action Suite', () => {
 
       renderResults(mockResult);
 
-      expect(document.getElementById('breakdownCoreVal').textContent).toBeTruthy();
-      expect(document.getElementById('breakdownDomainVal').textContent).toBe('75%');
+      expect(document.getElementById('breakdownCoreVal').textContent).toBe('Not assessed');
+      expect(document.getElementById('breakdownDomainVal').textContent).toBe('Not assessed');
+      expect(document.getElementById('breakdownCoreBar').style.width).toBe('0%');
     });
   });
 

@@ -1694,37 +1694,30 @@ function calculateDemoMatch(resume, job) {
     'GraphQL', 'Tailwind', 'CI/CD', 'Git', 'Kafka', 'Microservices'
   ];
 
-  const resumeLower = resume.toLowerCase();
-  const jobLower = job.toLowerCase();
-
-  const jobSkills = commonSkills.filter(s => jobLower.includes(s.toLowerCase()));
-  const targetSkills = jobSkills.length > 0 ? jobSkills : ['Docker', 'Kubernetes', 'TypeScript', 'PostgreSQL', 'GraphQL'];
+  const containsSkill = (text, skill) => {
+    const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(^|[^a-z0-9])${escaped}(?=$|[^a-z0-9])`, 'i').test(text);
+  };
+  const targetSkills = commonSkills.filter(skill => containsSkill(job, skill));
 
   const matched = [];
   const missing = [];
 
   targetSkills.forEach(skill => {
-    if (resumeLower.includes(skill.toLowerCase())) {
+    if (containsSkill(resume, skill)) {
       matched.push(skill);
     } else {
       missing.push(skill);
     }
   });
 
-  let score = 50;
-  if (targetSkills.length > 0) {
-    score = Math.round((matched.length / targetSkills.length) * 100);
-    score = Math.max(35, Math.min(95, score));
-  }
-
-  // Ensure at least 1 or 2 missing skills for learning demonstration
-  if (missing.length === 0) {
-    missing.push('Kubernetes', 'Terraform');
-  }
+  const score = targetSkills.length ? Math.round((matched.length / targetSkills.length) * 100) : 0;
 
   return {
     match_score: score,
-    missing_skills: missing
+    missing_skills: missing,
+    is_demo: true,
+    demo_skill_count: targetSkills.length
   };
 }
 
@@ -1776,8 +1769,7 @@ function initAnalyzer() {
           const matchResult = calculateDemoMatch(resume, jobDescription);
 
           lastAnalysisResult = {
-            match_score: matchResult.match_score,
-            missing_skills: matchResult.missing_skills,
+            ...matchResult,
             resume_snippet: resume.substring(0, 150),
             job_description: jobDescription.substring(0, 150)
           };
@@ -1869,6 +1861,7 @@ function initAnalyzer() {
         lastAnalysisResult = {
           match_score: data.match_score,
           missing_skills: data.missing_skills || [],
+          breakdown: data.breakdown,
           resume_snippet: resume.substring(0, 150),
           job_description: jobDescription.substring(0, 150)
         };
@@ -1924,7 +1917,7 @@ function renderResults(result) {
   }
   if (scoreNumber) {
     scoreNumber.textContent = `${result.match_score}%`;
-    if (typeof SkillSyncOdometer !== 'undefined' && typeof SkillSyncOdometer.animateScoreCounter === 'function' && typeof requestAnimationFrame === 'function') {
+    if (!(result.is_demo && result.demo_skill_count === 0) && typeof SkillSyncOdometer !== 'undefined' && typeof SkillSyncOdometer.animateScoreCounter === 'function' && typeof requestAnimationFrame === 'function') {
       SkillSyncOdometer.animateScoreCounter({
         target: result.match_score,
         start: 0,
@@ -1958,58 +1951,37 @@ function renderResults(result) {
     scoreFeedback.textContent = `${colors.label} • Evaluation against requirements`;
   }
 
-  // Update Multi-Dimensional Breakdown
-  const breakdown = result.breakdown || {
-    core_tech: Math.min(98, Math.max(30, Math.round(result.match_score * 1.02))),
-    devops_cloud: Math.min(95, Math.max(25, Math.round(result.match_score * 0.92))),
-    experience_depth: Math.min(96, Math.max(35, Math.round(result.match_score * 0.96))),
-    domain_fit: result.match_score
-  };
+  const demo = result.is_demo === true || isDemoMode();
+  const source = document.getElementById('scoreSource');
+  if (source) source.textContent = demo ? 'Demo · keyword comparison' : 'AI estimate';
+  const method = document.getElementById('scoreMethod');
+  if (method) method.textContent = demo
+    ? (result.demo_skill_count === 0
+      ? 'No supported technology names were recognized in this job description. Try a technical role sample. This demo cannot assess this match.'
+      : 'This local demo compares recognized technology names in the two documents. It does not assess experience quality or predict a hiring decision.')
+    : 'This comparison is an AI estimate, not an employer ATS result or a prediction of a hiring decision. Review each suggestion against your actual experience.';
+  if (demo && result.demo_skill_count === 0 && scoreNumber) scoreNumber.textContent = 'N/A';
+  if (demo && scoreFeedback) scoreFeedback.textContent = result.demo_skill_count === 0
+    ? 'Not enough recognized skills to compare'
+    : `${result.match_score}% of recognized job skills appear in the resume`;
 
-  const coreVal = document.getElementById('breakdownCoreVal');
-  const coreBar = document.getElementById('breakdownCoreBar');
-  const cloudVal = document.getElementById('breakdownCloudVal');
-  const cloudBar = document.getElementById('breakdownCloudBar');
-  const expVal = document.getElementById('breakdownExpVal');
-  const expBar = document.getElementById('breakdownExpBar');
-  const domainVal = document.getElementById('breakdownDomainVal');
-  const domainBar = document.getElementById('breakdownDomainBar');
-
-  if (coreVal && coreBar) {
-    coreVal.textContent = `${breakdown.core_tech}%`;
-    coreBar.style.width = `${breakdown.core_tech}%`;
-  }
-  if (cloudVal && cloudBar) {
-    cloudVal.textContent = `${breakdown.devops_cloud}%`;
-    cloudBar.style.width = `${breakdown.devops_cloud}%`;
-  }
-  if (expVal && expBar) {
-    expVal.textContent = `${breakdown.experience_depth}%`;
-    expBar.style.width = `${breakdown.experience_depth}%`;
-  }
-  if (domainVal && domainBar) {
-    domainVal.textContent = `${breakdown.domain_fit}%`;
-    domainBar.style.width = `${breakdown.domain_fit}%`;
-  }
-
-  // Update Competency Spider Radar (Multi-Dimensional Topology)
-  const radarContainer = document.getElementById('radarChartContainer');
-  if (radarContainer && typeof SkillSyncRadarChart !== 'undefined') {
-    const resumeVal = document.getElementById('resumeText')?.value || '';
-    const jobVal = document.getElementById('jobText')?.value || '';
-    const radarScores = SkillSyncRadarChart.calculateRadarScores({
-      overallScore: result.match_score,
-      breakdown: {
-        keyword_match: breakdown.core_tech,
-        skills_alignment: breakdown.devops_cloud,
-        relevance: breakdown.experience_depth,
-        completeness: breakdown.domain_fit
-      },
-      resume: resumeVal,
-      job: jobVal
-    });
-    radarContainer.innerHTML = SkillSyncRadarChart.renderRadarSvg(radarScores, 280);
-  }
+  // Only display dimensions actually returned by the assessment.
+  const breakdown = result.breakdown || {};
+  const assessed = (value) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100;
+  const metrics = [['Core', 'core_tech'], ['Cloud', 'devops_cloud'], ['Exp', 'experience_depth'], ['Domain', 'domain_fit']];
+  metrics.forEach(([id, key]) => {
+    const label = document.getElementById(`breakdown${id}Val`);
+    const bar = document.getElementById(`breakdown${id}Bar`);
+    const valid = assessed(breakdown[key]);
+    if (label) label.textContent = valid ? `${breakdown[key]}%` : 'Not assessed';
+    if (bar) bar.style.width = valid ? `${breakdown[key]}%` : '0%';
+  });
+  const section = document.getElementById('breakdownSection');
+  if (section) section.classList.toggle('hidden', !metrics.some(([, key]) => assessed(breakdown[key])));
+  const description = document.getElementById('nextStepDescription');
+  if (description) description.textContent = result.missing_skills?.length
+    ? `Start by reviewing ${result.missing_skills.slice(0, 3).join(', ')}. Include relevant experience you can support, or use the study plan to build it.`
+    : 'Review the role requirements, then make your most relevant experience clear with specific examples and measurable outcomes.';
 
   if (skillsContainer) {
     skillsContainer.innerHTML = '';
@@ -2017,7 +1989,7 @@ function renderResults(result) {
       skillsContainer.innerHTML = `
         <span class="inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
           <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-          <span>No critical skill gaps identified. Strong alignment with requirements.</span>
+          <span>No missing skills were identified by this comparison. Review the full requirements as well.</span>
         </span>
       `;
     } else {
@@ -2042,7 +2014,7 @@ function renderResults(result) {
 
   resultsContainer.classList.remove('hidden');
   if (typeof resultsContainer.scrollIntoView === 'function') {
-    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
@@ -2062,13 +2034,16 @@ function initExportAndClipboard() {
 
       const skillsText = lastAnalysisResult.missing_skills.length > 0
         ? lastAnalysisResult.missing_skills.join(', ')
-        : 'None (Strong Match)';
+        : 'None identified by this comparison';
+      const matchText = lastAnalysisResult.is_demo && lastAnalysisResult.demo_skill_count === 0
+        ? 'Not assessed'
+        : `${lastAnalysisResult.match_score}%`;
 
-      const reportText = `SkillSync Match Report\n` +
+      const reportText = `SkillSync Match Report${lastAnalysisResult.is_demo ? ' — Demo keyword comparison' : ' — AI estimate'}\n` +
         `------------------------\n` +
-        `Match Compatibility: ${lastAnalysisResult.match_score}%\n` +
+        `Match Compatibility: ${matchText}\n` +
         `Identified Skill Gaps: ${skillsText}\n\n` +
-        `Generated by SkillSync ATS Console.`;
+        `Generated by SkillSync. This estimate is not an employer ATS result or a hiring prediction.`;
 
       try {
         await navigator.clipboard.writeText(reportText);
@@ -7118,6 +7093,7 @@ if (typeof module !== 'undefined' && module.exports) {
     initWorkspaceDrafts,
     undoWorkspaceReplacement,
     replaceWorkspaceText,
+    calculateDemoMatch,
     initAuthForm,
     initAnalyzer,
     openIntegrityModal,

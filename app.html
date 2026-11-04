@@ -1626,8 +1626,8 @@
             </div>
             <div>
               <div class="flex items-center space-x-2">
-                <h2 class="text-lg sm:text-xl font-bold tracking-tight" style="color: var(--ink);">ATS Compatibility Score</h2>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Verified</span>
+                <h2 class="text-lg sm:text-xl font-bold tracking-tight" style="color: var(--ink);">Resume match</h2>
+                <span id="scoreSource" class="score-source">AI estimate</span>
               </div>
               <p id="scoreFeedback" class="text-xs sm:text-sm font-medium mt-1" style="color: var(--ink-3);">Semantic Match Analysis</p>
             </div>
@@ -1644,6 +1644,8 @@
             </button>
           </div>
         </div>
+
+        <p id="scoreMethod" class="score-method">This comparison is an estimate, not an employer ATS result or a prediction of a hiring decision.</p>
 
         <!-- 1-Click Agentic Company Request Hero Strip -->
         <div id="agenticHeroBanner" class="p-4 rounded-xl border border-sky-500/30 bg-sky-500/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm transition hover:border-sky-500/50">
@@ -1670,9 +1672,9 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <h4 class="font-bold text-xs uppercase tracking-wider text-[var(--ink)]">Dimensional Match Matrix</h4>
+              <h4 class="font-bold text-xs uppercase tracking-wider text-[var(--ink)]">Assessment details</h4>
             </div>
-            <span class="text-xs font-mono opacity-70 text-[var(--ink-3)]">4-Pillar Verification</span>
+            <span class="text-xs font-mono opacity-70 text-[var(--ink-3)]">When provided by the analysis</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -1820,32 +1822,7 @@
           </div>
         </div>
 
-        <!-- Interactive 5-Axis Match Radar (Spider Chart - Flat Section) -->
-        <div id="radarSection" class="p-5 pt-6 border-t border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-6">
-          <div class="space-y-2 max-w-sm">
-            <div class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <h4 class="font-bold text-xs uppercase tracking-wider text-[var(--ink)]">Competency Spider Radar</h4>
-            </div>
-            <h5 class="font-bold text-sm sm:text-base text-[var(--ink)]">Multi-Axis Skill Topology</h5>
-            <p class="text-xs leading-relaxed text-[var(--ink-2)]">
-              Visual comparison of candidate competency footprint (green) against employer target benchmark (blue dashed). Hover on vertices to inspect exact percentages.
-            </p>
-            <div class="flex items-center space-x-3 pt-1 text-xs font-semibold">
-              <span class="inline-flex items-center space-x-1.5 text-emerald-500">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>Candidate Profile</span>
-              </span>
-              <span class="inline-flex items-center space-x-1.5 text-blue-400">
-                <span class="w-2 h-2 rounded-full border border-blue-400 border-dashed"></span>
-                <span>Target Benchmark</span>
-              </span>
-            </div>
-          </div>
-          <div id="radarChartContainer" class="flex items-center justify-center w-full md:w-auto min-w-[280px] min-h-[260px]">
-            <!-- Rendered by SkillSyncRadarChart.renderRadarSvg -->
-          </div>
-        </div>
+
 
       </div>
     </div>
