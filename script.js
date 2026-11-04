@@ -466,6 +466,7 @@ function updateAuthState(session) {
     if (userProfile) userProfile.classList.remove('hidden');
     if (loginTriggerBtn) loginTriggerBtn.classList.add('hidden');
     if (userEmailBadge) userEmailBadge.textContent = session.user.email || 'Demo User';
+    initWorkspaceDrafts();
 
     fetchDashboard();
   } else {
@@ -487,12 +488,16 @@ function showSessionExpiredModal() {
 let isSignUpMode = false;
 
 async function performSignOut() {
+  try { if (workspaceDraftKey()) sessionStorage.removeItem(workspaceDraftKey()); } catch (_) {}
+  workspaceDraftOwner = null;
+  workspaceUndoHistory = [];
   const resumeText = document.getElementById('resumeText');
   const jobText = document.getElementById('jobText');
   const resumeCount = document.getElementById('resumeCount');
   const jobCount = document.getElementById('jobCount');
   if (resumeText) {
     resumeText.value = '';
+    delete resumeText.dataset.profileId;
     updateCharCounter(resumeText, resumeCount);
   }
   if (jobText) {
@@ -899,6 +904,120 @@ function initCharCounters() {
   }
 }
 
+// Keep drafts within this tab and this signed-in user. Replacements remain undoable.
+let workspaceDraftOwner = null;
+let workspaceUndoHistory = [];
+
+function workspaceDraftKey() {
+  return currentSession?.user?.id ? `skillsync_workspace_draft:${currentSession.user.id}` : null;
+}
+
+function saveWorkspaceDraft() {
+  const key = workspaceDraftKey();
+  if (!key) return;
+  const status = document.getElementById('draftStatus');
+  try {
+    sessionStorage.setItem(key, JSON.stringify({
+      resume: document.getElementById('resumeText')?.value || '',
+      job: document.getElementById('jobText')?.value || '',
+      profileId: document.getElementById('resumeText')?.dataset.profileId || ''
+    }));
+    if (status) status.textContent = 'Draft saved in this tab.';
+  } catch (_) {
+    if (status) status.textContent = 'Draft could not be saved. Keep a copy before leaving.';
+  }
+}
+
+function rememberWorkspaceReplacement() {
+  workspaceUndoHistory.push({
+    resume: document.getElementById('resumeText')?.value || '',
+    job: document.getElementById('jobText')?.value || '',
+    profileId: document.getElementById('resumeText')?.dataset.profileId || '',
+    versions: resumeVersions.map(version => ({ ...version }))
+  });
+  if (workspaceUndoHistory.length > 10) workspaceUndoHistory.shift();
+  const undo = document.getElementById('undoWorkspaceBtn');
+  if (undo) undo.disabled = false;
+}
+
+function replaceWorkspaceText(fieldId, value, profileId) {
+  const field = document.getElementById(fieldId);
+  if (!field) return;
+  if (field.value !== value) rememberWorkspaceReplacement();
+  field.value = value;
+  if (fieldId === 'resumeText') {
+    field.dataset.profileId = profileId || '';
+    const select = document.getElementById('resumeVersionSelect');
+    if (select) select.value = profileId || '';
+  }
+  field.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function undoWorkspaceReplacement() {
+  const previous = workspaceUndoHistory.pop();
+  if (!previous) return;
+  resumeVersions = previous.versions;
+  saveResumeVersionsToStorage();
+  renderResumeVersionSelect(previous.profileId);
+  [['resumeText', previous.resume], ['jobText', previous.job]].forEach(([id, value]) => {
+    const field = document.getElementById(id);
+    if (!field) return;
+    field.value = value;
+    if (id === 'resumeText') field.dataset.profileId = previous.profileId;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  const undo = document.getElementById('undoWorkspaceBtn');
+  if (undo) undo.disabled = workspaceUndoHistory.length === 0;
+  showToast('Previous documents restored.', 'success');
+}
+
+function initWorkspaceDrafts() {
+  const key = workspaceDraftKey();
+  if (!key || workspaceDraftOwner === key) return;
+  const changingUser = workspaceDraftOwner !== null && workspaceDraftOwner !== key;
+  workspaceDraftOwner = key;
+  workspaceUndoHistory = [];
+  const undo = document.getElementById('undoWorkspaceBtn');
+  if (undo) {
+    undo.disabled = true;
+    undo.onclick = undoWorkspaceReplacement;
+  }
+  let draft = null;
+  try { draft = JSON.parse(sessionStorage.getItem(key)); } catch (_) {}
+  ['resumeText', 'jobText'].forEach((id) => {
+    const field = document.getElementById(id);
+    if (!field) return;
+    if (changingUser) {
+      field.value = '';
+      if (id === 'resumeText') delete field.dataset.profileId;
+    }
+    if (!field.value && draft && typeof draft[id === 'resumeText' ? 'resume' : 'job'] === 'string') {
+      field.value = draft[id === 'resumeText' ? 'resume' : 'job'];
+      if (id === 'resumeText') field.dataset.profileId = draft.profileId || '';
+    }
+    updateCharCounter(field, document.getElementById(id === 'resumeText' ? 'resumeCount' : 'jobCount'));
+    if (field.dataset.draftBound) return;
+    field.dataset.draftBound = 'true';
+    field.addEventListener('input', () => {
+      field.removeAttribute('aria-invalid');
+      const error = document.getElementById(id === 'resumeText' ? 'resumeError' : 'jobError');
+      if (error) error.textContent = '';
+      saveWorkspaceDraft();
+      const result = document.getElementById('results-container');
+      if (result && !result.classList.contains('hidden')) {
+        const source = document.getElementById('scoreSource');
+        if (source) source.textContent = 'Previous analysis — inputs changed';
+      }
+    });
+  });
+  renderResumeVersionSelect(document.getElementById('resumeText')?.dataset.profileId || '');
+  saveWorkspaceDraft();
+  if (draft) {
+    const status = document.getElementById('draftStatus');
+    if (status) status.textContent = 'Draft restored from this tab.';
+  }
+}
+
 /**
  * 7a. Quick Studio Presets & Empty State Helpers
  */
@@ -923,7 +1042,7 @@ function initStudioPresets() {
 
   if (sampleResumeSweBtn && resumeText) {
     sampleResumeSweBtn.addEventListener('click', () => {
-      resumeText.value = sampleSweResume;
+      replaceWorkspaceText('resumeText', sampleSweResume);
       updateCharCounter(resumeText, resumeCount);
       showToast('Loaded Full-Stack Lead sample resume.', 'info', 2000);
     });
@@ -931,7 +1050,7 @@ function initStudioPresets() {
 
   if (sampleResumeDevOpsBtn && resumeText) {
     sampleResumeDevOpsBtn.addEventListener('click', () => {
-      resumeText.value = sampleDevOpsResume;
+      replaceWorkspaceText('resumeText', sampleDevOpsResume);
       updateCharCounter(resumeText, resumeCount);
       showToast('Loaded Cloud & DevOps sample resume.', 'info', 2000);
     });
@@ -939,7 +1058,7 @@ function initStudioPresets() {
 
   if (clearResumeBtn && resumeText) {
     clearResumeBtn.addEventListener('click', () => {
-      resumeText.value = '';
+      replaceWorkspaceText('resumeText', '');
       updateCharCounter(resumeText, resumeCount);
       showToast('Cleared resume input.', 'info', 1500);
     });
@@ -947,7 +1066,7 @@ function initStudioPresets() {
 
   if (sampleJobSweBtn && jobText) {
     sampleJobSweBtn.addEventListener('click', () => {
-      jobText.value = sampleSweJob;
+      replaceWorkspaceText('jobText', sampleSweJob);
       updateCharCounter(jobText, jobCount);
       showToast('Loaded Stripe Staff SWE target job.', 'info', 2000);
     });
@@ -955,7 +1074,7 @@ function initStudioPresets() {
 
   if (sampleJobDevOpsBtn && jobText) {
     sampleJobDevOpsBtn.addEventListener('click', () => {
-      jobText.value = sampleDevOpsJob;
+      replaceWorkspaceText('jobText', sampleDevOpsJob);
       updateCharCounter(jobText, jobCount);
       showToast('Loaded Datadog Lead SRE target job.', 'info', 2000);
     });
@@ -963,7 +1082,7 @@ function initStudioPresets() {
 
   if (clearJobBtn && jobText) {
     clearJobBtn.addEventListener('click', () => {
-      jobText.value = '';
+      replaceWorkspaceText('jobText', '');
       updateCharCounter(jobText, jobCount);
       showToast('Cleared target job input.', 'info', 1500);
     });
@@ -1011,6 +1130,10 @@ function renderResumeVersionSelect(activeId) {
   if (!select) return;
 
   select.innerHTML = '';
+  const draftOption = document.createElement('option');
+  draftOption.value = '';
+  draftOption.textContent = 'Current draft';
+  select.appendChild(draftOption);
   resumeVersions.forEach(ver => {
     const opt = document.createElement('option');
     opt.value = ver.id;
@@ -1020,7 +1143,7 @@ function renderResumeVersionSelect(activeId) {
   });
 }
 
-function switchResumeVersion(versionId) {
+function switchResumeVersion(versionId, recordUndo = true) {
   const ver = resumeVersions.find(v => v.id === versionId);
   if (!ver) return;
 
@@ -1028,7 +1151,13 @@ function switchResumeVersion(versionId) {
   const resumeCount = document.getElementById('resumeCount');
 
   if (resumeText) {
-    resumeText.value = ver.content;
+    if (recordUndo) {
+      replaceWorkspaceText('resumeText', ver.content, ver.id);
+    } else {
+      resumeText.value = ver.content;
+      resumeText.dataset.profileId = ver.id;
+      resumeText.dispatchEvent(new Event('input', { bubbles: true }));
+    }
     updateCharCounter(resumeText, resumeCount);
     if (typeof recomputeAndRenderJobCards === 'function') {
       recomputeAndRenderJobCards();
@@ -1054,6 +1183,9 @@ function saveResumeVersion(name, content) {
   resumeVersions.unshift(newVer);
   saveResumeVersionsToStorage();
   renderResumeVersionSelect(newVer.id);
+  const field = document.getElementById('resumeText');
+  if (field) field.dataset.profileId = newVer.id;
+  saveWorkspaceDraft();
   showToast(`Saved resume version "${newVer.name}"!`, 'success');
   return newVer;
 }
@@ -1065,14 +1197,16 @@ function deleteResumeVersion(versionId) {
   }
 
   const ver = resumeVersions.find(v => v.id === versionId);
-  const name = ver ? ver.name : 'version';
+  if (!ver) return false;
+  rememberWorkspaceReplacement();
+  const name = ver.name;
   resumeVersions = resumeVersions.filter(v => v.id !== versionId);
   saveResumeVersionsToStorage();
 
   const nextVer = resumeVersions[0];
   renderResumeVersionSelect(nextVer.id);
-  switchResumeVersion(nextVer.id);
-  showToast(`Deleted resume version "${name}".`, 'info');
+  switchResumeVersion(nextVer.id, false);
+  showToast(`Deleted resume version "${name}". Use Undo last replacement to restore it.`, 'info');
   return true;
 }
 
@@ -1168,7 +1302,7 @@ async function extractResumeFromPdf(file) {
   showToast(`PDF parsed successfully! (${pdf.numPages} pages, ${fullText.length.toLocaleString()} characters)`, 'success');
 
   if (resumeText) {
-    resumeText.value = fullText;
+    replaceWorkspaceText('resumeText', fullText);
     updateCharCounter(resumeText, resumeCount);
   }
   return fullText;
@@ -1254,7 +1388,7 @@ async function extractResumeFromImage(file) {
     showToast('Resume image transcribed successfully!', 'success');
 
     if (resumeText) {
-      resumeText.value = extractedText;
+      replaceWorkspaceText('resumeText', extractedText);
       updateCharCounter(resumeText, resumeCount);
     }
     return extractedText;
@@ -1299,7 +1433,7 @@ async function extractResumeFromFile(file) {
       const resumeText = document.getElementById('resumeText');
       const resumeCount = document.getElementById('resumeCount');
       if (resumeText) {
-        resumeText.value = text;
+        replaceWorkspaceText('resumeText', text);
         updateCharCounter(resumeText, resumeCount);
       }
       showToast(`Text resume loaded successfully! (${text.length.toLocaleString()} characters)`, 'success', 2500);
@@ -1460,7 +1594,7 @@ function initJobScraper() {
             `- 4+ years professional software development experience.`;
 
           if (jobText) {
-            jobText.value = sampleJob;
+            replaceWorkspaceText('jobText', sampleJob);
             updateCharCounter(jobText, jobCount);
           }
 
@@ -1524,7 +1658,7 @@ function initJobScraper() {
         }
 
         if (jobText && data.cleaned_description) {
-          jobText.value = data.cleaned_description;
+          replaceWorkspaceText('jobText', data.cleaned_description);
           updateCharCounter(jobText, jobCount);
         }
 
@@ -2813,7 +2947,7 @@ function loadJobIntoWorkspace(job) {
       `${cleanJobDescription(job.description)}\n\n` +
       `Preferred Skills: ${Array.isArray(job.tags) ? job.tags.join(', ') : 'Tech stack requirements'}`;
 
-    jobText.value = formattedDesc;
+    replaceWorkspaceText('jobText', formattedDesc);
     updateCharCounter(jobText, jobCount);
   }
 
@@ -6756,11 +6890,11 @@ function initApp() {
 
   initTheme();
   initSupabase();
-  initAuth();
   initAuthForm();
   initCharCounters();
   initStudioPresets();
   initResumeVersionManager();
+  initAuth();
   initPdfUpload();
   initJobScraper();
   initAnalyzer();
@@ -6778,6 +6912,7 @@ function initApp() {
   initCommandPalette();
   initIntegrityAuditor();
   initAudioFeedbackController();
+  window.addEventListener('pagehide', saveWorkspaceDraft);
 
   let speedrunHandled = false;
 
@@ -6791,7 +6926,7 @@ function initApp() {
         const jobTextarea = document.getElementById('jobText');
         if (jobTextarea) {
           const cleanDesc = cleanJobDescription(jobData.description || '');
-          jobTextarea.value = `Role: ${jobData.title || ''} at ${jobData.company || ''}\nLocation: ${jobData.location || ''}\nSalary: ${jobData.salary || ''}\n\nDescription:\n${cleanDesc}`;
+          replaceWorkspaceText('jobText', `Role: ${jobData.title || ''} at ${jobData.company || ''}\nLocation: ${jobData.location || ''}\nSalary: ${jobData.salary || ''}\n\nDescription:\n${cleanDesc}`);
           const jobCounter = document.getElementById('jobCount') || document.getElementById('jobCharCount');
           if (jobCounter) jobCounter.textContent = `${jobTextarea.value.length.toLocaleString()} chars`;
           showToast(`Loaded ${jobData.title || 'target job'} into ATS workspace.`, 'success', 3500);
@@ -6980,6 +7115,9 @@ if (typeof module !== 'undefined' && module.exports) {
     getCurrentAgenticPayload: () => currentAgenticPayload,
     performSignOut,
     initStudioPresets,
+    initWorkspaceDrafts,
+    undoWorkspaceReplacement,
+    replaceWorkspaceText,
     initAuthForm,
     initAnalyzer,
     openIntegrityModal,

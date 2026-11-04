@@ -101,8 +101,9 @@ describe('Resume Version Manager Test Suite', () => {
       initResumeVersionManager();
 
       const select = document.getElementById('resumeVersionSelect');
-      expect(select.children.length).toBe(2);
-      expect(select.children[0].textContent).toBe('Full-Stack v1');
+      expect(select.children.length).toBe(3);
+      expect(select.children[0].textContent).toBe('Current draft');
+      expect(select.children[1].textContent).toBe('Full-Stack v1');
 
       // Trigger change
       select.value = 'test-v2';
