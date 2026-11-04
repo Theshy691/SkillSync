@@ -23,3 +23,8 @@ yarn-error.log*
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Local browser verification and design review artifacts
+/.playwright-cli/
+/output/playwright/
+/.impeccable/critique/
