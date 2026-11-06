@@ -128,6 +128,8 @@
 
   function handlePlatformSwitch(platformId) {
     activePlatform = platformId || 'skillsync';
+    const sourceSelect = document.getElementById('jobSourceSelect');
+    if (sourceSelect) sourceSelect.value = activePlatform;
     const pills = document.querySelectorAll('.platform-pill');
     pills.forEach(pill => {
       if (pill.getAttribute('data-platform') === activePlatform) {
@@ -202,6 +204,7 @@
   }
 
   function initTheme() {
+    if (window.SkillSyncInterface) { window.SkillSyncInterface.init(); return; }
     const themeBtn = document.getElementById('themeBtn');
     const label = document.getElementById('themeBtnLabel');
     const root = document.documentElement;
@@ -377,7 +380,7 @@
       const card = document.createElement('article');
       card.className = 'job-card';
 
-      const tagsHtml = (job.tags || []).slice(0, 5).map(t => `<span class="tag-badge">${escapeHtml(t)}</span>`).join('');
+      const tagsHtml = (job.tags || []).slice(0, 3).map(t => `<span class="tag-badge">${escapeHtml(t)}</span>`).join('');
       const salaryText = job.salary ? escapeHtml(job.salary) : 'Competitive';
       const locText = job.location ? escapeHtml(job.location) : (job.remote ? 'Remote' : 'On-Site');
 
@@ -386,13 +389,6 @@
         snippet = cleanJobDescription(job.description).replace(/\s+/g, ' ').trim();
         if (snippet.length > 130) snippet = snippet.slice(0, 127) + '...';
       }
-
-      const newBadgeHtml = job.is_new
-        ? `<span class="chip chip-new"><span class="live-pulse-sm"></span> New Offer</span>`
-        : '';
-      const timeBadgeHtml = job.relative_time
-        ? `<span class="chip" style="font-family: 'DM Mono', monospace; font-size: 0.73rem;">${escapeHtml(job.relative_time)}</span>`
-        : '';
 
       let matchBadgeHtml = '';
       if (typeof job.match_score === 'number') {
@@ -410,7 +406,6 @@
           <div class="card-header">
             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
               <span class="company-title">${escapeHtml(job.company_name || 'Tech Co')}</span>
-              ${newBadgeHtml}
               ${matchBadgeHtml}
             </div>
             ${job.remote ? '<span class="chip chip-remote"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Remote</span>' : ''}
@@ -426,7 +421,6 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               ${salaryText}
             </span>
-            ${timeBadgeHtml}
           </div>
           <div class="tag-cloud">
             ${tagsHtml}
@@ -437,12 +431,8 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             View Details
           </button>
-          <button type="button" class="btn-card btn-card-speedrun btn-speedrun-kit" data-job-id="${escapeHtml(job.id)}" title="1-Click Speedrun Application Pack">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            <span>Speedrun Kit</span>
-          </button>
           <button type="button" class="btn-card btn-card-primary btn-scan-ats" data-job-id="${escapeHtml(job.id)}">
-            <span>Scan Resume</span>
+            <span>Compare resume</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
         </div>
@@ -617,6 +607,7 @@
       });
     }
 
+    document.getElementById('jobSourceSelect')?.addEventListener('change', event => handlePlatformSwitch(event.target.value));
     const platformPills = document.querySelectorAll('.platform-pill');
     platformPills.forEach(pill => {
       pill.addEventListener('click', () => {

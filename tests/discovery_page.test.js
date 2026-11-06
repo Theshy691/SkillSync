@@ -156,7 +156,7 @@ describe('Public Job Explorer Page Test Suite', () => {
       expect(firstCard.innerHTML).toContain('Vercel');
       expect(firstCard.innerHTML).toContain('Senior Frontend Engineer');
       expect(firstCard.innerHTML).toContain('View Details');
-      expect(firstCard.innerHTML).toContain('Scan Resume');
+      expect(firstCard.innerHTML).toContain('Compare resume');
     });
 
     test('filters cards dynamically by keyword query', () => {

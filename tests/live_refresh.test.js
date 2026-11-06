@@ -96,7 +96,7 @@ describe('Dynamic Job Offer Generation & Live Refresh Test Suite', () => {
   });
 
   describe('Public Job Explorer Live Refresh Lifecycle', () => {
-    test('renders New Offer pulse chip for freshly generated roles', () => {
+    test('renders role details and a comparison action without freshness decorations', () => {
       const sampleJobs = [
         {
           id: 'fresh-1',
@@ -120,8 +120,9 @@ describe('Dynamic Job Offer Generation & Live Refresh Test Suite', () => {
       expect(grid.children.length).toBe(2);
 
       const firstCardHtml = grid.children[0].innerHTML;
-      expect(firstCardHtml).toContain('New Offer');
-      expect(firstCardHtml).toContain('Just now');
+      expect(firstCardHtml).not.toContain('New Offer');
+      expect(firstCardHtml).toContain('Compare resume');
+      expect(firstCardHtml).not.toContain('Just now');
       expect(firstCardHtml).toContain('Anthropic');
     });
 
@@ -162,7 +163,7 @@ describe('Dynamic Job Offer Generation & Live Refresh Test Suite', () => {
       const grid = document.getElementById('discoveryJobGrid');
       expect(grid.children.length).toBe(1);
       expect(grid.children[0].innerHTML).toContain('Senior Next.js Architect');
-      expect(grid.children[0].innerHTML).toContain('New Offer');
+      expect(grid.children[0].innerHTML).toContain('Compare resume');
     });
 
     test('falls back to synthesized fresh opportunities when fetch fails or offline', async () => {
@@ -173,7 +174,7 @@ describe('Dynamic Job Offer Generation & Live Refresh Test Suite', () => {
       const grid = document.getElementById('discoveryJobGrid');
       expect(grid.children.length).toBeGreaterThan(0);
       // First card will be one of the synthesized dynamic opportunities
-      expect(grid.children[0].innerHTML).toContain('New Offer');
+      expect(grid.children[0].innerHTML).toContain('Compare resume');
       expect(document.getElementById('discoveryLastSync').textContent).toBe('Updated just now');
     });
   });

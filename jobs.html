@@ -1,20 +1,16 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
+<!DOCTYPE html><html lang="en" data-theme="dark"><head>
   <meta charset="UTF-8">
+  <script src="assets/js/modules/interface.js?v=5.1.1"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SkillSync | Free Tech Job Discovery & Career Explorer</title>
+  <title>SkillSync | Free Tech Job Discovery &amp; Career Explorer</title>
   <meta name="description" content="Freely explore active software engineering, AI, DevOps, and frontend roles. Test your resume against any job description with 1-click ATS pre-scoring.">
 
-  <!-- Google Fonts: DM Sans, DM Mono (SkillSync Precision Design) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 
-  <!-- Landing Page Custom Stylesheet (SkillSync Design System) -->
-  <link rel="stylesheet" href="assets/css/landing-page.css">
-  <link rel="stylesheet" href="assets/css/motion.css">
-  <link rel="stylesheet" href="assets/css/workspace.css">
+  <link rel="stylesheet" href="assets/css/motion.css?v=5.1.1">
+  <link rel="stylesheet" href="assets/css/workspace.css?v=5.1.1">
 
   <style>
     /* SkillSync Design Tokens & Senior Design Typography */
@@ -360,7 +356,7 @@
     }
     .btn-card-speedrun {
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(0, 0, 0, 0.04) 100%), var(--accent);
-      color: #ffffff !important;
+      color: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.25);
       font-weight: 700;
       display: inline-flex;
@@ -666,8 +662,8 @@
     }
     [data-theme="dark"] .btn-card-primary,
     .dark .btn-card-primary {
-      background-color: var(--accent) !important;
-      color: #07090d !important;
+      background-color: var(--accent);
+      color: #07090d;
       border-color: rgba(0, 0, 0, 0.2);
     }
     .btn-card-primary:hover {
@@ -788,98 +784,54 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/css/interface.css?v=5.1.1">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta name="theme-color" content="#f5f7f6">
 </head>
-<body>
+<body class="skillsync-site jobs-page">
 
-  <!-- Sticky Navigation Header -->
-  <nav class="site-nav" id="siteNav">
-    <a class="nav-brand" href="index.html">Skill<em>Sync</em></a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="jobs.html" class="active" style="color: var(--accent); font-weight: 600;">Job Explorer</a>
-      <a href="index.html#features">Benefits</a>
-      <a href="index.html#setup">How It Works</a>
-      <a href="app.html" class="app-launcher">ATS Console</a>
-    </div>
-    <div class="nav-actions">
-      <button class="theme-toggle-nav" id="themeBtn" type="button" aria-label="Toggle theme">
-        <span class="theme-toggle-track" aria-hidden="true">
-          <span class="theme-toggle-thumb"></span>
-        </span>
-        <span class="theme-toggle-text" id="themeBtnLabel">Dark mode</span>
-      </button>
-      <a href="app.html" class="btn-nav btn-primary-nav app-launcher">Launch ATS</a>
-    </div>
-  </nav>
+  <header class="site-header" id="siteNav">
+  <div class="site-header-inner page-width">
+    <a class="wordmark" href="index.html" aria-label="SkillSync home"><span class="brand-symbol" aria-hidden="true">s</span>SkillSync</a>
+    <nav class="site-primary-nav" id="marketingLinks" aria-label="Main navigation"><a href="index.html">Home</a><a href="app.html">Workspace</a><a href="jobs.html" aria-current="page">Explore jobs</a></nav>
+    <div class="site-header-actions"><button class="theme-control" id="themeBtn" data-theme-toggle="" type="button" aria-label="Switch to dark mode"><svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.5 13A8.5 8.5 0 0111 3.5 8.5 8.5 0 1020.5 13Z"></path></svg><span class="sr-only" id="themeBtnLabel" data-theme-label="">Light mode</span></button><button class="menu-control" id="marketingMenuBtn" type="button" aria-expanded="false" aria-controls="marketingLinks" aria-label="Open navigation"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button></div>
+  </div>
+</header>
 
-  <main>
-    <!-- Hero & Search Header -->
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <main id="main-content">
+
     <header class="discovery-hero">
-      <h1 class="discovery-title">Discover Tech Roles &amp; <em>Test Your Fit</em></h1>
+      <h1 class="discovery-title">Find a role worth applying for.</h1>
       <p class="discovery-subtitle">
-        Freely search verified engineering, cloud, and AI opportunities. 1-click test your resume compatibility in our live ATS workspace.
+        Explore roles by skill or location, then bring a job description into your resume comparison.
       </p>
 
-      <!-- Senior Search Console -->
       <div class="search-console" id="searchConsole">
-        <!-- Platform Segmented Tabs -->
-        <div class="platform-segment-bar" id="platformBar">
-          <div class="platform-pills" id="platformPillsContainer">
-            <button type="button" class="platform-pill active" data-platform="skillsync">
-              <span class="platform-dot" style="background: var(--accent);"></span>
-              <span>SkillSync Feed</span>
-            </button>
-            <button type="button" class="platform-pill" data-platform="linkedin">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #0a66c2;"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-              <span>LinkedIn</span>
-            </button>
-            <button type="button" class="platform-pill" data-platform="upwork">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #14a800;"><path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-3.714 0-5.748 2.457-6.435 4.77-1.428-1.84-2.428-4.22-2.91-6.788h-3.414v9.646c0 1.956-1.587 3.543-3.543 3.543s-3.543-1.587-3.543-3.543v-9.646h-3.414v9.646c0 3.841 3.116 6.957 6.957 6.957 3.841 0 6.957-3.116 6.957-6.957v-1.146c.582 1.411 1.489 2.776 2.684 3.917l-1.921 8.944h3.487l1.39-6.471c1.079.623 2.276.963 3.551.963 3.714 0 6.702-2.988 6.702-6.702 0-3.714-2.988-6.702-6.702-6.702z"/></svg>
-              <span>Upwork</span>
-            </button>
-            <button type="button" class="platform-pill" data-platform="indeed">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #2164f3;"><path d="M11.566 21.995v-7.653c-.76.31-1.564.475-2.413.475-3.327 0-6.027-2.698-6.027-6.024 0-3.328 2.7-6.025 6.027-6.025 3.326 0 6.024 2.697 6.024 6.025 0 1.258-.396 2.422-1.06 3.385l5.883 5.882-1.415 1.415-5.88-5.88c-.964.664-2.128 1.06-3.386 1.06-.057 0-.113 0-.169-.002v7.342h-1.584z"/></svg>
-              <span>Indeed</span>
-            </button>
-            <button type="button" class="platform-pill" data-platform="wellfound">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #e03a3c;"><path d="M12 2L2 22h20L12 2zm0 4.8l6.2 12.4H5.8L12 6.8z"/></svg>
-              <span>Wellfound</span>
-            </button>
-            <button type="button" class="platform-pill" data-platform="remoteok">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #ff4742;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
-              <span>RemoteOK</span>
-            </button>
-            <button type="button" class="platform-pill" data-platform="glassdoor">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color: #0caa41;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-              <span>Glassdoor</span>
-            </button>
-          </div>
-          <span id="platformActiveStatus" class="chip" style="font-size: 0.72rem; color: var(--accent); padding: 0.2rem 0.55rem;">SkillSync Native</span>
-        </div>
 
-        <!-- Search Input -->
+        <div class="job-source-control"><label for="jobSourceSelect">Source</label><select id="jobSourceSelect" name="source"><option value="skillsync">SkillSync</option><option value="linkedin">LinkedIn</option><option value="upwork">Upwork</option><option value="indeed">Indeed</option><option value="wellfound">Wellfound</option><option value="remoteok">RemoteOK</option><option value="glassdoor">Glassdoor</option></select></div>
+
         <div class="search-input-wrap">
           <div class="search-input-box">
             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <input type="text" id="discoverySearchInput" placeholder="Search by role, company, or tech stack (e.g. React, Python, Remote)..." autocomplete="off" />
+            <input type="text" id="discoverySearchInput" aria-label="Search jobs" name="job_search" placeholder="Search by role, company, or tech stack (e.g. React, Python, Remote)..." autocomplete="off">
             <span class="kbd-shortcut">/</span>
           </div>
 
           <label class="remote-switch-label">
-            <input type="checkbox" id="discoveryRemoteToggle" />
+            <input type="checkbox" id="discoveryRemoteToggle">
             <span>Remote only</span>
           </label>
 
-          <button type="button" id="discoveryRefreshBtn" class="refresh-pill-btn" aria-label="Refresh and find new job offers">
-            <svg id="discoveryRefreshIcon" class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            <span id="discoveryRefreshText">New Roles</span>
+          <button type="button" id="discoveryRefreshBtn" class="refresh-pill-btn" aria-label="Refresh jobs">
+            <svg id="discoveryRefreshIcon" class="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span id="discoveryRefreshText">Refresh</span>
           </button>
         </div>
 
-        <!-- Contextual External Platform Banner -->
         <div id="externalPlatformBanner" class="platform-banner" style="display: none;">
           <div class="platform-banner-content">
             <div class="platform-banner-header">
@@ -890,90 +842,74 @@
             <div class="platform-banner-actions">
               <a href="#" target="_blank" rel="noopener noreferrer" id="platformLaunchBtn" class="btn-card btn-card-primary">
                 <span>Launch on <span id="platformLaunchName">LinkedIn</span></span>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
               </a>
             </div>
           </div>
 
-          <!-- Quick 1-Click Import from Selected Platform into SkillSync ATS -->
           <div class="platform-importer-box">
             <div class="importer-text">
               <strong>Found a role on <span id="importerPlatformName">LinkedIn</span>?</strong>
               <span>Paste its URL to parse qualifications and score your fit:</span>
             </div>
             <div class="importer-input-row">
-              <input type="url" id="externalJobUrlInput" placeholder="https://www.linkedin.com/jobs/view/..." />
+              <input type="url" id="externalJobUrlInput" aria-label="External job URL" name="external_job_url" autocomplete="off" placeholder="https://www.linkedin.com/jobs/view/...">
               <button type="button" id="importJobUrlBtn" class="btn-card btn-card-secondary" style="flex: 0 0 auto; white-space: nowrap;">
-                <span>Import &amp; ATS Score</span>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                <span>Import to workspace</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Category Filters -->
-        <div class="filter-pills" id="filterPillsContainer">
-          <span class="filter-pills-label">Discipline</span>
+        <details class="job-filter-drawer"><summary>Filter by discipline</summary><div class="filter-pills" id="filterPillsContainer">
+
           <button type="button" class="filter-pill active" data-category="all">All</button>
           <button type="button" class="filter-pill" data-category="frontend">Frontend</button>
           <button type="button" class="filter-pill" data-category="backend">Backend</button>
           <button type="button" class="filter-pill" data-category="fullstack">Full-Stack</button>
           <button type="button" class="filter-pill" data-category="devops">Cloud &amp; DevOps</button>
           <button type="button" class="filter-pill" data-category="ai">AI / ML</button>
-          <span class="filter-pills-label" style="margin-left: 0.6rem;">Match Radar</span>
-          <button type="button" class="filter-pill" id="filterRadarHighBtn" data-category="radar-high" title="Filter roles with 80%+ ATS Compatibility"><span class="live-pulse-sm" style="display:inline-block; margin-right:5px; vertical-align:middle;"></span>80%+ Match</button>
-          <button type="button" class="filter-pill" id="sortRadarFitBtn" data-sort="match-fit" title="Sort roles with highest ATS match first">Sort: Highest Fit</button>
-        </div>
+
+        </div></details>
       </div>
     </header>
 
-    <!-- Job Cards Catalog -->
     <section class="jobs-container">
       <div class="jobs-meta-bar">
         <div class="jobs-meta-left">
           <span id="discoveryCountText">Loading active tech postings...</span>
-          <span class="meta-dot-divider">·</span>
-          <span id="discoveryMarketPulse" class="pulse-chip">
-            <span class="live-pulse-sm"></span>
-            <span id="pulseText">Trending: Next.js 15 · Kubernetes · Go</span>
-          </span>
+
         </div>
-        <div class="jobs-meta-right">
-          <span id="discoveryLastSync" class="sync-time-badge">Updated just now</span>
-        </div>
+
       </div>
 
-      <!-- Loading State -->
       <div id="discoveryLoading" style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
         <p>Fetching opportunities from live tech job feeds...</p>
       </div>
 
-      <!-- Empty State -->
       <div id="discoveryEmpty" class="hidden" style="display: none; text-align: center; padding: 4rem 1rem;">
         <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">No matching roles found</h3>
         <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Try adjusting your search keywords or resetting category filters.</p>
         <button type="button" id="resetFiltersBtn" class="filter-pill active" style="padding: 0.5rem 1.25rem;">Reset All Filters</button>
       </div>
 
-      <!-- Cards Grid -->
       <div class="job-cards-grid" id="discoveryJobGrid"></div>
 
-      <!-- Pagination -->
       <div id="discoveryPagination" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 3rem;">
-        <button type="button" id="prevPageBtn" class="btn-card btn-card-secondary" style="max-width: 120px;" disabled>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <button type="button" id="prevPageBtn" class="btn-card btn-card-secondary" style="max-width: 120px;" disabled="">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
           <span>Previous</span>
         </button>
         <span id="pageIndicatorText" style="color: var(--text-secondary); font-size: 0.9rem; font-family: 'DM Mono', monospace;">Page 1 of 1</span>
         <button type="button" id="nextPageBtn" class="btn-card btn-card-secondary" style="max-width: 120px;">
           <span>Next</span>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </button>
       </div>
     </section>
   </main>
 
-  <!-- Detailed Job Modal -->
   <div id="jobDetailModal" class="discovery-modal-backdrop" style="display: none;">
     <div class="discovery-modal-box" role="dialog" aria-modal="true" aria-labelledby="modalRoleTitle">
       <div class="modal-head">
@@ -984,13 +920,9 @@
             <span class="chip" id="modalLocation">Location</span>
             <span class="chip chip-salary" id="modalSalary">Salary</span>
           </div>
-          <div class="modal-external-links" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.65rem;">
-            <a id="modalSearchLinkedIn" href="#" target="_blank" rel="noopener noreferrer" class="chip" style="color: #38bdf8; text-decoration: none; font-size: 0.72rem; font-weight: 600;">LinkedIn &nearr;</a>
-            <a id="modalSearchUpwork" href="#" target="_blank" rel="noopener noreferrer" class="chip" style="color: #34d399; text-decoration: none; font-size: 0.72rem; font-weight: 600;">Upwork &nearr;</a>
-            <a id="modalSearchIndeed" href="#" target="_blank" rel="noopener noreferrer" class="chip" style="color: #60a5fa; text-decoration: none; font-size: 0.72rem; font-weight: 600;">Indeed &nearr;</a>
-          </div>
+
         </div>
-        <button type="button" class="close-modal-btn" id="closeModalBtn" aria-label="Close modal"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        <button type="button" class="close-modal-btn" id="closeModalBtn" aria-label="Close modal"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
       </div>
 
       <div class="modal-body">
@@ -1004,43 +936,17 @@
       <div class="modal-foot">
         <button type="button" class="btn-card btn-card-secondary" id="closeModalBtnBottom" style="max-width: 120px;">Close</button>
         <button type="button" class="btn-card btn-card-primary" id="modalScanResumeBtn">
-          <span>Scan Resume With ATS</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          <span>Compare my resume</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Site Footer -->
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div class="footer-brand">
-        <a class="nav-brand" href="index.html">Skill<em>Sync</em></a>
-        <p class="footer-copy">
-          Full-stack AI Resume &amp; Skill Matcher. Freely discover tech careers, analyze job descriptions, and benchmark market salaries.
-        </p>
-      </div>
-      <div class="footer-nav">
-        <h4>Explore</h4>
-        <a href="index.html">Home</a>
-        <a href="jobs.html">Job Explorer</a>
-        <a href="app.html">ATS Scanner</a>
-        <a href="docs/api.html">API Docs</a>
-      </div>
-      <div class="footer-nav">
-        <h4>System</h4>
-        <span>Google Gemini AI</span>
-        <span>Supabase Auth &amp; PostgreSQL</span>
-        <span>PHP 8.2 &amp; Docker</span>
-      </div>
-    </div>
-  </footer>
+  <footer class="marketing-footer page-width"><a class="wordmark" href="index.html">SkillSync</a><p>Built for a more thoughtful job search.</p><a href="index.html#questions">How your data is used</a><span>© 2026 SkillSync</span></footer>
 
-  <!-- Scripts -->
-  <script src="assets/js/modules/speedrun.js"></script>
-  <script src="assets/js/modules/discovery_engine.js"></script>
-  <script src="assets/js/modules/platform_jobs.js"></script>
-  <script src="assets/js/discovery.js"></script>
-</body>
-</html>
+    <script src="assets/js/modules/discovery_engine.js?v=5.1.1"></script>
+  <script src="assets/js/modules/platform_jobs.js?v=5.1.1"></script>
+  <script src="assets/js/discovery.js?v=5.1.1"></script>
 
+</body></html>
