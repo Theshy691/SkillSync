@@ -9,6 +9,7 @@
  */
 
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/match_engine.php';
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -85,10 +86,11 @@ $prompt = <<<EOT
 You are an expert ATS (Applicant Tracking System) and senior hiring manager evaluator.
 Compare the provided candidate resume against the target job description.
 
-1. Calculate an accurate, objective match score from 0 to 100 based on required skills, domain knowledge, years of experience, and qualifications.
+1. Estimate alignment from 0 to 100 based only on evidence in the documents: required skills, domain knowledge, years of experience, and qualifications. This is not a real employer ATS score or hiring prediction. Never infer qualifications or accomplishments not present in the resume.
 2. Identify all missing skills, missing tools, unmentioned qualifications, or key growth areas the candidate lacks for this role.
 3. Keep missing skills concise (1 to 3 words each, e.g. "Docker", "GraphQL", "Kubernetes", "TypeScript").
-4. Provide a dimensional percentage score breakdown across:
+4. List matched_skills only when supported by both documents.
+5. Provide a dimensional percentage score breakdown across (omit dimensions that cannot be assessed):
    - "core_tech": Programming languages, frameworks, and web technologies (0-100)
    - "devops_cloud": Cloud platforms, infrastructure, containers, databases, and CI/CD (0-100)
    - "experience_depth": Depth of seniority, project scope, and engineering experience (0-100)
@@ -98,6 +100,7 @@ Output strictly valid JSON matching this schema:
 {
   "match_score": 85,
   "missing_skills": ["Skill 1", "Skill 2"],
+  "matched_skills": ["Supported skill"],
   "breakdown": {
     "core_tech": 88,
     "devops_cloud": 75,
@@ -141,103 +144,6 @@ curl_setopt_array($geminiCurl, [
     CURLOPT_SSL_VERIFYPEER => true
 ]);
 
-/**
- * Heuristic ATS Matching Engine (High-reliability fallback when external AI quota is exhausted)
- */
-function calculateHeuristicMatch(string $resume, string $jobDescription): array {
-    $taxonomy = [
-        'typescript', 'javascript', 'python', 'php', 'go', 'golang', 'rust', 'c++', 'c#', 'java', 'ruby', 'sql',
-        'html5', 'css3', 'bash', 'react', 'react native', 'next.js', 'vue', 'angular', 'svelte', 'node.js', 'node',
-        'express', 'fastapi', 'django', 'laravel', 'tailwind css', 'tailwind', 'graphql', 'docker', 'kubernetes',
-        'aws', 'gcp', 'azure', 'terraform', 'postgresql', 'postgres', 'mysql', 'mongodb', 'redis', 'ci/cd',
-        'github actions', 'linux', 'playwright', 'jest', 'rest api', 'microservices', 'git'
-    ];
-
-    $resumeLower = mb_strtolower($resume, 'UTF-8');
-    $jobLower = mb_strtolower($jobDescription, 'UTF-8');
-
-    $candidateSkills = [];
-    $jobSkills = [];
-
-    foreach ($taxonomy as $skill) {
-        $escaped = preg_quote($skill, '/');
-        $pattern = '/(?:^|[\s,;:.()\/\\[\\]])' . $escaped . '(?:$|[\s,;:.()\/\\[\\]])/i';
-
-        if (preg_match($pattern, $resumeLower)) {
-            $candidateSkills[] = $skill;
-        }
-        if (preg_match($pattern, $jobLower)) {
-            $jobSkills[] = $skill;
-        }
-    }
-
-    $candidateSkills = array_unique($candidateSkills);
-    $jobSkills = array_unique($jobSkills);
-
-    if (empty($jobSkills)) {
-        $jobSkills = ['software engineering', 'problem solving', 'system design'];
-    }
-
-    $matching = [];
-    $missing = [];
-
-    foreach ($jobSkills as $req) {
-        $hasMatch = false;
-        foreach ($candidateSkills as $c) {
-            if ($c === $req || str_contains($c, $req) || str_contains($req, $c)) {
-                $hasMatch = true;
-                break;
-            }
-        }
-        if ($hasMatch) {
-            $matching[] = $req;
-        } else {
-            $missing[] = $req;
-        }
-    }
-
-    $total = count($matching) + count($missing);
-    $ratio = $total > 0 ? count($matching) / $total : 0.6;
-    $rawScore = (int)round(38 + ($ratio * 58));
-    $score = max(35, min(98, $rawScore));
-
-    $ucFirstSkill = function ($s) {
-        if (in_array(strtolower($s), ['aws', 'gcp', 'cka', 'sql', 'ci/cd', 'html5', 'css3', 'php'])) {
-            return strtoupper($s);
-        }
-        return ucwords($s);
-    };
-
-    // Calculate category breakdown
-    $coreTaxonomy = ['typescript', 'javascript', 'python', 'php', 'go', 'golang', 'rust', 'c++', 'c#', 'java', 'ruby', 'sql', 'html5', 'css3', 'react', 'react native', 'next.js', 'vue', 'angular', 'svelte', 'node.js', 'node', 'express', 'fastapi', 'django', 'laravel', 'tailwind css', 'tailwind', 'graphql'];
-    $cloudTaxonomy = ['docker', 'kubernetes', 'aws', 'gcp', 'azure', 'terraform', 'postgresql', 'postgres', 'mysql', 'mongodb', 'redis', 'ci/cd', 'github actions', 'linux', 'playwright', 'jest', 'rest api', 'microservices', 'git'];
-
-    $candidateCore = array_intersect($candidateSkills, $coreTaxonomy);
-    $jobCore = array_intersect($jobSkills, $coreTaxonomy);
-    $coreRatio = count($jobCore) > 0 ? count(array_intersect($candidateCore, $jobCore)) / count($jobCore) : $ratio;
-    $coreScore = max(30, min(98, (int)round(35 + ($coreRatio * 60))));
-
-    $candidateCloud = array_intersect($candidateSkills, $cloudTaxonomy);
-    $jobCloud = array_intersect($jobSkills, $cloudTaxonomy);
-    $cloudRatio = count($jobCloud) > 0 ? count(array_intersect($candidateCloud, $jobCloud)) / count($jobCloud) : max(0.4, $ratio * 0.9);
-    $cloudScore = max(30, min(98, (int)round(35 + ($cloudRatio * 60))));
-
-    $lenFactor = min(1.0, mb_strlen($resume) / 1200);
-    $expScore = max(40, min(96, (int)round(45 + ($lenFactor * 25) + ($ratio * 25))));
-    $domainScore = $score;
-
-    return [
-        'match_score' => $score,
-        'missing_skills' => array_values(array_map($ucFirstSkill, array_slice($missing, 0, 5))),
-        'breakdown' => [
-            'core_tech' => $coreScore,
-            'devops_cloud' => $cloudScore,
-            'experience_depth' => $expScore,
-            'domain_fit' => $domainScore
-        ],
-        'source' => 'resilient_engine'
-    ];
-}
 
 $geminiResponse = curl_exec($geminiCurl);
 $geminiHttpCode = curl_getinfo($geminiCurl, CURLINFO_HTTP_CODE);
@@ -266,7 +172,7 @@ if (!is_array($parsedAi)) {
     }
 }
 
-if (!is_array($parsedAi) || !isset($parsedAi['match_score'])) {
+if (!is_array($parsedAi) || !isset($parsedAi['match_score']) || !is_numeric($parsedAi['match_score']) || !is_finite((float)$parsedAi['match_score']) || $parsedAi['match_score'] < 0 || $parsedAi['match_score'] > 100) {
     error_log("[API] Unexpected response format from AI: {$rawAiText}. Falling back to resilient heuristic engine.");
     sendJsonResponse(calculateHeuristicMatch($resume, $jobDescription), 200);
 }
@@ -287,28 +193,23 @@ if (!empty($parsedAi['missing_skills']) && is_array($parsedAi['missing_skills'])
     }
 }
 
-$rawBreakdown = $parsedAi['breakdown'] ?? [];
-$coreTech = isset($rawBreakdown['core_tech']) && is_numeric($rawBreakdown['core_tech'])
-    ? max(20, min(100, intval($rawBreakdown['core_tech'])))
-    : max(30, min(98, (int)round($matchScore * 1.02)));
-$devopsCloud = isset($rawBreakdown['devops_cloud']) && is_numeric($rawBreakdown['devops_cloud'])
-    ? max(20, min(100, intval($rawBreakdown['devops_cloud'])))
-    : max(30, min(95, (int)round($matchScore * 0.92)));
-$expDepth = isset($rawBreakdown['experience_depth']) && is_numeric($rawBreakdown['experience_depth'])
-    ? max(20, min(100, intval($rawBreakdown['experience_depth'])))
-    : max(35, min(96, (int)round($matchScore * 0.96)));
-$domainFit = isset($rawBreakdown['domain_fit']) && is_numeric($rawBreakdown['domain_fit'])
-    ? max(20, min(100, intval($rawBreakdown['domain_fit'])))
-    : max(30, min(99, $matchScore));
-
-// Return validated response
+// Only pass through dimensions actually assessed; never derive them from the total.
+$breakdown = [];
+$rawBreakdown = is_array($parsedAi['breakdown'] ?? null) ? $parsedAi['breakdown'] : [];
+foreach (['core_tech', 'devops_cloud', 'experience_depth', 'domain_fit'] as $key) {
+    $value = $rawBreakdown[$key] ?? null;
+    if (is_numeric($value) && is_finite((float)$value) && $value >= 0 && $value <= 100) {
+        $breakdown[$key] = (int)round((float)$value);
+    }
+}
+$matchedSkills = [];
+foreach (is_array($parsedAi['matched_skills'] ?? null) ? $parsedAi['matched_skills'] : [] as $skill) {
+    if (is_string($skill) && trim($skill) !== '') $matchedSkills[] = trim($skill);
+}
 sendJsonResponse([
     'match_score' => $matchScore,
     'missing_skills' => array_values(array_unique($missingSkills)),
-    'breakdown' => [
-        'core_tech' => $coreTech,
-        'devops_cloud' => $devopsCloud,
-        'experience_depth' => $expDepth,
-        'domain_fit' => $domainFit
-    ]
+    'matched_skills' => array_values(array_unique($matchedSkills)),
+    'breakdown' => (object)$breakdown,
+    'source' => 'ai'
 ], 200);
