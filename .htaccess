@@ -23,6 +23,10 @@ DirectoryIndex index.html index.php
 
 # Security & CORS Headers
 <IfModule mod_headers.c>
+    # Revalidate page markup so releases cannot mix an old page with new assets.
+    <FilesMatch "\.html$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set X-XSS-Protection "1; mode=block"
