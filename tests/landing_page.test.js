@@ -48,8 +48,9 @@ describe('Landing Page Truthfulness & Zero Fake Reviews Integrity', () => {
     expect(designMd.toLowerCase()).not.toContain('fortifocus');
   });
 
-  test('app.html transparently labels mock telemetry as simulation preview', () => {
-    expect(appHtml).toContain('Evaluation Simulation');
+  test('app.html no longer ships mock telemetry alongside the real workspace', () => {
+    expect(appHtml).not.toContain('Evaluation Simulation');
+    expect(appHtml).toContain('id="workspaceMode"');
     expect(appHtml).not.toContain('Verified Candidate Fit');
   });
 });

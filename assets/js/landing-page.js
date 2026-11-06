@@ -24,6 +24,8 @@ function updateThemeButton(theme, themeBtn, themeBtnLabel) {
 
 function applyThemeGlobal(theme, root, themeBtn, themeBtnLabel) {
   root.setAttribute("data-theme", theme);
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) themeMeta.content = theme === "dark" ? "#111b18" : "#f5f7f6";
   if (theme === "dark") {
     root.classList.add("dark");
   } else {
@@ -35,6 +37,7 @@ function applyThemeGlobal(theme, root, themeBtn, themeBtnLabel) {
 }
 
 function initLandingTheme({ root, themeBtn, themeBtnLabel }) {
+  if (window.SkillSyncInterface) { window.SkillSyncInterface.init(); return; }
   const applyCurrentTheme = (theme) => applyThemeGlobal(theme, root, themeBtn, themeBtnLabel);
   applyCurrentTheme(getPreferredTheme());
 
@@ -175,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initScrollUI({ siteNav, pageProgress });
   initReveal(revealObserverTargets);
   initHeroSimulator();
-  cycleDurations();
+  initMarketingNavigation();
   initAppPreview();
 });
 
@@ -197,74 +200,42 @@ function animateCount(element, target, suffix = "", duration = 700) {
   requestAnimationFrame(step);
 }
 
-// 7. Interactive Hero Simulator Controller
+// Sample controls respond only to the visitor; no unattended score cycling.
 function initHeroSimulator() {
-  const pills = document.querySelectorAll(".hero-role-pill");
-  const scoreVal = document.getElementById("heroScoreVal");
-  const ringCircle = document.getElementById("heroRingCircle");
-  const kwVal = document.getElementById("heroKwVal");
-  const kwBar = document.getElementById("heroKwBar");
-  const expVal = document.getElementById("heroExpVal");
-  const expBar = document.getElementById("heroExpBar");
-  const roleVal = document.getElementById("heroRoleVal");
-  const focusBoard = document.querySelector(".focus-board");
-
-  if (!pills.length || !scoreVal) return;
-
-  let isHovered = false;
-
-  const updateRole = (pill) => {
-    pills.forEach((p) => p.classList.remove("active"));
-    pill.classList.add("active");
-
-    const targetScore = parseInt(pill.dataset.score, 10) || 90;
-    const targetKw = parseInt(pill.dataset.kw, 10) || 95;
-    const targetExp = parseInt(pill.dataset.exp, 10) || 88;
-    const roleName = pill.dataset.role || "Lead Full-Stack Eng";
-
-    if (roleVal) roleVal.textContent = roleName;
-
-    // Animate score counter
-    animateCount(scoreVal, targetScore, "%", 700);
-
-    // Animate SVG strokeDashoffset: circumference is ~314 (2 * PI * 50)
-    if (ringCircle) {
-      const offset = 314 - (314 * targetScore) / 100;
-      ringCircle.style.transition = "stroke-dashoffset 0.7s ease";
-      ringCircle.style.strokeDashoffset = offset;
-    }
-
-    // Update bars
-    if (kwVal) kwVal.textContent = `${targetKw}%`;
-    if (kwBar) kwBar.style.setProperty("--fill", `${targetKw}%`);
-    if (expVal) expVal.textContent = `${targetExp}%`;
-    if (expBar) expBar.style.setProperty("--fill", `${targetExp}%`);
+  const pills = document.querySelectorAll('.hero-role-pill');
+  const details = {
+    'Full-Stack Engineer': ['React & TypeScript', 'API development', 'Your web development experience aligns. Make your deployment experience easier to find.'],
+    'Frontend Engineer': ['React & TypeScript', 'Accessible interfaces', 'Your interface work aligns. Add specific examples of how you test the experience.'],
+    'Cloud Engineer': ['Docker & AWS', 'Deployment pipelines', 'Your infrastructure experience is relevant. Review the role’s orchestration requirements.']
   };
+  pills.forEach(pill => pill.addEventListener('click', () => {
+    pills.forEach(item => { item.classList.toggle('active', item === pill); item.setAttribute('aria-pressed', String(item === pill)); });
+    const set = (id, text) => { const element = document.getElementById(id); if (element) element.textContent = text; };
+    const role = pill.dataset.role;
+    set('heroRoleVal', role);
+    set('heroScoreVal', pill.dataset.score + '%');
+    set('heroGapVal', pill.dataset.gap);
+    set('heroSummaryTitle', Number(pill.dataset.score) >= 75 ? 'A strong starting point.' : 'A few areas to review.');
+    const content = details[role];
+    if (content) { set('heroSkillOne', content[0]); set('heroSkillTwo', content[1]); set('heroPreviewCopy', content[2]); }
+  }));
+}
 
-  pills.forEach((pill) => {
-    pill.addEventListener("click", () => updateRole(pill));
-  });
-
-  if (focusBoard) {
-    focusBoard.addEventListener("mouseenter", () => { isHovered = true; });
-    focusBoard.addEventListener("mouseleave", () => { isHovered = false; });
-  }
-
-  // Initial radial stroke setup
-  if (ringCircle) {
-    ringCircle.style.transition = "stroke-dashoffset 1.2s ease";
-    setTimeout(() => {
-      ringCircle.style.strokeDashoffset = 314 - (314 * 94) / 100;
-    }, 200);
-  }
-
-  // Auto-cycle roles every 4.2 seconds unless hovered
-  let activeIndex = 0;
-  window.setInterval(() => {
-    if (isHovered) return;
-    activeIndex = (activeIndex + 1) % pills.length;
-    updateRole(pills[activeIndex]);
-  }, 4200);
+function initMarketingNavigation() {
+  if (window.SkillSyncInterface) return;
+  const button = document.getElementById('marketingMenuBtn');
+  const links = document.getElementById('marketingLinks');
+  if (!button || !links) return;
+  const setOpen = open => {
+    links.classList.toggle('is-open', open);
+    button.setAttribute('aria-expanded', String(open));
+    button.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  };
+  button.addEventListener('click', () => setOpen(button.getAttribute('aria-expanded') !== 'true'));
+  links.addEventListener('click', event => { if (event.target.closest('a')) setOpen(false); });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') { setOpen(false); button.focus(); } });
+  document.addEventListener('click', event => { if (!event.target.closest('.marketing-nav')) setOpen(false); });
+  window.matchMedia('(min-width: 801px)').addEventListener('change', () => setOpen(false));
 }
 
 if (typeof module !== "undefined" && module.exports) {
@@ -273,7 +244,9 @@ if (typeof module !== "undefined" && module.exports) {
     updateThemeButton,
     applyThemeGlobal,
     animateCount,
-    initAppPreview
+    initAppPreview,
+    initMarketingNavigation,
+    initHeroSimulator
   };
 }
 
