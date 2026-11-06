@@ -14,28 +14,17 @@ SkillSync is an enterprise-grade, full-stack ATS (Applicant Tracking System) sim
 
 ## Key Features
 
-- **Candidate Skill Vault & Verified Taxonomy Matrix**: Centralized repository for candidate certificates, licenses, and transcripts. Synthesizes a verified technical skill matrix (Languages, Frameworks, Cloud & DevOps, Certifications) and syncs directly with the ATS scanner.
-- **Resume Credibility & Anti-Hallucination Audit Engine (`tests/authenticity.test.js`)**: Evaluates resumes for chronological anachronisms (e.g. claiming 10+ years in Docker before its release), unevidenced buzzword stuffing, statistically implausible metric spikes (+9000%), and title inflation.
-- **Quiet-Chrome Developer UI (Linear / Raycast Aesthetic)**: Precision-engineered interface utilizing flat surfaces, hairline borders (`var(--ws-border)`), DM Mono metadata typography, and high contrast compliant with WCAG AA standards. Audited and verified using the Impeccable UI suite.
-- **Free Public Job Discovery & Explorer (`jobs.html`)**: Freely search, browse, and filter active engineering roles across AI, Cloud/DevOps, Full-Stack, and Frontend without requiring authentication. Includes multi-facet category filtering, remote-only toggle, interactive job preview modals, and a 1-click ATS workspace bridge that transfers job details directly into the scanner.
-- **Interactive Mock Interview Simulator & STAR Answer Coach**: Practice technical questions with real-time feedback, STAR model answer comparisons, and trilingual support (English, Tagalog, and Taglish tech code-switching).
-- **Global Command Palette (`⌘K`)**: Instant workspace spotlight search with keyboard navigation (`↑`, `↓`, `Enter`, `Esc`), shortcut routing, and live filter queries.
-- **2-Week Skill Bridge Learning Roadmap**: Automatically converts detected missing skill gaps into an interactive 14-day study plan with progress tracking and YouTube deep-dive tutorials.
-- **Salary Benchmarking & AI Counter-Offer Coach**: Calculates 25th, 50th, 75th, and 90th percentile compensation benchmarks adjusted for seniority tiers and cost of living, providing automated counter-offer negotiation scripts.
-- **Gemini AI Resume Matcher Proxy (`api.php`)**: Evaluates resumes against job descriptions with ATS accuracy, returning an objective 0–100 match score and prioritized skill gap recommendations in strict JSON.
-- **AI-Powered Web Scraper with Cache (`scrape.php`)**: Fetches external job postings from URLs (LinkedIn, Indeed, Greenhouse, etc.), extracts core requirements via Gemini AI, and caches results in Supabase to eliminate redundant AI calls.
-- **Client-Side PDF Parsing (`pdf.js`)**: Fast, in-browser PDF resume extraction without transmitting unparsed binary documents.
-- **Single-Click PDF Export (`html2pdf.js`)**: Exports formatted analysis reports directly to downloadable A4 PDF documents.
-- **Clipboard Summary Copy**: Formats and copies key match highlights and recommendations directly to the clipboard.
-- **Interactive History Dashboard**: Real-time Supabase history with dynamic sorting (Newest, Oldest, Highest Score, Lowest Score), single-record deletion, and "Clear All History" controls.
-- **Hardened Security Architecture & User Authentication**:
-  - Secure account creation with confirm password validation, real-time mismatch indicators, and toggleable password masking.
-  - Supabase Row Level Security (RLS) policies enforcing multi-tenant isolation across all tables.
-  - Per-user backend sliding-window rate limiting (max 5 requests/minute).
-  - Server-Side Request Forgery (SSRF) protection blocking internal/metadata IP ranges.
-  - Production error suppression with logging to a protected `secure_php_errors.log`.
-  - Apache `.htaccess` rules denying direct HTTP access to `.env`, `.log`, `.sql`, and configuration files.
-  - High-capacity input processing supporting comprehensive resumes and enterprise job postings (up to 100,000 characters).
+- **Resume comparison**: Paste or upload a resume, add a target job description, and compare them with one primary action. Reports show matched skills, requirements to review, and the scoring method.
+- **Focused workspace**: Three views—Compare, Documents, and Applications—share the same navigation, colors, typography, light/dark theme, and responsive layout.
+- **Saved documents and resumes**: Reuse uploaded documents and named resume versions. Secondary editing controls are inside Resume options. Replacing documents can be undone, and drafts restore within their owner's tab.
+- **Job explorer**: Search roles, filter by discipline or remote availability, choose an external source, and transfer a job description into the workspace. External sources open their own search pages; URL import is available alongside them.
+- **Application tracking**: Move roles through Saved, Applied, Interviewing, and Offer. Add an application manually or return to its resume comparison.
+- **Follow-up tools**: Improve resume bullets, write a cover letter, practice interview questions, or build a study plan from the comparison report.
+- **Report history and exports**: Open previous comparisons, copy a summary, or export a PDF. History stays collapsed until requested.
+- **Explicit scoring states**: AI estimates, local demo comparisons, and keyword fallbacks are labeled. Unassessed roles and dimensions stay unassessed. Changed documents mark the previous report stale.
+- **Authentication and backend safeguards**: Supabase accounts and row-level policies, per-user API rate limiting, server-side input validation, SSRF protection, and protected configuration files.
+
+Decorative dashboards, duplicate job explorers, sound controls, simulated company dispatch, and unrelated salary/outreach panels are no longer part of the browser interface.
 
 ---
 
@@ -137,6 +126,14 @@ window.SKILLSYNC_CONFIG = {
 3. Verify table creation in Supabase -> **Table Editor** (`scan_history`, `scraped_jobs_cache`, `user_vault_documents`, `user_vault_profiles`, `resume_credibility_audits`).
 4. (Optional) Run [`database/seed.sql`](database/seed.sql) to populate initial test scans.
 
+### Build the workspace styles
+The workspace uses a committed local utility stylesheet. After changing utility classes in HTML or JavaScript, regenerate it:
+```bash
+npm install
+npm run build:css
+```
+The landing page uses `assets/css/interface.css` directly.
+
 ### Step 4: Start the Application with Docker Compose
 Spin up the Apache PHP web server:
 ```bash
@@ -230,3 +227,7 @@ Scrapes an external job posting URL and summarizes core requirements.
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+### Comparison regression checks
+
+Run frontend checks with `npm test -- --runInBand`. With the application container running, verify real PHP keyword fallback behavior with `docker exec skillsync_app php /var/www/html/tests/match_engine.php`. These checks do not call the external AI service.
