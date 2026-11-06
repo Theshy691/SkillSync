@@ -71,20 +71,20 @@ describe('1-Click Agentic AI Company Request Engine Test Suite', () => {
     const path = require('path');
     const appHtml = fs.readFileSync(path.resolve(__dirname, '../app.html'), 'utf8');
 
-    test('app.html contains 1-Click Agentic Company Request and practice interview triggers', () => {
-      expect(appHtml).toContain('id="agenticCompanyRequestBtn"');
-      expect(appHtml).toContain('1-Click Agentic Company Request');
-      expect(appHtml).toContain('id="practiceInterviewBtn"');
-      expect(appHtml).toContain('Practice Interview (Tagalog / Taglish)');
+    test('the workspace keeps focused application tools without dispatch controls', () => {
+      expect(appHtml).toContain('id="tailorResumeBtn"');
+      expect(appHtml).toContain('id="generateCoverLetterBtn"');
+      expect(appHtml).toContain('id="interviewPrepBtn"');
+      expect(appHtml).not.toContain('id="agenticCompanyRequestBtn"');
+      expect(appHtml).not.toContain('id="dispatchCompanyRequestBtn"');
     });
 
-    test('app.html replaced 1-click toolkit with agentic request modal and dispatch buttons', () => {
-      expect(appHtml).toContain('id="agentic-request-modal"');
-      expect(appHtml).toContain('id="dispatchCompanyRequestBtn"');
-      expect(appHtml).toContain('id="agenticPlanTerminal"');
+    test('removed tool modals are not shipped in the workspace', () => {
+      expect(appHtml).not.toContain('id="agentic-request-modal"');
+      expect(appHtml).not.toContain('id="salary-modal"');
+      expect(appHtml).not.toContain('id="dossier-modal"');
+      expect(appHtml).not.toContain('id="outreach-modal"');
       expect(appHtml).toContain('id="tabSyntheticQuestionsBtn"');
-      expect(appHtml).not.toContain('id="quickSpeedrunBtn"');
-      expect(appHtml).not.toContain('id="speedrunHeroBanner"');
     });
   });
 });

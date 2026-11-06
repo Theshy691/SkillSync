@@ -34,6 +34,23 @@ test('clear and sample replacement can recover the actual working resume', () =>
   expect(field.value).toBe('My unsaved experience');
 });
 
+test('the single sample action works without preset chips and undoes both documents together', () => {
+  document.getElementById('sampleResumeSweBtn').remove();
+  const button = document.createElement('button');
+  button.id = 'loadSamplePairBtn';
+  document.body.appendChild(button);
+  const resume = document.getElementById('resumeText');
+  const job = document.getElementById('jobText');
+  resume.value = 'My actual experience'; job.value = 'My target role';
+  initStudioPresets();
+  button.click();
+  expect(resume.value).toContain('Full-Stack Software Engineer');
+  expect(job.value).toContain('Staff Full-Stack Software Engineer');
+  undoWorkspaceReplacement();
+  expect(resume.value).toBe('My actual experience');
+  expect(job.value).toBe('My target role');
+});
+
 test('profile switching and deletion preserve a recoverable working copy', () => {
   const field = document.getElementById('resumeText');
   field.value = 'Edited profile with new accomplishments';

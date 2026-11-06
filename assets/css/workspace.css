@@ -20,12 +20,12 @@
   --ws-ink-secondary: var(--ink-2);
   --ws-ink-muted: var(--ink-3);
   --ws-ink-faint: var(--ink-4);
-  --ws-radius-xs: 0px;
-  --ws-radius-sm: 2px;
-  --ws-radius-md: 3px;
-  --ws-radius-lg: 4px;
-  --ws-radius-xl: 4px;
-  --ws-transition-spring: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --ws-radius-xs: 2px;
+  --ws-radius-sm: 4px;
+  --ws-radius-md: 6px;
+  --ws-radius-lg: 10px;
+  --ws-radius-xl: 12px;
+  --ws-transition-spring: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
 }
 
 /* ==============================================================================
@@ -36,67 +36,6 @@ body {
   color: var(--ws-ink-primary);
   letter-spacing: -0.011em;
   caret-color: var(--sage);
-}
-
-/* The application has its own header geometry; the marketing nav floats. */
-.workspace-app {
-  --ink-3: #60554c;
-  --ink-4: #64594f;
-  --sage: #416345;
-  --amber: #805013;
-  --rose: #9f3e56;
-  --sky: #315d7b;
-  --ws-ink-muted: var(--ink-3);
-  --ws-ink-faint: var(--ink-4);
-}
-
-[data-theme="dark"] .workspace-app {
-  --ink-3: #cbd5e1;
-  --ink-4: #a2adbf;
-  --sage: #7cb585;
-  --amber: #dfa055;
-  --rose: #da7d8f;
-  --sky: #7fb3d9;
-}
-
-.workspace-app #siteNav {
-  position: sticky;
-  inset: 0 0 auto;
-  transform: none;
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 12px max(20px, calc((100% - 1180px) / 2));
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
-  background: var(--surface-2);
-  box-shadow: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.workspace-app #siteNav .nav-actions {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.workspace-app #siteNav :is(button, .nav-actions > a) {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-.workspace-app #siteNav .theme-toggle-nav {
-  width: auto;
-  flex: none;
-  padding: 8px;
-  border: 0;
-  box-shadow: none;
 }
 
 .workspace-heading {
@@ -166,7 +105,7 @@ body {
 .workspace-app .btn-action-primary { color: #fff; background-color: var(--sage); }
 .workspace-app .btn-action-sky { background: var(--sky); color: #fff; }
 [data-theme="dark"] .workspace-app .btn-action-sky { color: #07090d; }
-.workspace-app #results-container { scroll-margin-top: 100px; }
+.workspace-app #results-container { scroll-margin-top: 20px; }
 .analysis-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
 .draft-recovery { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; color: var(--ink-3); font-size: 12px; }
 .draft-recovery button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: var(--radius); }
@@ -190,8 +129,6 @@ body {
 .workspace-app :is(.pillar-metric-card, .action-studio-card) .font-mono { color: var(--ink-2); }
 
 @media (max-width: 1100px) {
-  .workspace-app #siteNav .console-chip, .workspace-app #siteNav .theme-toggle-text { display: none; }
-  .workspace-app #userProfile > span { display: none; }
 }
 
 ::selection {
@@ -615,14 +552,6 @@ body {
  * 8. Responsive Cleanups
  * ============================================================================== */
 @media (max-width: 640px) {
-  .workspace-app #siteNav { flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 16px; }
-  .workspace-app #siteNav .nav-actions { width: 100%; gap: 2px; justify-content: space-between; }
-  .workspace-app #siteNav .nav-actions > button { padding: 8px; }
-  .workspace-app #siteNav .nav-actions > a { padding: 8px; }
-  .workspace-app #logoutBtn { padding: 8px; margin-left: 0; }
-  .workspace-app #logoutBtn span { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .workspace-app #siteNav .theme-toggle-nav { min-width: 56px; }
-  .workspace-app #siteNav .theme-toggle-track { width: 44px; }
   .workspace-heading { flex-direction: column; gap: 16px; }
   .workspace-heading h1 { font-size: 28px; }
   .workspace-navigation { gap: 12px; }
@@ -783,52 +712,6 @@ body {
 ::selection {
   background: var(--sage-light);
   color: var(--ws-ink-primary);
-}
-
-/* ==============================================================================
- * 13. Sharp Technical Engineering Geometry (Zero AI-Slop Bubbly Radii)
- * ============================================================================== */
-.studio-pane,
-.workspace-grid,
-.results-dock,
-.console-card,
-.ws-card,
-.modal-box,
-.workspace-modal-card,
-.benchmark-card,
-.kanban-lane,
-.kanban-card,
-.pro-job-card,
-.score-radial-container,
-#tailorAdviceBox,
-#customQuestionPanel,
-#auth-section {
-  border-radius: 4px !important;
-}
-
-button,
-.btn-command-primary,
-.btn-command-agentic,
-.btn-tactile,
-.btn-action-sky,
-.btn-action-primary,
-.action-studio-card,
-.shortcut-badge,
-.sample-preset-chip,
-.sample-preset-clear,
-.match-bridge-rail,
-.studio-pane-badge,
-.kanban-stage-badge,
-.score-badge {
-  border-radius: 3px !important;
-}
-
-input,
-textarea,
-select,
-.studio-pane-editor,
-.console-input {
-  border-radius: 3px !important;
 }
 
 ::-moz-selection {

@@ -14,6 +14,9 @@ let supabaseClient = null;
 let currentSession = null;
 let pendingDeleteId = null;
 let lastAnalysisResult = null;
+let lastAnalysisInputs = null;
+let activeAnalysisController = null;
+let loadingSamplePair = false;
 
 /**
  * Demo Mode Helper
@@ -55,7 +58,8 @@ function getDemoHistory() {
       localStorage.setItem('skillsync_demo_history', JSON.stringify(DEFAULT_DEMO_SCANS));
       return [...DEFAULT_DEMO_SCANS];
     }
-    return JSON.parse(raw);
+    const items = JSON.parse(raw);
+    return Array.isArray(items) ? items : [...DEFAULT_DEMO_SCANS];
   } catch (_) {
     return [...DEFAULT_DEMO_SCANS];
   }
@@ -76,12 +80,12 @@ function checkCdn() {
   const cdnFallback = document.getElementById('cdn-fallback');
   const appContainer = document.getElementById('app-container');
 
-  const hasTailwind = typeof tailwind !== 'undefined';
+  const hasTailwind = typeof tailwind !== 'undefined' || Boolean(document.getElementById('workspaceUtilities'));
   const hasSupabase = typeof window.supabase !== 'undefined';
   const hasPdfJs = typeof window.pdfjsLib !== 'undefined';
   const hasHtml2Pdf = typeof window.html2pdf !== 'undefined';
 
-  if (!hasTailwind || !hasSupabase || !hasPdfJs || !hasHtml2Pdf) {
+  if (!hasTailwind) {
     if (cdnFallback) cdnFallback.style.display = 'block';
     if (appContainer) appContainer.style.display = 'none';
     console.error('SkillSync CDN check failed:', { hasTailwind, hasSupabase, hasPdfJs, hasHtml2Pdf });
@@ -96,6 +100,7 @@ function checkCdn() {
  * 2. Theme Toggle (Light / Dark Mode)
  */
 function initTheme() {
+  if (window.SkillSyncInterface) { window.SkillSyncInterface.init(); return; }
   const storedTheme = localStorage.getItem('skillsync_theme');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const initialTheme = storedTheme ? storedTheme : (prefersDark ? 'dark' : 'light');
@@ -112,6 +117,7 @@ function initTheme() {
 }
 
 function applyTheme(theme) {
+  if (window.SkillSyncInterface) { window.SkillSyncInterface.applyTheme(theme); return; }
   const html = document.documentElement;
   const sunIcon = document.getElementById('sunIcon');
   const moonIcon = document.getElementById('moonIcon');
@@ -158,7 +164,8 @@ function showToast(message, type = 'info', duration = 4000) {
   const toast = document.createElement('div');
   toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
   toast.setAttribute('aria-atomic', 'true');
-  toast.className = 'pointer-events-auto flex items-center space-x-3 p-3.5 rounded-2xl shadow-xl border text-sm font-medium transform transition-all duration-300 opacity-0 translate-y-2';
+  toast.dataset.tone = type;
+  toast.className = 'ss-toast pointer-events-auto flex items-center space-x-3 p-3.5 rounded-2xl shadow-xl border text-sm font-medium transform transition-all duration-300 opacity-0 translate-y-2';
 
   let iconSvg = '';
   let colorClasses = '';
@@ -177,7 +184,7 @@ function showToast(message, type = 'info', duration = 4000) {
       iconSvg = `<svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
       break;
     default: // info
-      colorClasses = 'bg-slate-900 text-white dark:bg-slate-800 dark:text-slate-100 border-slate-700';
+      colorClasses = 'bg-slate-900 text-white bg-[var(--paper-2)] dark:text-slate-100 border-slate-700';
       iconSvg = `<svg class="w-5 h-5 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
       break;
   }
@@ -186,7 +193,7 @@ function showToast(message, type = 'info', duration = 4000) {
   toast.innerHTML = `
     ${iconSvg}
     <div class="flex-1 leading-snug">${escapeHtml(message)}</div>
-    <button class="toast-close text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1" aria-label="Dismiss">
+    <button class="toast-close text-[var(--ink-3)] hover:text-slate-600 dark:hover:text-slate-200 p-1" aria-label="Dismiss">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
   `;
@@ -440,12 +447,14 @@ async function initAuth() {
     if (error) {
       console.error('Error checking session:', error);
     }
-    updateAuthState(session);
+    if (!localStorage.getItem('skillsync_demo_session')) updateAuthState(session);
   } catch (e) {
     console.error('Exception fetching session:', e);
   }
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
+    // A delayed cloud event must not replace an explicitly selected demo session.
+    if (localStorage.getItem('skillsync_demo_session')) return;
     if (event === 'TOKEN_REFRESH_FAILED') {
       console.warn('Token refresh failed. Showing session expired modal.');
       showSessionExpiredModal();
@@ -456,6 +465,12 @@ async function initAuth() {
 }
 
 function updateAuthState(session) {
+  if (currentSession?.user?.id && currentSession.user.id !== session?.user?.id) {
+    activeAnalysisController?.abort();
+    lastAnalysisResult = null;
+    lastAnalysisInputs = null;
+    document.getElementById('results-container')?.classList.add('hidden');
+  }
   currentSession = session;
   const authSection = document.getElementById('auth-section');
   const workspaceSection = document.getElementById('workspace-section');
@@ -470,8 +485,9 @@ function updateAuthState(session) {
     if (loginTriggerBtn) loginTriggerBtn.classList.add('hidden');
     if (userEmailBadge) userEmailBadge.textContent = session.user.email || 'Demo User';
     initWorkspaceDrafts();
+    updateComparisonReadiness();
     const mode = document.getElementById('workspaceMode');
-    if (mode) mode.textContent = isDemoMode() ? 'Demo workspace · local samples' : 'Application workspace';
+    if (mode) { mode.textContent = 'Demo'; mode.classList.toggle('hidden', !isDemoMode()); }
     fetchDashboard();
   } else {
     if (authSection) authSection.classList.remove('hidden');
@@ -495,6 +511,10 @@ async function performSignOut() {
   try { if (workspaceDraftKey()) sessionStorage.removeItem(workspaceDraftKey()); } catch (_) {}
   workspaceDraftOwner = null;
   workspaceUndoHistory = [];
+  if (activeAnalysisController) activeAnalysisController.abort();
+  lastAnalysisResult = null;
+  lastAnalysisInputs = null;
+  document.getElementById('results-container')?.classList.add('hidden');
   const resumeText = document.getElementById('resumeText');
   const jobText = document.getElementById('jobText');
   const resumeCount = document.getElementById('resumeCount');
@@ -652,13 +672,13 @@ function initAuthForm() {
       const demoUser = {
         user: {
           id: 'demo-user-123',
-          email: 'james@skillsync.demo'
+          email: 'demo@skillsync.demo'
         },
         access_token: 'demo-token-123'
       };
       localStorage.setItem('skillsync_demo_session', JSON.stringify(demoUser));
       updateAuthState(demoUser);
-      showToast('Demo session initialized.', 'success');
+      if (!document.getElementById('resumeText')?.value.trim() && !document.getElementById('jobText')?.value.trim()) document.getElementById('loadSamplePairBtn')?.click();
     });
   }
 
@@ -800,7 +820,7 @@ function initAuthForm() {
         updateAuthState(demoUser);
         if (authSpinner) authSpinner.classList.add('hidden');
         if (authSubmitText) authSubmitText.textContent = isSignUpMode ? 'Sign Up' : 'Sign In';
-        showToast(isSignUpMode ? 'Account created successfully.' : 'Signed in successfully.', 'success');
+        showToast('Opened a local demo. No cloud account was created or signed in.', 'info');
       }, 300);
     });
   }
@@ -862,7 +882,7 @@ function initAuthForm() {
       const demoUser = {
         user: {
           id: 'demo-user-123',
-          email: 'james@skillsync.demo'
+          email: 'demo@skillsync.demo'
         },
         access_token: 'demo-token-123'
       };
@@ -1007,11 +1027,6 @@ function initWorkspaceDrafts() {
       const error = document.getElementById(id === 'resumeText' ? 'resumeError' : 'jobError');
       if (error) error.textContent = '';
       saveWorkspaceDraft();
-      const result = document.getElementById('results-container');
-      if (result && !result.classList.contains('hidden')) {
-        const source = document.getElementById('scoreSource');
-        if (source) source.textContent = 'Previous analysis — inputs changed';
-      }
     });
   });
   renderResumeVersionSelect(document.getElementById('resumeText')?.dataset.profileId || '');
@@ -1041,14 +1056,25 @@ function initStudioPresets() {
   const sampleSweResume = 'Full-Stack Software Engineer with 6+ years experience architecting scalable React, Next.js, Node.js, and TypeScript applications. Built event-driven Kafka microservices, optimized PostgreSQL databases with 35% latency reduction, and led CI/CD Docker deployments on AWS.';
   const sampleDevOpsResume = 'Senior Cloud & Platform Engineer experienced in Kubernetes, Docker, Terraform, AWS, and GCP infrastructure. Slashed build times by 50% via automated GitHub Actions pipelines and maintained 99.99% system availability across multi-region deployments.';
 
-  const sampleSweJob = 'We are seeking a Staff Full-Stack Software Engineer to scale global payments infrastructure. Required: 6+ years experience with React, TypeScript, Node.js, high-throughput PostgreSQL, and event-driven microservices. Deep knowledge of API resilience, Docker, and AWS.';
+  const sampleSweJob = 'We are seeking a Staff Full-Stack Software Engineer to scale global payments infrastructure. Required: 6+ years experience with React, TypeScript, Node.js, high-throughput PostgreSQL, and event-driven microservices. Deep knowledge of API resilience, Docker, AWS, Kubernetes, and GraphQL.';
   const sampleDevOpsJob = 'Looking for a Lead SRE / Cloud Platform Engineer to oversee our global telemetry clusters. Qualifications: 5+ years with Kubernetes, Terraform, Prometheus/Grafana, Go/Python, and AWS/GCP cloud orchestration. Experience with 99.99% SLAs and zero-downtime rollouts.';
+
+  document.getElementById('loadSamplePairBtn')?.addEventListener('click', () => {
+    rememberWorkspaceReplacement();
+    // Treat loading both documents as one replacement so one Undo restores both.
+    if (resumeText) { resumeText.value = sampleSweResume; resumeText.dataset.profileId = ''; }
+    const profile = document.getElementById('resumeVersionSelect');
+    if (profile) profile.value = '';
+    if (jobText) jobText.value = sampleSweJob;
+    [resumeText, jobText].forEach(field => field?.dispatchEvent(new Event('input', { bubbles: true })));
+    updateComparisonReadiness();
+  });
 
   if (sampleResumeSweBtn && resumeText) {
     sampleResumeSweBtn.addEventListener('click', () => {
       replaceWorkspaceText('resumeText', sampleSweResume);
       updateCharCounter(resumeText, resumeCount);
-      showToast('Loaded Full-Stack Lead sample resume.', 'info', 2000);
+      if (!loadingSamplePair) showToast('Loaded Full-Stack Lead sample resume.', 'info', 2000);
     });
   }
 
@@ -1072,7 +1098,7 @@ function initStudioPresets() {
     sampleJobSweBtn.addEventListener('click', () => {
       replaceWorkspaceText('jobText', sampleSweJob);
       updateCharCounter(jobText, jobCount);
-      showToast('Loaded Stripe Staff SWE target job.', 'info', 2000);
+      if (!loadingSamplePair) showToast('Loaded the sample staff engineer role.', 'info', 2000);
     });
   }
 
@@ -1080,7 +1106,7 @@ function initStudioPresets() {
     sampleJobDevOpsBtn.addEventListener('click', () => {
       replaceWorkspaceText('jobText', sampleDevOpsJob);
       updateCharCounter(jobText, jobCount);
-      showToast('Loaded Datadog Lead SRE target job.', 'info', 2000);
+      showToast('Loaded the sample cloud engineer role.', 'info', 2000);
     });
   }
 
@@ -1691,238 +1717,165 @@ function initJobScraper() {
 /**
  * 10. AI Resume & Skill Gap Analysis (api.php & Demo Matcher)
  */
+// Canonical names avoid double-counting aliases such as Node and Node.js.
+const MATCH_SKILL_ALIASES = {
+  'React': ['react'], 'React Native': ['react native'], 'TypeScript': ['typescript'], 'JavaScript': ['javascript'],
+  'Node.js': ['node.js', 'nodejs', 'node'], 'Next.js': ['next.js', 'nextjs'], 'Vue': ['vue', 'vue.js'],
+  'Angular': ['angular'], 'Svelte': ['svelte'], 'HTML': ['html', 'html5'], 'CSS': ['css', 'css3'],
+  'Python': ['python'], 'Go': ['go', 'golang'], 'Java': ['java'], 'C++': ['c++'], 'C#': ['c#'],
+  'PHP': ['php'], 'Ruby': ['ruby'], 'Rust': ['rust'], 'SQL': ['sql'], 'Bash': ['bash'],
+  'Docker': ['docker'], 'Kubernetes': ['kubernetes', 'k8s'], 'AWS': ['aws', 'amazon web services'],
+  'GCP': ['gcp', 'google cloud'], 'Azure': ['azure'], 'Terraform': ['terraform'],
+  'PostgreSQL': ['postgresql', 'postgres'], 'MySQL': ['mysql'], 'MongoDB': ['mongodb'], 'Redis': ['redis'],
+  'GraphQL': ['graphql'], 'Tailwind': ['tailwind', 'tailwind css'], 'CI/CD': ['ci/cd', 'continuous integration'],
+  'Git': ['git'], 'GitHub Actions': ['github actions'], 'Kafka': ['kafka'], 'Microservices': ['microservices'],
+  'REST API': ['rest api', 'restful'], 'Linux': ['linux'], 'Playwright': ['playwright'], 'Jest': ['jest'],
+  'Express': ['express', 'express.js'], 'FastAPI': ['fastapi'], 'Django': ['django'], 'Flask': ['flask'],
+  'Laravel': ['laravel'], 'Prometheus': ['prometheus'], 'Grafana': ['grafana']
+};
+
 function calculateDemoMatch(resume, job) {
-  const commonSkills = [
-    'React', 'TypeScript', 'JavaScript', 'Node.js', 'Python', 'Go', 'Java',
-    'Docker', 'Kubernetes', 'AWS', 'GCP', 'PostgreSQL', 'MongoDB', 'Redis',
-    'GraphQL', 'Tailwind', 'CI/CD', 'Git', 'Kafka', 'Microservices'
-  ];
-
-  const containsSkill = (text, skill) => {
-    const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return new RegExp(`(^|[^a-z0-9])${escaped}(?=$|[^a-z0-9])`, 'i').test(text);
+  const contains = (text, term) => {
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(^|[^a-z0-9+#])${escaped}(?=$|[^a-z0-9+#])`, 'i').test(text);
   };
-  const targetSkills = commonSkills.filter(skill => containsSkill(job, skill));
-
-  const matched = [];
-  const missing = [];
-
-  targetSkills.forEach(skill => {
-    if (containsSkill(resume, skill)) {
-      matched.push(skill);
-    } else {
-      missing.push(skill);
-    }
-  });
-
-  const score = targetSkills.length ? Math.round((matched.length / targetSkills.length) * 100) : 0;
-
+  const target = Object.keys(MATCH_SKILL_ALIASES).filter(skill => MATCH_SKILL_ALIASES[skill].some(alias => contains(job, alias)));
+  const matched = target.filter(skill => MATCH_SKILL_ALIASES[skill].some(alias => contains(resume, alias)));
   return {
-    match_score: score,
-    missing_skills: missing,
-    is_demo: true,
-    demo_skill_count: targetSkills.length
+    match_score: target.length ? Math.round(matched.length / target.length * 100) : 0,
+    matched_skills: matched, missing_skills: target.filter(skill => !matched.includes(skill)),
+    is_demo: true, source: 'demo', demo_skill_count: target.length, skill_count: target.length
   };
 }
 
-function initAnalyzer() {
-  const analyzeBtn = document.getElementById('analyzeBtn');
-  const analyzeBtnText = document.getElementById('analyzeBtnText');
-  const analyzeSpinner = document.getElementById('analyzeSpinner');
-  const resumeText = document.getElementById('resumeText');
-  const jobText = document.getElementById('jobText');
-  const resultsSkeleton = document.getElementById('results-skeleton');
-  const resultsContainer = document.getElementById('results-container');
-
-  const handleKeyShortcut = (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault();
-      if (analyzeBtn && !analyzeBtn.disabled) {
-        analyzeBtn.click();
-      }
-    }
-  };
-
-  if (resumeText) resumeText.addEventListener('keydown', handleKeyShortcut);
-  if (jobText) jobText.addEventListener('keydown', handleKeyShortcut);
-
-  if (analyzeBtn) {
-    analyzeBtn.addEventListener('click', async () => {
-      if (!currentSession || !currentSession.access_token) {
-        showToast('Please sign in to analyze your resume.', 'warning');
-        return;
-      }
-
-      const resume = resumeText ? resumeText.value.trim() : '';
-      const jobDescription = jobText ? jobText.value.trim() : '';
-
-      const analysisError = document.getElementById('analysisError');
-      if (analysisError) analysisError.classList.add('hidden');
-      [[resumeText, resume, 'resumeError', 'Paste or upload your resume before comparing.'],
-        [jobText, jobDescription, 'jobError', 'Add a target job description before comparing.']].forEach(([field, value, id, message]) => {
-        field?.setAttribute('aria-invalid', value ? 'false' : 'true');
-        const error = document.getElementById(id);
-        if (error) error.textContent = value ? '' : message;
-      });
-      if (!resume || !jobDescription) {
-        showToast('Please provide both your resume and a target job description.', 'warning');
-        (!resume ? resumeText : jobText)?.focus();
-        return;
-      }
-
-      analyzeBtn.disabled = true;
-      analyzeBtn.setAttribute('aria-busy', 'true');
-      const indicator = document.getElementById('scoringEngineIndicator');
-      if (indicator) indicator.textContent = 'Comparing your resume…';
-      if (analyzeSpinner) analyzeSpinner.classList.remove('hidden');
-      if (analyzeBtnText) analyzeBtnText.textContent = 'Analyzing match...';
-      if (resultsSkeleton) resultsSkeleton.classList.remove('hidden');
-      if (resultsContainer) resultsContainer.classList.add('hidden');
-
-      // Demo Mode Analysis Simulation
-      if (isDemoMode()) {
-        setTimeout(() => {
-          const matchResult = calculateDemoMatch(resume, jobDescription);
-
-          lastAnalysisResult = {
-            ...matchResult,
-            resume_snippet: resume.substring(0, 150),
-            job_description: jobDescription.substring(0, 150)
-          };
-
-          renderResults(lastAnalysisResult);
-
-          const history = getDemoHistory();
-          history.unshift({
-            id: 'demo-scan-' + Date.now(),
-            user_id: currentSession.user ? currentSession.user.id : 'demo-user',
-            resume_snippet: lastAnalysisResult.resume_snippet,
-            job_description: lastAnalysisResult.job_description,
-            match_score: lastAnalysisResult.match_score,
-            missing_skills: lastAnalysisResult.missing_skills,
-            created_at: new Date().toISOString()
-          });
-          saveDemoHistory(history);
-          fetchDashboard();
-
-          analyzeBtn.disabled = false;
-          analyzeBtn.setAttribute('aria-busy', 'false');
-          if (indicator) indicator.textContent = 'Demo comparison complete';
-          if (analyzeSpinner) analyzeSpinner.classList.add('hidden');
-          if (analyzeBtnText) analyzeBtnText.textContent = 'Run Match Analysis';
-          if (resultsSkeleton) resultsSkeleton.classList.add('hidden');
-          showToast('Analysis completed successfully!', 'success');
-        }, 900);
-        return;
-      }
-
-      try {
-        // Automatically check and refresh token if Supabase session is close to expiry
-        if (supabaseClient && typeof supabaseClient.auth?.getSession === 'function') {
-          try {
-            const { data: sessionData } = await supabaseClient.auth.getSession();
-            if (sessionData && sessionData.session) {
-              currentSession = sessionData.session;
-            }
-          } catch (_) {}
-        }
-
-        let response = await fetch('api.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentSession.access_token}`
-          },
-          body: JSON.stringify({
-            resume,
-            job_description: jobDescription
-          })
-        });
-
-        // If 401, attempt silent refresh and retry request once before showing modal
-        if (response.status === 401 && supabaseClient && typeof supabaseClient.auth?.refreshSession === 'function') {
-          try {
-            const { data: refreshedData, error: refreshErr } = await supabaseClient.auth.refreshSession();
-            if (!refreshErr && refreshedData && refreshedData.session) {
-              currentSession = refreshedData.session;
-              response = await fetch('api.php', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${currentSession.access_token}`
-                },
-                body: JSON.stringify({
-                  resume,
-                  job_description: jobDescription
-                })
-              });
-            }
-          } catch (_) {}
-        }
-
-        const data = await response.json();
-
-        if (response.status === 429) {
-          showToast(data.message || 'Rate limit exceeded (5 req/min). Please try again shortly.', 'warning', 6000);
-          return;
-        }
-
-        if (response.status === 401) {
-          showSessionExpiredModal();
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error(data.message || data.error || `HTTP ${response.status}`);
-        }
-
-        lastAnalysisResult = {
-          match_score: data.match_score,
-          missing_skills: data.missing_skills || [],
-          breakdown: data.breakdown,
-          resume_snippet: resume.substring(0, 150),
-          job_description: jobDescription.substring(0, 150)
-        };
-
-        renderResults(lastAnalysisResult);
-
-        if (supabaseClient && currentSession && currentSession.user) {
-          const { error: insertError } = await supabaseClient.from('scan_history').insert([
-            {
-              user_id: currentSession.user.id,
-              resume_snippet: lastAnalysisResult.resume_snippet,
-              job_description: lastAnalysisResult.job_description,
-              match_score: lastAnalysisResult.match_score,
-              missing_skills: lastAnalysisResult.missing_skills
-            }
-          ]);
-
-          if (insertError) {
-            console.error('Failed to save scan to Supabase history:', insertError);
-            showToast('Scan evaluated, but cloud history sync failed: ' + (insertError.message || 'Check database permissions.'), 'warning', 6000);
-          } else {
-            fetchDashboard();
-          }
-        }
-
-        showToast('Analysis completed successfully!', 'success');
-      } catch (err) {
-        console.error('Analysis error:', err);
-        if (analysisError) {
-          analysisError.textContent = 'The comparison could not finish. Your documents are still here. Check your connection and run the analysis again.';
-          analysisError.classList.remove('hidden');
-        }
-        showToast('Analysis could not finish. Your documents have been preserved.', 'error');
-      } finally {
-        analyzeBtn.disabled = false;
-        analyzeBtn.setAttribute('aria-busy', 'false');
-        if (indicator) indicator.textContent = analysisError && !analysisError.classList.contains('hidden') ? 'Comparison needs a retry' : 'Comparison complete';
-        if (analyzeSpinner) analyzeSpinner.classList.add('hidden');
-        if (analyzeBtnText) analyzeBtnText.textContent = 'Run Match Analysis';
-        if (resultsSkeleton) resultsSkeleton.classList.add('hidden');
-      }
-    });
+function normalizeMatchResult(data) {
+  if (!data || typeof data.match_score !== 'number' || !Number.isFinite(data.match_score) || data.match_score < 0 || data.match_score > 100) {
+    throw new Error('The analysis service returned an incomplete score. Please try again.');
   }
+  const skills = value => Array.isArray(value) ? [...new Set(value.filter(item => typeof item === 'string').map(item => item.trim()).filter(Boolean))] : [];
+  const breakdown = {};
+  ['core_tech', 'devops_cloud', 'experience_depth', 'domain_fit'].forEach(key => {
+    const value = data.breakdown?.[key];
+    if (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100) breakdown[key] = value;
+  });
+  return { ...data, match_score: Math.round(data.match_score), missing_skills: skills(data.missing_skills), matched_skills: skills(data.matched_skills), breakdown };
+}
+
+function updateComparisonReadiness() {
+  const resume = document.getElementById('resumeText')?.value.trim() || '';
+  const job = document.getElementById('jobText')?.value.trim() || '';
+  const status = document.getElementById('comparisonReadiness');
+  if (status) {
+    status.dataset.ready = String(Boolean(resume && job));
+    status.textContent = resume && job ? 'Both documents are ready to compare.' : resume ? 'Next, add the target job description.' : job ? 'Next, add your resume.' : 'Add both documents to start your comparison.';
+  }
+  const stale = Boolean(lastAnalysisInputs && (lastAnalysisInputs.resume !== resume || lastAnalysisInputs.job !== job));
+  document.getElementById('resultsStale')?.classList.toggle('hidden', !stale);
+  ['tailorResumeBtn', 'generateCoverLetterBtn', 'interviewPrepBtn', 'generateRoadmapBtn'].forEach(id => {
+    const button = document.getElementById(id);
+    if (button) button.disabled = stale;
+  });
+}
+
+function initAnalyzer() {
+  const button = document.getElementById('analyzeBtn');
+  const label = document.getElementById('analyzeBtnText');
+  const spinner = document.getElementById('analyzeSpinner');
+  const resumeField = document.getElementById('resumeText');
+  const jobField = document.getElementById('jobText');
+  const skeleton = document.getElementById('results-skeleton');
+  const results = document.getElementById('results-container');
+  const errorBox = document.getElementById('analysisError');
+  const indicator = document.getElementById('scoringEngineIndicator');
+  [resumeField, jobField].forEach(field => {
+    field?.addEventListener('input', updateComparisonReadiness);
+    field?.addEventListener('keydown', event => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); if (button && !button.disabled) button.click(); }
+    });
+  });
+  updateComparisonReadiness();
+  if (!button) return;
+  button.addEventListener('click', async () => {
+    if (button.disabled) return;
+    if (!currentSession?.access_token) { showToast('Sign in or open the sample workspace to compare.', 'warning'); return; }
+    const owner = currentSession.user?.id;
+    const resume = resumeField?.value.trim() || '';
+    const job = jobField?.value.trim() || '';
+    errorBox?.classList.add('hidden');
+    let firstInvalid = null;
+    [[resumeField, resume, 'resumeError', 'Add your resume before comparing.'], [jobField, job, 'jobError', 'Add a target job description before comparing.']].forEach(([field, value, id, emptyMessage]) => {
+      const message = !value ? emptyMessage : [...value].length > 100000 ? 'This document is too long. Use up to 100,000 characters.' : '';
+      field?.setAttribute('aria-invalid', String(Boolean(message)));
+      const error = document.getElementById(id); if (error) error.textContent = message;
+      if (message && !firstInvalid) firstInvalid = field;
+    });
+    if (firstInvalid) { firstInvalid.focus(); return; }
+    button.disabled = true; button.setAttribute('aria-busy', 'true');
+    if (spinner) spinner.classList.remove('hidden');
+    if (label) label.textContent = 'Comparing documents…';
+    if (indicator) indicator.textContent = 'Comparing your resume…';
+    skeleton?.classList.remove('hidden'); results?.classList.add('hidden');
+    let timeout;
+    let completed = false;
+    const demo = isDemoMode();
+    const controller = new AbortController();
+    activeAnalysisController = controller;
+    try {
+      let data;
+      if (demo) {
+        data = calculateDemoMatch(resume, job);
+      } else {
+        timeout = setTimeout(() => controller.abort(), 45000);
+        if (typeof supabaseClient?.auth?.getSession === 'function') {
+          const { data: sessionData } = await supabaseClient.auth.getSession();
+          if (sessionData?.session) currentSession = sessionData.session;
+        }
+        const request = () => fetch('api.php', { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${currentSession.access_token}` }, body: JSON.stringify({ resume, job_description: job }) });
+        let response = await request();
+        if (response.status === 401 && typeof supabaseClient?.auth?.refreshSession === 'function') {
+          const { data: refreshed, error } = await supabaseClient.auth.refreshSession();
+          if (!error && refreshed?.session) { currentSession = refreshed.session; response = await request(); }
+        }
+        if (response.status === 401) { showSessionExpiredModal(); throw new Error('Your session expired. Sign in again, then retry. Your documents are preserved.'); }
+        try { data = await response.json(); } catch (_) { throw new Error('The analysis service is unavailable. Please try again in a moment.'); }
+        if (response.status === 429) throw new Error('You’ve reached the comparison limit. Wait one minute, then try again.');
+        if (!response.ok) throw new Error('The comparison could not finish. Please try again in a moment.');
+      }
+      if (currentSession?.user?.id !== owner) return;
+      lastAnalysisResult = { ...normalizeMatchResult(data), resume_snippet: resume.substring(0,150), job_description: job.substring(0,150) };
+      lastAnalysisInputs = { resume, job };
+      // Remove the placeholder before measuring the report scroll position.
+      skeleton?.classList.add('hidden');
+      renderResults(lastAnalysisResult);
+      updateComparisonReadiness();
+      completed = true;
+      if (indicator) indicator.textContent = demo ? 'Demo comparison complete' : 'Comparison complete';
+      if (demo) {
+        const history = getDemoHistory();
+        history.unshift({ id: 'demo-scan-' + Date.now(), user_id: owner, ...lastAnalysisResult, created_at: new Date().toISOString() });
+        saveDemoHistory(history); fetchDashboard();
+      } else if (supabaseClient && owner) {
+        try {
+          const { error } = await supabaseClient.from('scan_history').insert([{ user_id: owner, resume_snippet: lastAnalysisResult.resume_snippet, job_description: lastAnalysisResult.job_description, match_score: lastAnalysisResult.match_score, missing_skills: lastAnalysisResult.missing_skills }]);
+          if (error) throw error;
+          fetchDashboard();
+        } catch (_) { showToast('Comparison ready. History could not be saved; copy or export your report.', 'warning'); }
+      }
+    } catch (error) {
+      if (currentSession?.user?.id !== owner) return;
+      const message = error.name === 'AbortError' ? 'The comparison took too long. Your documents are preserved. Please try again.' : error.name === 'TypeError' ? 'Check your connection and run the comparison again. Your documents are preserved.' : error.message || 'Check your connection and try again. Your documents are preserved.';
+      if (errorBox) { errorBox.textContent = message; errorBox.classList.remove('hidden'); }
+      // Preserve the previous report and visibly mark it if documents changed.
+      if (lastAnalysisResult) { results?.classList.remove('hidden'); updateComparisonReadiness(); }
+      if (indicator) indicator.textContent = 'Comparison needs a retry';
+    } finally {
+      clearTimeout(timeout);
+      activeAnalysisController = null;
+      button.disabled = false; button.setAttribute('aria-busy', 'false');
+      spinner?.classList.add('hidden'); skeleton?.classList.add('hidden');
+      if (label) label.textContent = completed ? 'Compare again' : 'Compare documents';
+    }
+  });
 }
 
 function renderResults(result) {
@@ -1941,25 +1894,6 @@ function renderResults(result) {
   }
   if (scoreNumber) {
     scoreNumber.textContent = `${result.match_score}%`;
-    if (!(result.is_demo && result.demo_skill_count === 0) && typeof SkillSyncOdometer !== 'undefined' && typeof SkillSyncOdometer.animateScoreCounter === 'function' && typeof requestAnimationFrame === 'function') {
-      SkillSyncOdometer.animateScoreCounter({
-        target: result.match_score,
-        start: 0,
-        duration: 850,
-        element: scoreNumber,
-        suffix: '%',
-        onComplete: (finalScore) => {
-          if (finalScore >= 85) {
-            if (typeof SkillSyncParticles !== 'undefined' && typeof SkillSyncParticles.burstConfetti === 'function') {
-              SkillSyncParticles.burstConfetti({ count: 70 });
-            }
-            if (typeof SkillSyncAudio !== 'undefined' && typeof SkillSyncAudio.playSuccessChime === 'function') {
-              SkillSyncAudio.playSuccessChime();
-            }
-          }
-        }
-      });
-    }
   }
 
   // Sync SVG radial progress ring if present
@@ -1975,19 +1909,30 @@ function renderResults(result) {
     scoreFeedback.textContent = `${colors.label} • Evaluation against requirements`;
   }
 
-  const demo = result.is_demo === true || isDemoMode();
+  const demo = result.is_demo === true || result.source === 'demo';
+  const fallback = result.source === 'keyword_fallback' || result.source === 'resilient_engine';
+  const keyword = demo || fallback;
+  const unassessed = result.skill_count === 0 || (demo && result.demo_skill_count === 0);
   const source = document.getElementById('scoreSource');
-  if (source) source.textContent = demo ? 'Demo · keyword comparison' : 'AI estimate';
+  if (source) source.textContent = demo ? 'Demo · keyword comparison' : fallback ? 'Keyword fallback' : 'AI estimate';
   const method = document.getElementById('scoreMethod');
-  if (method) method.textContent = demo
-    ? (result.demo_skill_count === 0
-      ? 'No supported technology names were recognized in this job description. Try a technical role sample. This demo cannot assess this match.'
-      : 'This local demo compares recognized technology names in the two documents. It does not assess experience quality or predict a hiring decision.')
-    : 'This comparison is an AI estimate, not an employer ATS result or a prediction of a hiring decision. Review each suggestion against your actual experience.';
-  if (demo && result.demo_skill_count === 0 && scoreNumber) scoreNumber.textContent = 'N/A';
-  if (demo && scoreFeedback) scoreFeedback.textContent = result.demo_skill_count === 0
-    ? 'Not enough recognized skills to compare'
-    : `${result.match_score}% of recognized job skills appear in the resume`;
+  if (method?.parentElement?.classList.contains('report-explanation')) method.parentElement.open = unassessed;
+  document.getElementById('generateRoadmapBtn')?.classList.toggle('hidden', unassessed || !result.missing_skills?.length);
+  if (method) method.textContent = unassessed
+    ? 'No supported technology names were recognized in this role. This keyword comparison cannot assess the match. Try a technical role sample or use the AI comparison.'
+    : keyword
+      ? (demo ? 'This demo runs in your browser. ' : 'The AI service was unavailable, so a keyword comparison was used. ') + 'The score measures recognized technology names shared by these documents. Experience quality and hiring outcomes are not assessed.'
+      : 'This comparison is an AI estimate, not an employer ATS result or a hiring prediction. Review each suggestion against your actual experience.';
+  if (unassessed && scoreNumber) scoreNumber.textContent = 'N/A';
+  if (keyword && scoreFeedback) scoreFeedback.textContent = unassessed ? 'Not enough recognized skills to compare' : `${result.match_score}% of recognized job skills appear in your resume`;
+  const matchedSection = document.getElementById('matchedSkillsSection');
+  const matchedList = document.getElementById('matchedSkillsList');
+  const matched = Array.isArray(result.matched_skills) ? result.matched_skills : [];
+  if (matchedSection) matchedSection.classList.toggle('hidden', matched.length === 0);
+  if (matchedList) {
+    matchedList.replaceChildren();
+    matched.forEach(skill => { const chip = document.createElement('span'); chip.className = 'matched-skill'; chip.textContent = '✓ ' + skill; matchedList.appendChild(chip); });
+  }
 
   // Only display dimensions actually returned by the assessment.
   const breakdown = result.breakdown || {};
@@ -2009,7 +1954,9 @@ function renderResults(result) {
 
   if (skillsContainer) {
     skillsContainer.innerHTML = '';
-    if (!result.missing_skills || result.missing_skills.length === 0) {
+    if (unassessed) {
+      const note = document.createElement('p'); note.className = 'score-method'; note.textContent = 'No skills were assessed. A missing list here does not mean the role is a complete match.'; skillsContainer.appendChild(note);
+    } else if (!result.missing_skills || result.missing_skills.length === 0) {
       skillsContainer.innerHTML = `
         <span class="inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
           <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -2024,7 +1971,7 @@ function renderResults(result) {
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
         a.className = 'group inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition' +
-          ' bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300/60 dark:border-slate-700';
+          ' bg-[var(--paper-2)] hover:bg-slate-200 bg-[var(--paper-2)] dark:hover:bg-slate-700 text-[var(--ink-2)] dark:text-slate-200 border border-slate-300/60 dark:border-slate-700';
         a.innerHTML = `
           <span>${escapeHtml(skill)}</span>
           <svg class="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2038,7 +1985,8 @@ function renderResults(result) {
 
   resultsContainer.classList.remove('hidden');
   if (typeof resultsContainer.scrollIntoView === 'function') {
-    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    resultsContainer.scrollIntoView({ behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+    if (typeof resultsContainer.focus === 'function') resultsContainer.focus({ preventScroll: true });
   }
 }
 
@@ -2059,13 +2007,14 @@ function initExportAndClipboard() {
       const skillsText = lastAnalysisResult.missing_skills.length > 0
         ? lastAnalysisResult.missing_skills.join(', ')
         : 'None identified by this comparison';
-      const matchText = lastAnalysisResult.is_demo && lastAnalysisResult.demo_skill_count === 0
+      const matchText = lastAnalysisResult.skill_count === 0 || (lastAnalysisResult.is_demo && lastAnalysisResult.demo_skill_count === 0)
         ? 'Not assessed'
         : `${lastAnalysisResult.match_score}%`;
 
-      const reportText = `SkillSync Match Report${lastAnalysisResult.is_demo ? ' — Demo keyword comparison' : ' — AI estimate'}\n` +
+      const reportText = `SkillSync Match Report${lastAnalysisResult.is_demo ? ' — Demo keyword comparison' : lastAnalysisResult.source === 'keyword_fallback' ? ' — Keyword fallback' : ' — AI estimate'}\n` +
         `------------------------\n` +
         `Match Compatibility: ${matchText}\n` +
+        (document.getElementById('resultsStale') && !document.getElementById('resultsStale').classList.contains('hidden') ? 'Previous comparison: documents have changed.\n' : '') +
         `Identified Skill Gaps: ${skillsText}\n\n` +
         `Generated by SkillSync. This estimate is not an employer ATS result or a hiring prediction.`;
 
@@ -2596,18 +2545,20 @@ function switchWorkspaceTab(tabName) {
   const vaultView = document.getElementById('vault-view');
   const pipelineView = document.getElementById('pipeline-view');
 
-  if (!tabAts || !tabDiscovery || !atsView || !discoveryView) return;
+  if (!tabAts || !atsView) return;
+  if (tabName === 'discovery' && !discoveryView) { window.location.href = 'jobs.html'; return; }
 
   if (typeof SkillSyncAudio !== 'undefined' && typeof SkillSyncAudio.playTabSwitch === 'function') {
     SkillSyncAudio.playTabSwitch();
   }
 
   activeWorkspaceTab = tabName;
+  document.getElementById('loadSamplePairBtn')?.classList.toggle('hidden', tabName !== 'ats');
   const headings = {
-    ats: ['Build a stronger application.', 'Compare your resume with a target role, then focus on the changes that matter.', 'Ready to compare'],
+    ats: ['Resume comparison', 'Add your resume and a target job description.', 'Ready to compare'],
     discovery: ['Find your next opportunity.', 'Explore roles and bring the requirements into your resume comparison.', 'Job discovery'],
-    vault: ['Keep your experience together.', 'Organize the documents and skills behind your applications.', 'Your saved documents'],
-    pipeline: ['Keep your applications moving.', 'Track each role from your first shortlist to the next conversation.', 'Application pipeline']
+    vault: ['Documents', 'Save experience you want to reuse in applications.', 'Your saved documents'],
+    pipeline: ['Applications', 'Track each role from saved to offer.', 'Application pipeline']
   };
   const heading = headings[tabName] || headings.ats;
   const title = document.getElementById('workspaceTitle');
@@ -2641,7 +2592,7 @@ function switchWorkspaceTab(tabName) {
   resetBtn(tabPipeline);
 
   atsView.classList.add('hidden');
-  discoveryView.classList.add('hidden');
+  discoveryView?.classList.add('hidden');
   if (vaultView) vaultView.classList.add('hidden');
   if (pipelineView) pipelineView.classList.add('hidden');
 
@@ -3004,15 +2955,14 @@ function updateExternalSearchLinks(query = '', remoteOnly = false) {
 
 function initJobDiscovery() {
   const tabAts = document.getElementById('tabAtsMatcher');
+  if (tabAts) tabAts.addEventListener('click', () => switchWorkspaceTab('ats'));
+  if (!document.getElementById('discovery-view')) return;
   const tabDiscovery = document.getElementById('tabJobDiscovery');
   const searchInput = document.getElementById('jobSearchInput');
   const remoteCheckbox = document.getElementById('remoteFilterCheckbox');
   const refreshBtn = document.getElementById('refreshJobsBtn');
   const resumeTextEl = document.getElementById('resumeText');
 
-  if (tabAts) {
-    tabAts.addEventListener('click', () => switchWorkspaceTab('ats'));
-  }
   if (tabDiscovery) {
     tabDiscovery.addEventListener('click', () => {
       switchWorkspaceTab('discovery');
@@ -3095,6 +3045,8 @@ function initJobDiscovery() {
  * 16. Candidate Skill Vault & Unified Credential Profile Engine
  */
 function renderVaultUI() {
+  const useDocuments = document.getElementById('syncVaultToWorkspaceBtn');
+  if (useDocuments) useDocuments.disabled = vaultDocumentsCache.length === 0;
   const docsListEl = document.getElementById('vaultDocumentsList');
   const countBadge = document.getElementById('vaultDocsCountBadge');
   const totalBadge = document.getElementById('vaultDocTotalBadge');
@@ -3139,11 +3091,11 @@ function renderVaultUI() {
               <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md inline-block" style="${typeColor}">
                 ${escapeHtml(doc.doc_type)}
               </span>
-              <h5 class="text-xs font-bold mt-1.5 leading-snug truncate max-w-[190px]" style="color: var(--ink);" title="${escapeHtml(doc.doc_name)}">
+              <h5 class="text-sm font-semibold mt-1.5 leading-snug break-all" style="color: var(--ink);" title="${escapeHtml(doc.doc_name)}">
                 ${escapeHtml(doc.doc_name)}
               </h5>
             </div>
-            <button type="button" data-doc-id="${doc.id}" class="btn-delete-vault-doc p-1 text-rose-500 hover:bg-rose-500/10 rounded-lg transition" title="Delete credential">
+            <button type="button" data-doc-id="${doc.id}" class="btn-delete-vault-doc p-1 shrink-0 text-rose-500 hover:bg-rose-500/10 rounded-lg transition" title="Delete document" aria-label="Delete ${escapeHtml(doc.doc_name)}">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
           </div>
@@ -5119,9 +5071,9 @@ function renderPipeline() {
     if (jobs.length === 0) {
       const stageMeta = {
         saved: {
-          icon: '<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>',
+          icon: '<svg class="w-4 h-4 text-[var(--ink-3)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>',
           title: 'No saved roles',
-          subtitle: 'Track roles from Smart Discovery'
+          subtitle: 'Add a role to start tracking'
         },
         applied: {
           icon: '<svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>',
@@ -5131,7 +5083,7 @@ function renderPipeline() {
         interviewing: {
           icon: '<svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>',
           title: 'No active interviews',
-          subtitle: 'Use AI Prep when scheduled'
+          subtitle: 'Move scheduled interviews here'
         },
         offer: {
           icon: '<svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>',
@@ -5139,7 +5091,7 @@ function renderPipeline() {
           subtitle: 'Your accepted job milestones'
         }
       }[stageKey] || {
-        icon: '<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>',
+        icon: '<svg class="w-4 h-4 text-[var(--ink-3)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>',
         title: 'No roles in this stage',
         subtitle: 'Drag or assign roles here'
       };
@@ -5189,7 +5141,7 @@ function renderPipeline() {
         ${followupBadgeHtml ? `<div class="pt-0.5">${followupBadgeHtml}</div>` : ''}
 
         <div class="pt-2 border-t flex items-center justify-between gap-1" style="border-color: var(--border);">
-          <select class="pipe-status-select console-input text-[11px] px-2 py-1 rounded-lg cursor-pointer">
+          <select aria-label="Application status for ${escapeHtml(j.title)}" class="pipe-status-select console-input text-[11px] px-2 py-1 rounded-lg cursor-pointer">
             <option value="saved" ${j.status === 'saved' ? 'selected' : ''}>Saved</option>
             <option value="applied" ${j.status === 'applied' ? 'selected' : ''}>Applied</option>
             <option value="interviewing" ${j.status === 'interviewing' ? 'selected' : ''}>Interviewing</option>
@@ -5197,13 +5149,10 @@ function renderPipeline() {
           </select>
 
           <div class="flex items-center space-x-1">
-            <button type="button" class="btn-pipe-salary p-1 rounded-lg hover:bg-slate-500/10 transition" title="Salary Coach & Script" style="color: var(--sage);">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </button>
-            <button type="button" class="btn-pipe-load p-1 rounded-lg hover:bg-slate-500/10 transition" title="Analyze in Workspace" style="color: var(--ink-2);">
+            <button type="button" class="btn-pipe-load p-1 rounded-lg hover:bg-slate-500/10 transition" title="Compare resume" aria-label="Compare resume for ${escapeHtml(j.title)}" style="color: var(--ink-2);">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
-            <button type="button" class="btn-pipe-delete p-1 rounded-lg hover:bg-rose-500/10 text-rose-500 transition" title="Delete">
+            <button type="button" class="btn-pipe-delete p-1 rounded-lg hover:bg-rose-500/10 text-rose-500 transition" title="Delete application" aria-label="Delete application for ${escapeHtml(j.title)}">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
           </div>
@@ -5214,13 +5163,6 @@ function renderPipeline() {
       if (select) {
         select.addEventListener('change', (e) => {
           updatePipelineJobStatus(j.id, e.target.value);
-        });
-      }
-
-      const salaryCardBtn = card.querySelector('.btn-pipe-salary');
-      if (salaryCardBtn) {
-        salaryCardBtn.addEventListener('click', () => {
-          openSalaryModal(j);
         });
       }
 
@@ -6908,7 +6850,7 @@ function initApp() {
   initCharCounters();
   initStudioPresets();
   initResumeVersionManager();
-  initAuth();
+  const authReady = initAuth();
   initPdfUpload();
   initJobScraper();
   initAnalyzer();
@@ -6919,14 +6861,19 @@ function initApp() {
   initAiActionSuite();
   initPipeline();
   initRoadmap();
-  initCompanyDossier();
-  initLinkedInOutreach();
-  initAgenticCompanyRequest();
-  initResumeHud();
-  initCommandPalette();
   initIntegrityAuditor();
-  initAudioFeedbackController();
   window.addEventListener('pagehide', saveWorkspaceDraft);
+  Promise.resolve(authReady).then(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demo') !== '1') return;
+    document.getElementById('quickDemoBtn')?.click();
+    if (params.get('sample') === 'fullstack' && !document.getElementById('resumeText')?.value.trim() && !document.getElementById('jobText')?.value.trim()) document.getElementById('loadSamplePairBtn')?.click();
+    updateComparisonReadiness();
+    // Consume the entry link; reloading must preserve the user's current draft.
+    params.delete('demo'); params.delete('sample');
+    const query = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
+  });
 
   let speedrunHandled = false;
 
@@ -7133,6 +7080,8 @@ if (typeof module !== 'undefined' && module.exports) {
     undoWorkspaceReplacement,
     replaceWorkspaceText,
     calculateDemoMatch,
+    normalizeMatchResult,
+    updateComparisonReadiness,
     initAuthForm,
     initAnalyzer,
     openIntegrityModal,

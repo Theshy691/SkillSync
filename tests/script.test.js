@@ -462,13 +462,14 @@ describe('SkillSync Frontend Test Suite', () => {
     test('renderResults outputs professional text without tacky emojis', () => {
       renderResults({
         match_score: 92,
+        is_demo: true,
         missing_skills: []
       });
 
       const feedback = document.getElementById('scoreFeedback');
       const skillsContainer = document.getElementById('skillsBadgesContainer');
 
-      expect(feedback.textContent).toContain('92% of recognized job skills appear in the resume');
+      expect(feedback.textContent).toContain('92% of recognized job skills appear in your resume');
       expect(skillsContainer.textContent).not.toContain('🎉');
       expect(skillsContainer.textContent).toContain('No missing skills were identified by this comparison');
     });

@@ -230,6 +230,17 @@ describe('Multi-Dimensional ATS Breakdown & AI Career Action Suite', () => {
       expect(atsView.classList.contains('hidden')).toBe(true);
       expect(tabPipeline.className).toContain('font-bold');
     });
+
+    test('retained workspace tabs work without the embedded job explorer', () => {
+      document.getElementById('tabJobDiscovery').remove();
+      document.getElementById('discovery-view').remove();
+      switchWorkspaceTab('vault');
+      expect(document.getElementById('vault-view').classList.contains('hidden')).toBe(false);
+      expect(document.getElementById('ats-view').classList.contains('hidden')).toBe(true);
+      switchWorkspaceTab('ats');
+      expect(document.getElementById('ats-view').classList.contains('hidden')).toBe(false);
+      expect(document.getElementById('vault-view').classList.contains('hidden')).toBe(true);
+    });
   });
 
 });
