@@ -26,5 +26,5 @@ Thumbs.db
 
 # Local browser verification and design review artifacts
 /.playwright-cli/
-/output/playwright/
+/output/
 /.impeccable/critique/
