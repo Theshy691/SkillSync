@@ -31,7 +31,7 @@
   };
 
   const METRIC_PATTERNS = [
-    /\b\d+(\.\d+)?%\b/g,                                 // 44%, 12.5%
+    /\b\d+(\.\d+)?%(?!\w)/g,                                 // 44%, 12.5%
     /\$\s?\d+([,\.]\d+)?\s?[kmb]?\b/gi,                  // $1.5M, $500k, $20,000
     /\b\d+(\.\d+)?\s?(x|ms|s|req\/s|rps|tps)\b/gi,       // 3.5x, 40ms, 18000 rps
     /\b\d+\+?\s?(microservices|services|users|clients|engineers)\b/gi // 14 microservices, 100k users

@@ -62,3 +62,8 @@ describe('Live Resume Health HUD & Action Verb Analysis Test Suite', () => {
     expect(html).toContain('Metric');
   });
 });
+
+// Percentages followed by whitespace must count as metrics, not disappear at a word boundary.
+test('recognizes percentage accomplishments in normal resume sentences', () => {
+  expect(SkillSyncResumeHud.analyzeResumeHealth('Reduced API latency by 35% and raised conversion by 12.5%.').metricCount).toBe(2);
+});
