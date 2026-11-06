@@ -1,149 +1,47 @@
 ---
 name: SkillSync
-description: AI-powered ATS resume intelligence and career acceleration suite
-colors:
-  sage: "#7cb585"
-  sage-light: "rgba(124, 181, 133, 0.12)"
-  amber: "#dfa055"
-  amber-light: "rgba(223, 160, 85, 0.12)"
-  rose: "#da7d8f"
-  rose-light: "rgba(218, 125, 143, 0.12)"
-  sky: "#7fb3d9"
-  sky-light: "rgba(127, 179, 217, 0.12)"
-  paper: "#0b0c10"
-  paper-2: "#11141a"
-  paper-3: "#1a1f27"
-  ink: "#f8fafc"
-  ink-2: "#e2e8f0"
-  ink-3: "#cbd5e1"
-  ink-4: "#94a3b8"
-  border: "rgba(255, 239, 222, 0.08)"
-  border-2: "rgba(255, 239, 222, 0.18)"
-  white: "#ffffff"
-  dark-ink: "#07090d"
-  muted: "#d1c6bb"
-typography:
-  display:
-    fontFamily: "DM Sans, sans-serif"
-    fontSize: "2.25rem"
-    fontWeight: 700
-    lineHeight: 1.2
-    letterSpacing: "-0.02em"
-  headline:
-    fontFamily: "DM Sans, sans-serif"
-    fontSize: "1.75rem"
-    fontWeight: 700
-    lineHeight: 1.25
-  title:
-    fontFamily: "DM Sans, sans-serif"
-    fontSize: "1.25rem"
-    fontWeight: 600
-    lineHeight: 1.3
-  body-lg:
-    fontFamily: "DM Sans, sans-serif"
-    fontSize: "1rem"
-    fontWeight: 400
-    lineHeight: 1.5
-  body:
-    fontFamily: "DM Sans, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    lineHeight: 1.5
-  mono:
-    fontFamily: "DM Mono, JetBrains Mono, Menlo, monospace"
-    fontSize: "0.8125rem"
-    fontWeight: 500
-rounded:
-  xs: "0px"
-  sm: "2px"
-  md: "3px"
-  card: "4px"
-  lg: "4px"
-  xl: "4px"
-  "2xl": "4px"
-  surface: "4px"
-  panel: "4px"
-  full: "4px"
-spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "16px"
-  lg: "24px"
-  xl: "32px"
-components:
-  button-primary:
-    backgroundColor: "{colors.sage}"
-    textColor: "#0b0c10"
-    rounded: "{rounded.md}"
-    padding: "10px 18px"
-  button-primary-hover:
-    backgroundColor: "#93cca1"
-  button-secondary:
-    backgroundColor: "{colors.paper-2}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
-    padding: "10px 16px"
-  button-secondary-hover:
-    backgroundColor: "{colors.paper-3}"
+description: A focused resume comparison workspace for job seekers
 ---
 
-## Overview
+# SkillSync interface
 
-SkillSync's visual design language is grounded in **Quiet Chrome**: an editorial, high-contrast, tactile workspace aesthetic inspired by Linear, Raycast, and modern craft software. It replaces harsh generic blues and purple AI gradients with rich warm tones, sage accents, subtle atmospheric blur, and physics-driven spring micro-interactions.
+The interface centers on the candidate’s documents: resume, target role, comparison, and next steps. Keep the sage brand accent, clear typography, and quiet surfaces consistent between marketing and the workspace.
 
-## Colors
+## Color
 
-The palette balances deep dark paper surfaces (`#0b0c10`, `#11141a`) with warm cream inks (`#f7f0e8`, `#ddd2c7`) and nature-inspired semantic indicators:
-- **Sage (`#7cb585`)**: Primary brand accent, strong match indicator (85%+ fit), positive actions.
-- **Amber (`#dfa055`)**: Cautionary status, moderate ATS match fit, pending actions.
-- **Rose (`#da7d8f`)**: High-risk credibility alerts, rejection stage, destructive confirmation.
-- **Sky (`#7fb3d9`)**: Informational tips, learning roadmap milestones, neutral tags.
+`assets/css/interface.css` owns the current shared palette. Light mode uses cool paper `#f5f7f6`, white surfaces `#ffffff`, primary ink `#172a25`, secondary ink `#52645b`, forest `#255e48`, and borders `#dce5df`. Dark mode uses paper `#111b18`, surfaces `#17241e`, ink `#eff5f1`, secondary ink `#b0c3b7`, sage `#9bc9ad`, and borders `#30443a`.
 
-## Typography
+Use amber for requirements to review, rose for errors, and sage for supported matches and primary actions. Combine color with readable text. Avoid decorative background washes and automatic score cycling.
 
-- **Headings & Primary UI**: `DM Sans` with tight negative letter-spacing (`-0.02em`) on bold displays to project authority.
-- **Monospace Elements**: `JetBrains Mono` or system monospace for keybindings (`⌘K`), percentage metrics, timecodes, and code snippets.
-- **Legibility Floor**: Functional and interactive text must not fall below `11px`. Only secondary non-interactive smallprint may use `10px`.
+## Type and layout
 
-## Layout
+Use DM Sans for headings and interface text. Reserve DM Mono for filenames, keyboard shortcuts, and short data labels. Headings use a restrained weight and scale; functional form text uses 14px on desktop and 16px on touch-sized layouts. Body content should stay under 80 characters per line.
 
-- **Responsive Grid**: Flex and CSS Grid layouts with adaptive columns (single-column on mobile, split-pane ATS analyzer on desktop).
-- **Proportional Spacing**: Spacing intervals based on an 8px grid (`8px`, `16px`, `24px`, `32px`).
-- **Surface Elevation**: Avoid nested cards inside cards. Differentiate hierarchical sections using border dividers (`--border`), subtle background shifts (`--paper-2` to `--paper-3`), and whitespace rather than stacking boxes.
+All pages share one header, wordmark, theme control, active navigation state, and mobile menu. Marketing has a short value proposition, an immediate comparison action, and a clearly labeled illustrative report. On small screens, navigation becomes an accessible menu. All essential content is visible without entrance animations or JavaScript.
 
-## Elevation & Depth
+The workspace places the resume and target role side by side on desktop and stacks them on mobile. Use a single primary comparison action, field-specific errors, preserved drafts, and an undo action for replacements. Additional tools stay below the core report.
 
-- **Shadows**: Smooth multi-layer ambient drop shadows:
-  - `sm`: `0 12px 30px rgba(0, 0, 0, 0.28)`
-  - `md`: `0 18px 46px rgba(0, 0, 0, 0.36)`
-  - `lg`: `0 32px 70px rgba(0, 0, 0, 0.5)`
-- **Glassmorphism**: Backdrop blur (`backdrop-filter: blur(16px)`) on modals and floating HUD elements with semi-transparent surfaces.
+The workspace has three views: Compare, Documents, and Applications. Job discovery lives on its own page. Keep resume versions under Resume options, URL import under the target role, previous comparisons in a collapsed history section, and score explanations in report disclosures. Display the sample action only in Compare. Documents lists files directly; Applications shows the four status columns without a separate analytics dashboard.
 
-## Shapes
+Remove duplicate entry points and controls for absent panels. Keep interview labels understandable to a job seeker: For this role, Question library, and Add a question. Do not expose internal model or dataset terminology in navigation.
 
-- **Inputs, Editors & Textareas**: `3px` or `2px` crisp rectangular geometry. No bloated bubble corners.
-- **Boxes, Modals & Cards**: `4px` or `2px` sharp precision engineering border-radius (`--radius-lg`, `--ws-radius-lg`).
-- **Badges, Chips & Pills**: `2px` or `3px` rectangular micro-chips (strictly avoid 9999px capsule blob slop).
-- **Buttons**: `4px` or `2px` sharp tactile bevels.
+## Scores and states
 
-## Components
+- Distinguish AI estimates, local demo comparisons, and keyword fallbacks.
+- Keyword coverage is the percentage of recognized role technologies also present in the resume. Deduplicate aliases. Never fabricate baseline points, missing skills, or experience dimensions.
+- Unknown keyword roles are unassessed, not perfect matches or zero-quality candidates.
+- A report for changed documents must be marked stale before its suggestions are used.
+- Loading states explain the current task. Failures preserve documents and give a retry path.
+- Sample data must remain explicitly labeled. Avoid unsupported guarantees about hiring outcomes, accuracy, privacy, or speed.
 
-- **Tactile Buttons**: Subtle spring press effect (`transform: scale(0.975)`) on click with smooth spring return (`cubic-bezier(0.16, 1, 0.3, 1)`).
-- **Command Palette (`⌘K`)**: Quick fuzzy spotlight search modal with keyboard navigation (`↑`, `↓`, `Enter`, `Esc`).
-- **Rolling Score Odometer**: Decelerated counter animation (`easeOutCubic`) paired with dynamic radial SVG SVG gauge rings.
-- **Resume Credibility Radar**: 5-axis SVG spider chart and fact-check inspector with clear severity chips.
+## Accessibility
 
-## Do's and Don'ts
+Provide visible focus, labeled form controls, keyboard-operable buttons, a skip link, and reduced-motion support. Keep interactive content in the accessibility tree. Mobile controls should have at least 44px targets and must not disable zoom. Validate light and dark themes and prevent horizontal document overflow.
 
-### Do:
-- Use WCAG AA compliant contrast ratios (at least 4.5:1 for standard text, 3:1 for large text).
-- Use active spring easing (`cubic-bezier(0.16, 1, 0.3, 1)`) for UI transitions.
-- Maintain subtle haptics and celebratory milestones (confetti and audio chime on Offer status).
-- Keep text labels clear, concise, and actionable.
+## Stylesheets
 
-### Don't:
-- Never use generic purple-to-blue AI gradients or cliché card-in-card nesting.
-- Never use undersized functional text below 11px.
-- Never leave buttons without explicit active/hover states.
-- Never block user workflow with unclosable modal backdrops.
+`interface.css` is the single palette and shared component source for the homepage, workspace, and job explorer. Cards use 12px corners; buttons and fields use 6px. Header heights are 72px on desktop and 68px on mobile, plus the divider. `workspace.css` and `motion.css` provide application-specific layouts. No application page loads the old `landing-page.css`. Do not add blanket geometry overrides with `!important`.
 
+`assets/js/modules/interface.js` owns theme persistence, theme labels, mobile menus, and dialog focus handling. Page controllers delegate to it instead of binding separate theme listeners. HTML must revalidate; version changed CSS and JavaScript together to prevent mixed releases.
+
+Workspace utilities are compiled locally from `utilities.input.css`, `tailwind.config.js`, and the application source. After editing utility classes, run `npm run build:css` and commit the generated `utilities.css`. The workspace does not need the Tailwind runtime CDN.
