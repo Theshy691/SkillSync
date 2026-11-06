@@ -26,7 +26,6 @@ function isDemoMode() {
   if (cfg.DEMO_MODE === true) return true;
   if (!cfg.SUPABASE_URL || cfg.SUPABASE_URL.includes('your-project-id')) return true;
   if (currentSession && currentSession.access_token && currentSession.access_token.startsWith('demo-token')) return true;
-  if (typeof localStorage !== 'undefined' && localStorage.getItem('skillsync_demo_session')) return true;
   return supabaseClient === null;
 }
 
@@ -425,9 +424,20 @@ function initSupabase() {
 }
 
 async function initAuth() {
+  const urlParams = (typeof window !== 'undefined' && window.location && window.location.search)
+    ? new URLSearchParams(window.location.search)
+    : null;
+  const isExplicitDemo = urlParams?.get('demo') === '1';
+
+  if (!isExplicitDemo) {
+    try {
+      localStorage.removeItem('skillsync_demo_session');
+    } catch (_) {}
+  }
+
   if (isDemoMode()) {
     try {
-      const demoSession = localStorage.getItem('skillsync_demo_session');
+      const demoSession = isExplicitDemo ? localStorage.getItem('skillsync_demo_session') : null;
       if (demoSession) {
         currentSession = JSON.parse(demoSession);
         updateAuthState(currentSession);
@@ -447,14 +457,14 @@ async function initAuth() {
     if (error) {
       console.error('Error checking session:', error);
     }
-    if (!localStorage.getItem('skillsync_demo_session')) updateAuthState(session);
+    if (!isExplicitDemo || !localStorage.getItem('skillsync_demo_session')) updateAuthState(session);
   } catch (e) {
     console.error('Exception fetching session:', e);
   }
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
     // A delayed cloud event must not replace an explicitly selected demo session.
-    if (localStorage.getItem('skillsync_demo_session')) return;
+    if (currentSession?.access_token?.startsWith('demo-token')) return;
     if (event === 'TOKEN_REFRESH_FAILED') {
       console.warn('Token refresh failed. Showing session expired modal.');
       showSessionExpiredModal();
@@ -532,6 +542,9 @@ async function performSignOut() {
     localStorage.removeItem('skillsync_resume_versions');
     localStorage.removeItem('skillsync_cached_profile');
     localStorage.removeItem('skillsync_selected_role');
+    if (typeof window !== 'undefined' && window.location && window.history) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
   } catch (_) {}
 
   if (isDemoMode()) {
@@ -677,6 +690,13 @@ function initAuthForm() {
         access_token: 'demo-token-123'
       };
       localStorage.setItem('skillsync_demo_session', JSON.stringify(demoUser));
+      try {
+        if (typeof window !== 'undefined' && window.location && window.history) {
+          const url = new URL(window.location.href);
+          url.searchParams.set('demo', '1');
+          window.history.replaceState(null, '', url.pathname + '?' + url.searchParams.toString() + url.hash);
+        }
+      } catch (_) {}
       updateAuthState(demoUser);
       if (!document.getElementById('resumeText')?.value.trim() && !document.getElementById('jobText')?.value.trim()) document.getElementById('loadSamplePairBtn')?.click();
     });
@@ -6869,8 +6889,8 @@ function initApp() {
     document.getElementById('quickDemoBtn')?.click();
     if (params.get('sample') === 'fullstack' && !document.getElementById('resumeText')?.value.trim() && !document.getElementById('jobText')?.value.trim()) document.getElementById('loadSamplePairBtn')?.click();
     updateComparisonReadiness();
-    // Consume the entry link; reloading must preserve the user's current draft.
-    params.delete('demo'); params.delete('sample');
+    // Consume the sample parameter; preserve demo=1 so reload retains demo session
+    params.delete('sample');
     const query = params.toString();
     window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
   });
@@ -7082,6 +7102,7 @@ if (typeof module !== 'undefined' && module.exports) {
     calculateDemoMatch,
     normalizeMatchResult,
     updateComparisonReadiness,
+    initAuth,
     initAuthForm,
     initAnalyzer,
     openIntegrityModal,

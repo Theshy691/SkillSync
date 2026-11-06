@@ -4,7 +4,7 @@
  * Comprehensive unit test suite for the High-Impact Dual-Pane Auth Console
  */
 
-const { initAuthForm } = require('../script.js');
+const { initAuthForm, initAuth } = require('../script.js');
 
 describe('High-Impact Dual-Pane Auth Console Test Suite', () => {
   beforeEach(() => {
@@ -42,6 +42,7 @@ describe('High-Impact Dual-Pane Auth Console Test Suite', () => {
     `;
 
     localStorage.clear();
+    window.history.replaceState(null, '', 'http://localhost/');
     initAuthForm();
   });
 
@@ -93,5 +94,52 @@ describe('High-Impact Dual-Pane Auth Console Test Suite', () => {
     const parsed = JSON.parse(savedSession);
     expect(parsed.access_token).toBe('demo-token-123');
     expect(parsed.user.email).toContain('skillsync.demo');
+  });
+
+  test('visiting workspace directly without demo query parameter does not auto-login and clears leftover demo session', async () => {
+    localStorage.setItem('skillsync_demo_session', JSON.stringify({
+      user: { id: 'demo-user-123', email: 'demo@skillsync.demo' },
+      access_token: 'demo-token-123'
+    }));
+
+    const workspace = document.createElement('div');
+    workspace.id = 'workspace-section';
+    workspace.classList.add('hidden');
+    document.body.appendChild(workspace);
+
+    const userProfile = document.createElement('div');
+    userProfile.id = 'userProfile';
+    userProfile.classList.add('hidden');
+    document.body.appendChild(userProfile);
+
+    await initAuth();
+
+    expect(localStorage.getItem('skillsync_demo_session')).toBeNull();
+    expect(document.getElementById('auth-section').classList.contains('hidden')).toBe(false);
+    expect(document.getElementById('workspace-section').classList.contains('hidden')).toBe(true);
+  });
+
+  test('explicit demo url with ?demo=1 preserves demo session for sample exploration', async () => {
+    window.history.replaceState(null, '', 'http://localhost/?demo=1');
+    localStorage.setItem('skillsync_demo_session', JSON.stringify({
+      user: { id: 'demo-user-123', email: 'demo@skillsync.demo' },
+      access_token: 'demo-token-123'
+    }));
+
+    const workspace = document.createElement('div');
+    workspace.id = 'workspace-section';
+    workspace.classList.add('hidden');
+    document.body.appendChild(workspace);
+
+    const userProfile = document.createElement('div');
+    userProfile.id = 'userProfile';
+    userProfile.classList.add('hidden');
+    document.body.appendChild(userProfile);
+
+    await initAuth();
+
+    expect(localStorage.getItem('skillsync_demo_session')).toBeTruthy();
+    expect(document.getElementById('auth-section').classList.contains('hidden')).toBe(true);
+    expect(document.getElementById('workspace-section').classList.contains('hidden')).toBe(false);
   });
 });
