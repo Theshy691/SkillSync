@@ -1,6 +1,6 @@
 # SkillSync - Dockerfile
 # Production-ready PHP 8.2 Apache Environment
-FROM php:8.2-apache
+FROM php:8.5-apache
 
 # Set working directory
 WORKDIR /var/www/html
