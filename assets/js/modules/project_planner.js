@@ -79,7 +79,8 @@
     for (const source of description.split(/\r?\n/)) {
       const line = source.trim();
       if (!line) continue;
-      const header = line.match(/^(?:(.{1,65}):\s*(.*)|((?:minimum |preferred )?qualifications|(?:technical )?requirements|responsibilities|preferred skills|nice to have|what you.ll do))$/i);
+      const possibleHeader = line.match(/^(?:(.{1,65}):\s*(.*)|((?:minimum |preferred )?qualifications|(?:technical )?requirements|responsibilities|preferred skills|nice to have|what you.ll do))$/i);
+      const header = possibleHeader && !extractSkills(possibleHeader[1] || possibleHeader[3]).length ? possibleHeader : null;
       if (header) heading = priorityFor(header[1] || header[3]);
       const body = header ? header[2] || '' : line;
       const clauses = body.split(/(?<=[.!?;])\s+/);

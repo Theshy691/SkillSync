@@ -728,3 +728,104 @@ textarea, input {
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
 }
+
+.project-planner {
+  padding: 14px 18px;
+  border: 1px solid var(--ws-border);
+  border-radius: 12px;
+  background: var(--paper-2);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.project-planner summary {
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 44px;
+  align-content: center;
+}
+
+.project-planner p,
+.project-planner blockquote {
+  max-width: 72ch;
+  color: var(--ink-2);
+}
+
+.project-planner form,
+#projectPlannerResult:not(:empty) {
+  display: grid;
+  gap: 12px;
+  padding-block: 12px;
+}
+
+.project-planner fieldset,
+.project-planner legend {
+  min-width: 0;
+}
+
+.project-planner legend,
+.project-planner h3 {
+  font-weight: 700;
+}
+
+.project-planner-role {
+  padding-block: 8px;
+  border-bottom: 1px solid var(--ws-border);
+}
+
+.project-planner-role label,
+.project-planner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.project-planner-role input[type="checkbox"] {
+  accent-color: var(--sage);
+}
+
+.project-planner .console-input {
+  padding: 8px;
+  min-height: 44px;
+}
+
+.project-planner input[type="number"] {
+  width: 5rem;
+}
+
+.project-planner textarea {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.project-planner button {
+  justify-self: start;
+  min-height: 44px;
+}
+
+.project-planner button:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+.project-planner ol,
+.project-planner ul {
+  padding-inline-start: 1.4rem;
+}
+
+.project-planner ol {
+  list-style: decimal;
+}
+
+.project-planner li + li {
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .project-planner .console-input {
+    font-size: 16px;
+  }
+}

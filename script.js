@@ -2386,6 +2386,11 @@ function getAllVaultSkills() {
       }
     });
   }
+  for (const doc of vaultDocumentsCache) {
+    if (doc.id?.startsWith('planner-project-')) {
+      doc.extracted_skills.forEach(skill => all.add(skill.toLowerCase()));
+    }
+  }
   return Array.from(all);
 }
 
@@ -3116,7 +3121,7 @@ function renderVaultUI() {
                 ${escapeHtml(doc.doc_name)}
               </h5>
             </div>
-            <button type="button" data-doc-id="${doc.id}" class="btn-delete-vault-doc p-1 shrink-0 text-rose-500 hover:bg-rose-500/10 rounded-lg transition" title="Delete document" aria-label="Delete ${escapeHtml(doc.doc_name)}">
+            <button type="button" data-doc-id="${escapeHtml(doc.id)}" class="btn-delete-vault-doc p-1 shrink-0 text-rose-500 hover:bg-rose-500/10 rounded-lg transition" title="Delete document" aria-label="Delete ${escapeHtml(doc.doc_name)}">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
           </div>
@@ -3327,6 +3332,14 @@ function addDocumentToVault(name, type, text) {
 }
 
 function deleteVaultDocument(docId) {
+  if (docId.startsWith('planner-project-') && typeof SkillSyncProjectPlannerUI !== 'undefined') {
+    const records = SkillSyncProjectPlannerUI.readEvidence().filter(record => record.id !== docId);
+    if (!SkillSyncProjectPlannerUI.writeEvidence(records)) {
+      showToast('The project could not be removed. Try again.', 'error');
+      return;
+    }
+    refreshProjectPlanner?.(true);
+  }
   vaultDocumentsCache = vaultDocumentsCache.filter(d => d.id !== docId);
   renderVaultUI();
   recomputeAndRenderJobCards();
@@ -5000,7 +5013,10 @@ function loadPipelineFromStorage() {
 function savePipelineToStorage() {
   try {
     localStorage.setItem('skillsync_pipeline_jobs', JSON.stringify(pipelineJobs));
-  } catch (_) {}
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function addJobToPipeline(job, initialStatus = 'saved') {
@@ -5059,7 +5075,53 @@ function deletePipelineJob(jobId) {
   showToast('Removed role from pipeline.', 'success');
 }
 
+let refreshProjectPlanner;
+
+function initProjectPlanner() {
+  const panel = document.getElementById('projectPlanner');
+  if (!panel || typeof SkillSyncProjectPlannerUI === 'undefined') return;
+  const refreshEvidence = () => {
+    vaultDocumentsCache = [
+      ...SkillSyncProjectPlannerUI.readEvidence(),
+      ...vaultDocumentsCache.filter(doc => !doc.id.startsWith('planner-project-'))
+    ];
+    renderVaultUI();
+    recomputeAndRenderJobCards();
+  };
+  refreshEvidence();
+
+  refreshProjectPlanner = SkillSyncProjectPlannerUI.mount(panel, {
+    getJobs: () => pipelineJobs.filter(job => !String(job.id).startsWith('sample-pipe-')),
+    getSkills: () => SkillSyncProjectPlanner.extractSkills([
+      document.getElementById('resumeText')?.value || '',
+      ...vaultDocumentsCache.filter(doc => !['doc-vault-1', 'doc-vault-2'].includes(doc.id))
+        .flatMap(doc => doc.extracted_skills)
+    ].join(', ')),
+    saveDescription: (id, description) => {
+      const job = pipelineJobs.find(entry => entry.id === id);
+      if (!job) return false;
+      const previous = job.description;
+      job.description = description;
+      if (savePipelineToStorage()) return true;
+      job.description = previous;
+      return false;
+    },
+    refreshEvidence,
+    openRole: (role, evidence) => {
+      const resume = document.getElementById('resumeText');
+      const project = `Portfolio project: ${evidence.doc_name}\n${evidence.content_snippet}`;
+      if (resume && !resume.value.includes(project)) {
+        replaceWorkspaceText('resumeText', [resume.value.trim(), project].filter(Boolean).join('\n\n'));
+      }
+      replaceWorkspaceText('jobText', role.description);
+      switchWorkspaceTab('ats');
+      document.getElementById('jobText')?.focus();
+    }
+  });
+}
+
 function renderPipeline() {
+  refreshProjectPlanner?.();
   const colSaved = document.getElementById('colListSaved');
   const colApplied = document.getElementById('colListApplied');
   const colInterview = document.getElementById('colListInterviewing');
@@ -5221,6 +5283,7 @@ function renderPipeline() {
 
 function initPipeline() {
   loadPipelineFromStorage();
+  initProjectPlanner();
 
   const tabPipeline = document.getElementById('tabPipeline');
   if (tabPipeline) {
@@ -5950,6 +6013,8 @@ function compileSpeedrunKit(targetJobInfo) {
     };
   }
 
+  currentSpeedrunKit.description = jobInfo.description;
+
   // Update target label
   const targetLabel = document.getElementById('speedrunTargetLabel');
   if (targetLabel) targetLabel.textContent = `${jobInfo.title} @ ${jobInfo.company}`;
@@ -6216,7 +6281,7 @@ function initSpeedrunKit() {
       const targetJob = currentSpeedrunKit ? {
         title: currentSpeedrunKit.role,
         company_name: currentSpeedrunKit.company,
-        description: document.getElementById('jobText')?.value,
+        description: currentSpeedrunKit.description,
         salary: (currentSpeedrunKit.pipeline_record && currentSpeedrunKit.pipeline_record.salary) || 'Competitive',
         score: 85
       } : extractTargetJobFromInputs();

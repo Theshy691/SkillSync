@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="assets/css/motion.css?v=5.1.1">
-  <link rel="stylesheet" href="assets/css/workspace.css?v=5.1.3">
+  <link rel="stylesheet" href="assets/css/workspace.css?v=5.1.4">
 
   <link id="workspaceUtilities" rel="stylesheet" href="assets/css/utilities.css?v=5.1.1">
 
@@ -1012,7 +1012,28 @@
 
           </div></section>
 
-    <section id="pipeline-view" class="hidden space-y-6"><div class="section-toolbar application-toolbar"><button type="button" id="addPipelineJobBtn" class="ss-button">Add application</button></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <section id="pipeline-view" class="hidden space-y-6">
+      <div class="section-toolbar application-toolbar">
+        <button type="button" id="addPipelineJobBtn" class="ss-button">Add application</button>
+      </div>
+      <details id="projectPlanner" class="project-planner">
+        <summary>Compare saved jobs</summary>
+        <form class="project-planner-form">
+          <p>Find shared requirements and a project you can finish within your time budget.</p>
+          <fieldset>
+            <legend>Choose at least two roles</legend>
+            <div id="projectPlannerRoles"></div>
+          </fieldset>
+          <div class="project-planner-actions">
+            <label for="projectPlannerBudget">Available hours</label>
+            <input type="number" id="projectPlannerBudget" class="console-input" min="1" max="80" value="6" required>
+            <button type="submit" class="ss-button">Find a project</button>
+          </div>
+        </form>
+        <p id="projectPlannerStatus" role="status"></p>
+        <section id="projectPlannerResult" aria-label="Saved job comparison" tabindex="-1"></section>
+      </details>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
         <div class="kanban-lane space-y-3">
           <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
@@ -1086,7 +1107,9 @@
 <script src="assets/js/modules/typewriter.js?v=5.1.1"></script>
 <script src="assets/js/modules/authenticity.js?v=5.1.1"></script>
 
+<script src="assets/js/modules/project_planner.js?v=5.1.4"></script>
+<script src="assets/js/modules/project_planner_ui.js?v=5.1.4"></script>
 <script src="config.js"></script>
-<script src="script.js?v=5.1.3"></script>
+<script src="script.js?v=5.1.4"></script>
 
 </body></html>
