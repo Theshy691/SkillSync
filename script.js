@@ -1162,7 +1162,7 @@ function loadResumeVersionsFromStorage() {
     const raw = localStorage.getItem('skillsync_resume_versions');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         resumeVersions = parsed;
       }
     }
@@ -2872,6 +2872,7 @@ function recomputeAndRenderJobCards() {
           url: job.url || '#',
           score: comp ? comp.score : 70,
           tags: job.tags || [],
+          description: cleanJobDescription(job.description),
           status: 'saved',
           created_at: new Date().toISOString().split('T')[0]
         });
@@ -5019,6 +5020,7 @@ function addJobToPipeline(job, initialStatus = 'saved') {
     salary: job.salary || 'Competitive',
     url: job.url || '#',
     score: job.score || 75,
+    description: typeof job.description === 'string' ? job.description.trim().slice(0, 30000) : '',
     status: initialStatus,
     created_at: new Date().toISOString().split('T')[0]
   };
@@ -5231,9 +5233,18 @@ function initPipeline() {
   const cancelBtn = document.getElementById('cancelAddPipelineBtn');
   const form = document.getElementById('addPipelineForm');
 
+  const useDescriptionBtn = document.getElementById('useComparisonJobDescriptionBtn');
+  const descriptionInput = document.getElementById('manualJobDescription');
   if (addBtn && addModal) {
-    addBtn.addEventListener('click', () => addModal.classList.remove('hidden'));
+    addBtn.addEventListener('click', () => {
+      if (useDescriptionBtn) useDescriptionBtn.disabled = !document.getElementById('jobText')?.value.trim();
+      addModal.classList.remove('hidden');
+    });
   }
+
+  useDescriptionBtn?.addEventListener('click', () => {
+    if (descriptionInput) descriptionInput.value = (document.getElementById('jobText')?.value || '').slice(0, 30000);
+  });
 
   const closeAddModal = () => addModal?.classList.add('hidden');
   if (closeBtn) closeBtn.addEventListener('click', closeAddModal);
@@ -5264,6 +5275,7 @@ function initPipeline() {
         location,
         salary,
         url,
+        description: descriptionInput?.value,
         score: 80,
         status,
         created_at: new Date().toISOString().split('T')[0]
@@ -6204,6 +6216,7 @@ function initSpeedrunKit() {
       const targetJob = currentSpeedrunKit ? {
         title: currentSpeedrunKit.role,
         company_name: currentSpeedrunKit.company,
+        description: document.getElementById('jobText')?.value,
         salary: (currentSpeedrunKit.pipeline_record && currentSpeedrunKit.pipeline_record.salary) || 'Competitive',
         score: 85
       } : extractTargetJobFromInputs();

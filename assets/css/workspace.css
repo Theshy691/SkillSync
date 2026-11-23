@@ -723,3 +723,8 @@ textarea, input {
   caret-color: var(--sage);
 }
 
+
+.application-form-card {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
