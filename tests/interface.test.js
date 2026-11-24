@@ -25,7 +25,7 @@ test('repeated page initializers do not attach multiple theme handlers', () => {
     expect(localStorage.getItem('skillsync_theme')).toBe('dark');
     expect(document.querySelector('[data-theme-toggle]').getAttribute('aria-label')).toBe('Switch to light mode');
     expect(document.querySelector('[data-theme-label]').textContent).toBe('Dark mode');
-    expect(document.querySelector('meta[name="theme-color"]').content).toBe('#111b18');
+    expect(document.querySelector('meta[name="theme-color"]').content).toBe('#0e0e10');
   } finally { dom.window.close(); }
 });
 

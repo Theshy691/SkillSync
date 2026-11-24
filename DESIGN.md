@@ -9,7 +9,7 @@ The interface centers on the candidate’s documents: resume, target role, compa
 
 ## Color
 
-`assets/css/interface.css` owns the current shared palette. Light mode uses cool paper `#f5f7f6`, white surfaces `#ffffff`, primary ink `#172a25`, secondary ink `#52645b`, forest `#255e48`, and borders `#dce5df`. Dark mode uses paper `#111b18`, surfaces `#17241e`, ink `#eff5f1`, secondary ink `#b0c3b7`, sage `#9bc9ad`, and borders `#30443a`.
+`assets/css/interface.css` owns the current shared palette. Light mode uses cool paper `#f5f7f6`, white surfaces `#ffffff`, primary ink `#172a25`, secondary ink `#52645b`, forest `#255e48`, and borders `#dce5df`. Dark mode uses near-black paper `#0e0e10`, charcoal surfaces `#151517`, ink `#f2f2f4`, secondary ink `#b7b7c0`, sage `#9bc9ad`, and borders `#303036`.
 
 Use amber for requirements to review, rose for errors, and sage for supported matches and primary actions. Combine color with readable text. Avoid decorative background washes and automatic score cycling.
 

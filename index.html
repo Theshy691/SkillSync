@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en" data-theme="light"><head>
   <meta charset="UTF-8">
-  <script src="assets/js/modules/interface.js?v=5.1.1"></script>
+  <script src="assets/js/modules/interface.js?v=5.1.5"></script>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f7f6">
@@ -9,7 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/interface.css?v=5.1.1">
+  <link rel="stylesheet" href="assets/css/interface.css?v=5.1.5">
+  <link rel="stylesheet" href="assets/css/landing_motion.css?v=5.1.6">
+  <script defer src="assets/js/landing_motion.js?v=5.1.6"></script>
 </head>
 <body class="skillsync-site marketing-site">
   <a class="skip-link" href="#main-content">Skip to content</a>
@@ -30,8 +32,13 @@
         <p class="action-note">Explore the sample without an account. Your own AI comparisons require sign in.</p>
 
       </div>
-      <div class="comparison-preview focus-board" role="region" aria-labelledby="preview-title">
+      <div class="comparison-preview focus-board" data-landing-motion="" role="region" aria-labelledby="preview-title">
         <div class="preview-topline"><span><span class="status-dot" aria-hidden="true"></span>Sample comparison</span><span class="preview-file">resume.pdf</span></div>
+        <div class="preview-role-picker" id="sampleRolePicker" role="group" aria-label="Sample target role" hidden>
+          <button type="button" data-sample-role="fullStack" aria-pressed="true">Full-stack</button>
+          <button type="button" data-sample-role="backend" aria-pressed="false">Backend</button>
+        </div>
+        <p class="sr-only" id="sampleRoleStatus" role="status"></p>
         <div class="preview-role"><p>Comparing your experience with</p><h2 id="preview-title"><span id="heroRoleVal">Full-Stack Engineer</span></h2></div>
         <div class="preview-summary"><div><span class="preview-score" id="heroScoreVal">78%</span><p>Sample keyword match</p></div><div class="preview-summary-copy"><strong id="heroSummaryTitle">What matches. What to work on.</strong><p id="heroPreviewCopy">Review the role’s requirements before you tailor your resume.</p></div></div>
         <div class="requirement-list"><div><span aria-hidden="true">✓</span><span id="heroSkillOne">React &amp; TypeScript</span><span class="requirement-status">In your resume</span></div><div><span aria-hidden="true">✓</span><span id="heroSkillTwo">API development</span><span class="requirement-status">In your resume</span></div><div class="requirement-gap"><span aria-hidden="true">＋</span><span id="heroGapVal">Kubernetes</span><span class="requirement-status">Worth reviewing</span></div></div>
@@ -39,7 +46,7 @@
       </div>
     </section>
 
-    <section class="ss-workflow" id="setup" aria-labelledby="workflow-title"><div class="page-width workflow-layout"><div class="section-intro"><h2 id="workflow-title">From two documents<br>to a clearer next step.</h2><p>No prompt to write. Just your experience and the opportunity in front of you.</p></div><ol class="workflow-steps"><li><span aria-hidden="true">1</span><div><h3>Add your resume</h3><p>Paste your experience or upload a PDF or image. Check the extracted text before comparing.</p></div></li><li><span aria-hidden="true">2</span><div><h3>Add the target role</h3><p>Paste the job description or import a supported job URL. Include qualifications and responsibilities.</p></div></li><li><span aria-hidden="true">3</span><div><h3>Review and take action</h3><p>Read the match estimate, review the gaps, and decide what to clarify, learn, or tailor.</p></div></li></ol></div></section>
+    <section class="ss-workflow" id="setup" aria-labelledby="workflow-title"><div class="page-width workflow-layout"><div class="section-intro"><h2 id="workflow-title">From two documents<br>to a clearer next step.</h2><p>No prompt to write. Just your experience and the opportunity in front of you.</p></div><ol class="workflow-steps" data-landing-motion=""><li><span aria-hidden="true">1</span><div><h3>Add your resume</h3><p>Paste your experience or upload a PDF or image. Check the extracted text before comparing.</p></div></li><li><span aria-hidden="true">2</span><div><h3>Add the target role</h3><p>Paste the job description or import a supported job URL. Include qualifications and responsibilities.</p></div></li><li><span aria-hidden="true">3</span><div><h3>Review and take action</h3><p>Read the match estimate, review the gaps, and decide what to clarify, learn, or tailor.</p></div></li></ol></div></section>
     <section class="ss-questions page-width" id="questions" aria-labelledby="questions-title"><div class="section-intro"><h2 id="questions-title">A little clarity<br>before you start.</h2></div><div class="question-list"><details><summary>Is this the score an employer will see?</summary><p>No. SkillSync provides an estimate against the job description you supply. Employers use different screening methods. The score is guidance for your application, not a hiring prediction.</p></details><details><summary>Can I try it without signing up?</summary><p>Yes. The sample workspace runs a local keyword comparison and labels its results as a demo. Sign in to use the AI comparison and save your scan history.</p></details><details><summary>What happens to my resume?</summary><p>The text-only demo compares documents in your browser. In signed-in mode, document text is sent to the analysis service, and a resume snippet and comparison are saved to your account history. Image extraction may use the server. Remove sensitive details you do not want to submit.</p></details></div></section>
 
   </main>

@@ -22,7 +22,7 @@
       if (label) label.textContent = dark ? 'Dark mode' : 'Light mode';
     });
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = dark ? '#111b18' : '#f5f7f6';
+    if (meta) meta.content = dark ? '#0e0e10' : '#f5f7f6';
     if (persist) {
       try { localStorage.setItem('skillsync_theme', value); localStorage.setItem('ff-theme', value); } catch (_) {}
     }
