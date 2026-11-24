@@ -55,3 +55,75 @@ describe('Landing Page Truthfulness & Zero Fake Reviews Integrity', () => {
   });
 });
 
+
+describe('Landing page motion', () => {
+  const source = fs.readFileSync(path.resolve(__dirname, '../assets/js/landing_motion.js'), 'utf8');
+  let originalMatchMedia;
+  let originalObserver;
+
+  beforeEach(() => {
+    originalMatchMedia = window.matchMedia;
+    originalObserver = window.IntersectionObserver;
+    document.body.innerHTML = '<div data-landing-motion></div><ol data-landing-motion></ol>';
+  });
+
+  afterEach(() => {
+    window.matchMedia = originalMatchMedia;
+    window.IntersectionObserver = originalObserver;
+    document.body.replaceChildren();
+  });
+
+  test('plays each sequence once when it enters the viewport', () => {
+    const observe = jest.fn();
+    const unobserve = jest.fn();
+    let onIntersection;
+    window.matchMedia = () => ({ matches: true });
+    window.IntersectionObserver = jest.fn(callback => {
+      onIntersection = callback;
+      return { observe, unobserve };
+    });
+    window.eval(source);
+
+    const [report, steps] = document.querySelectorAll('[data-landing-motion]');
+    expect(observe.mock.calls).toEqual([[report], [steps]]);
+    onIntersection([{ target: report, isIntersecting: true }, { target: steps, isIntersecting: false }]);
+    expect(report.classList.contains('is-in-view')).toBe(true);
+    expect(steps.classList.contains('is-in-view')).toBe(false);
+    expect(unobserve.mock.calls).toEqual([[report]]);
+  });
+
+  test('keeps content in its default state for reduced motion', () => {
+    window.matchMedia = () => ({ matches: false });
+    window.IntersectionObserver = jest.fn();
+    window.eval(source);
+
+    expect(window.IntersectionObserver).not.toHaveBeenCalled();
+    expect(document.querySelector('.is-in-view')).toBeNull();
+  });
+});
+
+test('the sample role picker updates the report even with reduced motion', () => {
+  const originalMatchMedia = window.matchMedia;
+  const html = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf8');
+  const source = fs.readFileSync(path.resolve(__dirname, '../assets/js/landing_motion.js'), 'utf8');
+  document.body.innerHTML = new DOMParser().parseFromString(html, 'text/html').body.innerHTML;
+  window.matchMedia = () => ({ matches: false });
+  try {
+    window.eval(source);
+    const picker = document.getElementById('sampleRolePicker');
+    const [fullStack, backend] = picker.querySelectorAll('button');
+    expect(picker.hidden).toBe(false);
+    backend.click();
+    expect(backend.getAttribute('aria-pressed')).toBe('true');
+    expect(fullStack.getAttribute('aria-pressed')).toBe('false');
+    expect(document.getElementById('heroRoleVal').textContent).toBe('Backend Engineer');
+    expect(document.getElementById('sampleRoleStatus').textContent).toContain('Terraform');
+    expect(document.querySelector('.comparison-preview').classList.contains('is-in-view')).toBe(false);
+    fullStack.click();
+    expect(document.getElementById('heroRoleVal').textContent).toBe('Full-Stack Engineer');
+    expect(document.getElementById('heroGapVal').textContent).toBe('Kubernetes');
+  } finally {
+    window.matchMedia = originalMatchMedia;
+    document.body.replaceChildren();
+  }
+});
